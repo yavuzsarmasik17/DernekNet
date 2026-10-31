@@ -1,0 +1,167 @@
+﻿@model DernekNet.Models.Etkinlik
+
+@{
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+    ViewData["Title"] = "Etkinlik Düzenle";
+}
+
+<h1 class="fw-bold mb-2">Etkinlik Düzenle</h1>
+
+<p class="text-muted mb-4">
+    Etkinlik bilgilerini, fotoğraflarını ve videolarını yönetin.
+</p>
+
+<div class="dn-card">
+    <form asp-area="DernekAdmin"
+          asp-controller="Etkinlikler"
+          asp-action="Edit"
+          asp-route-id="@Model.Id"
+          method="post"
+          enctype="multipart/form-data">
+
+        @Html.AntiForgeryToken()
+
+        <input asp-for="Id" type="hidden" />
+
+        <div asp-validation-summary="All"
+             class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label asp-for="EtkinlikAdi" class="form-label">
+                Etkinlik Adı *
+            </label>
+
+            <input asp-for="EtkinlikAdi"
+                   class="form-control"
+                   maxlength="200"
+                   required />
+
+            <span asp-validation-for="EtkinlikAdi"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6 mb-3">
+                <label asp-for="EtkinlikTarihi"
+                       class="form-label">
+                    Tarih ve Saat *
+                </label>
+
+                <input asp-for="EtkinlikTarihi"
+                       type="datetime-local"
+                       asp-format="{0:yyyy-MM-ddTHH:mm}"
+                       class="form-control"
+                       required />
+
+                <span asp-validation-for="EtkinlikTarihi"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="Konum" class="form-label">
+                    Etkinlik Yeri
+                </label>
+
+                <input asp-for="Konum"
+                       class="form-control" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Aciklama" class="form-label">
+                Açıklama
+            </label>
+
+            <textarea asp-for="Aciklama"
+                      class="form-control"
+                      rows="6"></textarea>
+        </div>
+
+        @if (Model.Medyalar != null && Model.Medyalar.Any())
+        {
+            <div class="mb-4">
+                <h5 class="fw-bold">
+                    Mevcut Fotoğraflar ve Videolar
+                </h5>
+
+                <div class="row g-3">
+                    @foreach (var medya in Model.Medyalar.OrderBy(x => x.Id))
+                    {
+                        <div class="col-6 col-md-4 col-lg-3">
+                            <div class="border rounded-3 p-2">
+
+                                @if (medya.MedyaTipi == "Video")
+                                {
+                                    <video controls
+                                           preload="metadata"
+                                           style="width:100%;height:150px;">
+                                        <source src="@medya.DosyaYolu" />
+                                    </video>
+                                }
+                                else
+                                {
+                                    <img src="@medya.DosyaYolu"
+                                         alt="Etkinlik fotoğrafı"
+                                         style="width:100%;height:150px;object-fit:contain;" />
+                                }
+
+                                <button type="submit"
+                                        formaction="@Url.Action("MedyaSil", "Etkinlikler", new { area = "DernekAdmin", id = medya.Id })"
+                                        formmethod="post"
+                                        formnovalidate
+                                        class="btn btn-outline-danger btn-sm w-100 mt-2"
+                                        onclick="return confirm('Bu dosyayı silmek istiyor musunuz?');">
+                                    <i class="bi bi-trash me-1"></i>
+                                    Sil
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <div class="border rounded-4 p-4 mb-4 bg-light">
+            <h5 class="fw-bold mb-2">
+                <i class="bi bi-cloud-arrow-up me-2"></i>
+                Yeni Fotoğraf veya Video Ekle
+            </h5>
+
+            <input type="file"
+                   name="medyaDosyalari"
+                   class="form-control"
+                   accept=".jpg,.jpeg,.png,.webp,.mp4,.webm"
+                   multiple />
+
+            <div class="form-text">
+                En fazla 10 dosya.
+                Fotoğraf başına 5 MB, video başına 50 MB.
+            </div>
+        </div>
+
+        <div class="form-check mb-4">
+            <input asp-for="AktifMi"
+                   class="form-check-input" />
+
+            <label asp-for="AktifMi"
+                   class="form-check-label">
+                Etkinlik Yayında
+            </label>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit"
+                    class="btn btn-primary px-4">
+                <i class="bi bi-check-circle me-2"></i>
+                Değişiklikleri Kaydet
+            </button>
+
+            <a asp-area="DernekAdmin"
+               asp-controller="Etkinlikler"
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+                İptal
+            </a>
+        </div>
+    </form>
+</div>

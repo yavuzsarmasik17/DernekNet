@@ -1,0 +1,448 @@
+﻿@model IEnumerable<DernekNet.Models.AfadEkip>
+
+@{
+    ViewData["Title"] = "AFAD Ekip Yönetimi";
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+
+    var ekipler = Model.ToList();
+
+    var aktifEkip = ekipler.Count(x => x.AktifMi);
+
+    var toplamUye = ekipler
+        .SelectMany(x => x.Uyeler)
+        .Count(x => x.AktifMi);
+}
+
+<style>
+    /* AFAD EKİP YÖNETİMİ - PREMIUM DARK */
+
+    .afad-page {
+        --afad-panel: #182535;
+        --afad-panel-alt: #202f41;
+        --afad-border: #34465a;
+        --afad-text: #edf3fa;
+        --afad-muted: #a9bdd1;
+        --afad-accent: #4cc6b1;
+        color: var(--afad-text);
+    }
+
+        .afad-page .afad-title {
+            color: var(--afad-text) !important;
+            font-size: 27px;
+            font-weight: 750;
+            letter-spacing: -.5px;
+        }
+
+        .afad-page .afad-description {
+            color: var(--afad-muted) !important;
+            font-size: 14px;
+        }
+
+        /* İSTATİSTİK KARTLARI */
+
+        .afad-page .afad-stat {
+            background: var(--afad-panel) !important;
+            border: 1px solid var(--afad-border);
+            border-radius: 16px;
+            padding: 24px;
+            height: 100%;
+            box-shadow: 0 10px 28px rgba(0,0,0,.12);
+            transition: transform .2s, border-color .2s;
+        }
+
+            .afad-page .afad-stat:hover {
+                transform: translateY(-3px);
+                border-color: var(--afad-accent);
+            }
+
+        .afad-page .afad-stat-label {
+            color: var(--afad-muted) !important;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .afad-page .afad-stat-number {
+            color: var(--afad-accent) !important;
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        /* ANA PANELLER */
+
+        .afad-page .afad-card {
+            background: var(--afad-panel) !important;
+            border: 1px solid var(--afad-border) !important;
+            border-radius: 18px;
+            padding: 26px;
+            box-shadow: 0 12px 30px rgba(0,0,0,.12);
+        }
+
+        .afad-page .afad-section-title {
+            color: var(--afad-text) !important;
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 22px;
+        }
+
+        /* FORM ALANLARI */
+
+        .afad-page .form-label {
+            color: #cbd9e8 !important;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 9px;
+        }
+
+        .afad-page .form-control {
+            background: #101b29 !important;
+            color: #edf3fa !important;
+            border: 1px solid #40536a !important;
+            border-radius: 10px;
+            padding: 12px 14px;
+            min-height: 46px;
+        }
+
+            .afad-page .form-control::placeholder {
+                color: #91a5bd !important;
+                opacity: 1;
+            }
+
+            .afad-page .form-control:focus {
+                background: #101b29 !important;
+                color: #ffffff !important;
+                border-color: var(--afad-accent) !important;
+                box-shadow: 0 0 0 3px rgba(76,198,177,.15);
+            }
+
+        /* BUTONLAR */
+
+        .afad-page .afad-create-btn {
+            background: #b9955f !important;
+            color: #111923 !important;
+            border: 1px solid #b9955f !important;
+            border-radius: 10px;
+            min-height: 46px;
+            font-weight: 750;
+            padding: 10px 18px;
+            transition: .2s;
+        }
+
+            .afad-page .afad-create-btn:hover {
+                background: #d1ad75 !important;
+                border-color: #d1ad75 !important;
+                color: #111923 !important;
+            }
+
+        /* EKİP LİSTESİ */
+
+        .afad-page .afad-ekip {
+            background: var(--afad-panel-alt) !important;
+            border: 1px solid var(--afad-border) !important;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 14px;
+            transition: background .2s, border-color .2s;
+        }
+
+            .afad-page .afad-ekip:hover {
+                background: #263b4d !important;
+                border-color: var(--afad-accent) !important;
+            }
+
+        .afad-page .afad-ekip-adi {
+            color: #f1f6fc !important;
+            font-size: 19px;
+            font-weight: 700;
+        }
+
+        .afad-page .afad-ekip-aciklama {
+            color: var(--afad-muted) !important;
+            font-size: 14px;
+        }
+
+        .afad-page .afad-ekip-bilgi {
+            color: #dce7f2 !important;
+            font-size: 13px;
+        }
+
+            .afad-page .afad-ekip-bilgi strong {
+                color: #edf3fa !important;
+            }
+
+        .afad-page .afad-ekip-sayi {
+            color: var(--afad-muted) !important;
+            font-size: 13px;
+        }
+
+        .afad-page .afad-manage-btn {
+            background: transparent !important;
+            border: 1px solid var(--afad-accent) !important;
+            color: var(--afad-accent) !important;
+            border-radius: 9px;
+            padding: 8px 14px;
+            font-weight: 650;
+            text-decoration: none;
+        }
+
+            .afad-page .afad-manage-btn:hover {
+                background: var(--afad-accent) !important;
+                color: #0b1721 !important;
+            }
+
+        .afad-page .afad-empty {
+            color: var(--afad-muted) !important;
+            padding: 35px 15px;
+            text-align: center;
+        }
+
+        .afad-page .afad-badge {
+            padding: 7px 11px;
+            border-radius: 7px;
+            font-weight: 700;
+        }
+
+    @@media (max-width: 767px) {
+        .afad-page .afad-card {
+            padding: 18px;
+        }
+
+        .afad-page .afad-ekip {
+            padding: 17px;
+        }
+
+        .afad-page .afad-title {
+            font-size: 23px;
+        }
+    }
+</style>
+
+<div class="afad-page">
+
+    <!-- SAYFA BAŞLIĞI -->
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <div>
+            <h2 class="afad-title mb-2">
+                <i class="bi bi-people-fill me-2"
+                   style="color:#4cc6b1;"></i>
+                AFAD Ekip Yönetimi
+            </h2>
+
+            <div class="afad-description">
+                Arama kurtarma, ilk yardım ve lojistik ekiplerini yönetin.
+            </div>
+        </div>
+    </div>
+
+    <!-- BİLDİRİMLER -->
+    @if (TempData["EkipMesaj"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["EkipMesaj"]
+        </div>
+    }
+
+    @if (TempData["EkipHata"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["EkipHata"]
+        </div>
+    }
+
+    <!-- İSTATİSTİKLER -->
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+            <div class="afad-stat">
+                <div class="afad-stat-label">
+                    <i class="bi bi-people me-2"></i>
+                    Toplam Ekip
+                </div>
+
+                <div class="afad-stat-number">
+                    @ekipler.Count
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="afad-stat">
+                <div class="afad-stat-label">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Aktif Ekip
+                </div>
+
+                <div class="afad-stat-number">
+                    @aktifEkip
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="afad-stat">
+                <div class="afad-stat-label">
+                    <i class="bi bi-person-check me-2"></i>
+                    Aktif Ekip Üyeliği
+                </div>
+
+                <div class="afad-stat-number">
+                    @toplamUye
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- YENİ EKİP OLUŞTUR -->
+
+    <div class="afad-card mb-4">
+
+        <h5 class="afad-section-title">
+            <i class="bi bi-plus-circle me-2"
+               style="color:#4cc6b1;"></i>
+            Yeni Ekip Oluştur
+        </h5>
+
+        <form asp-area="DernekAdmin"
+              asp-controller="AfadEkipler"
+              asp-action="Olustur"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div class="row g-3">
+
+                <div class="col-md-5">
+                    <label class="form-label" for="ad">
+                        Ekip Adı
+                    </label>
+
+                    <input id="ad"
+                           name="ad"
+                           class="form-control"
+                           maxlength="150"
+                           placeholder="Örn: Arama Kurtarma Ekibi"
+                           required />
+                </div>
+
+                <div class="col-md-5">
+                    <label class="form-label" for="aciklama">
+                        Açıklama
+                    </label>
+
+                    <input id="aciklama"
+                           name="aciklama"
+                           class="form-control"
+                           maxlength="1000"
+                           placeholder="Ekibin görev alanı" />
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit"
+                            class="btn afad-create-btn w-100">
+                        <i class="bi bi-plus-lg me-1"></i>
+                        Ekip Oluştur
+                    </button>
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- EKİPLER -->
+
+    <div class="afad-card">
+
+        <h5 class="afad-section-title">
+            <i class="bi bi-collection me-2"
+               style="color:#4cc6b1;"></i>
+            Ekipler
+        </h5>
+
+        @foreach (var ekip in ekipler)
+        {
+            var aktifUyeler = ekip.Uyeler
+            .Where(x => x.AktifMi)
+            .ToList();
+
+            var lider = aktifUyeler
+            .FirstOrDefault(x => x.EkipLideriMi);
+
+            <div class="afad-ekip">
+
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+
+                    <div>
+                        <h5 class="afad-ekip-adi mb-2">
+                            @ekip.Ad
+                        </h5>
+
+                        @if (!string.IsNullOrWhiteSpace(ekip.Aciklama))
+                        {
+                            <p class="afad-ekip-aciklama mb-3">
+                                @ekip.Aciklama
+                            </p>
+                        }
+
+                        <div class="afad-ekip-bilgi mb-2">
+                            <strong>Ekip lideri:</strong>
+                            @(lider?.Gonullu.AdSoyad ?? "Henüz atanmadı")
+                        </div>
+
+                        <div class="afad-ekip-sayi">
+                            <i class="bi bi-person-check me-1"></i>
+                            Aktif üye: @aktifUyeler.Count
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+
+                        @if (ekip.AktifMi)
+                        {
+                            <span class="badge bg-success afad-badge">
+                                Aktif
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary afad-badge">
+                                Pasif
+                            </span>
+                        }
+
+                        <a asp-area="DernekAdmin"
+                           asp-controller="AfadEkipler"
+                           asp-action="Detay"
+                           asp-route-id="@ekip.Id"
+                           class="btn afad-manage-btn btn-sm">
+                            <i class="bi bi-gear me-1"></i>
+                            Ekibi Yönet
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+        @if (!ekipler.Any())
+        {
+            <div class="afad-empty">
+                <i class="bi bi-people"
+                   style="font-size:36px;color:#4cc6b1;"></i>
+
+                <div class="mt-3">
+                    Henüz ekip oluşturulmamış.
+                </div>
+            </div>
+        }
+
+    </div>
+
+</div>

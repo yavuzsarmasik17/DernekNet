@@ -1,0 +1,263 @@
+﻿@model DernekNet.Models.AfadEkip
+@using DernekNet.Models
+
+@{
+    ViewData["Title"] = "AFAD Ekip Detayı";
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+
+    var gonulluler = ViewBag.Gonulluler as List<AfadGonullu>
+        ?? new List<AfadGonullu>();
+
+    var uyeler = Model.Uyeler
+        .OrderByDescending(x => x.AktifMi)
+        .ThenByDescending(x => x.EkipLideriMi)
+        .ThenBy(x => x.Gonullu.AdSoyad)
+        .ToList();
+
+    var aktifUyeler = uyeler.Count(x => x.AktifMi);
+}
+
+<style>
+    .ekip-panel {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+    }
+
+    .uye-kart {
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 18px;
+        margin-bottom: 12px;
+    }
+
+        .uye-kart.pasif {
+            background: #f8fafc;
+            opacity: .8;
+        }
+
+    .lider-etiket {
+        background: #fef3c7;
+        color: #92400e;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .uye-islemler {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+    <div>
+        <h2 class="h4 mb-1">@Model.Ad</h2>
+        <div class="text-muted">
+            @(Model.Aciklama ?? "AFAD Ekip Yönetimi")
+        </div>
+    </div>
+
+    <a asp-area="DernekAdmin"
+       asp-controller="AfadEkipler"
+       asp-action="Index"
+       class="btn btn-outline-secondary">
+        ← Ekip Listesine Dön
+    </a>
+</div>
+
+@if (TempData["EkipMesaj"] != null)
+{
+    <div class="alert alert-success">@TempData["EkipMesaj"]</div>
+}
+
+@if (TempData["EkipHata"] != null)
+{
+    <div class="alert alert-danger">@TempData["EkipHata"]</div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="ekip-panel mb-0">
+            <div class="text-muted">Toplam Üye</div>
+            <h2>@uyeler.Count</h2>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="ekip-panel mb-0">
+            <div class="text-muted">Aktif Üye</div>
+            <h2 class="text-success">@aktifUyeler</h2>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="ekip-panel mb-0">
+            <div class="text-muted">Ekip Durumu</div>
+            <h2>@(Model.AktifMi ? "Aktif" : "Pasif")</h2>
+        </div>
+    </div>
+</div>
+
+<div class="ekip-panel">
+    <h5 class="mb-3">Gönüllü Ekle</h5>
+
+    @if (!Model.AktifMi)
+    {
+        <div class="alert alert-warning">
+            Pasif ekibe gönüllü eklenemez.
+        </div>
+    }
+    else if (!gonulluler.Any())
+    {
+        <div class="alert alert-info">
+            Eklenebilecek yeni, onaylı ve aktif gönüllü bulunmuyor.
+        </div>
+    }
+    else
+    {
+        <form asp-area="DernekAdmin"
+              asp-controller="AfadEkipler"
+              asp-action="UyeEkle"
+              asp-route-id="@Model.Id"
+              method="post"
+              class="row g-3">
+
+            @Html.AntiForgeryToken()
+
+            <div class="col-md-9">
+                <label for="gonulluId" class="form-label">
+                    Gönüllü Seç
+                </label>
+
+                <select id="gonulluId"
+                        name="gonulluId"
+                        class="form-select"
+                        required>
+                    <option value="">Gönüllü seçiniz</option>
+
+                    @foreach (var g in gonulluler)
+                    {
+                        <option value="@g.Id">@g.AdSoyad</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    Ekibe Ekle
+                </button>
+            </div>
+        </form>
+    }
+</div>
+
+<div class="ekip-panel">
+    <h5 class="mb-3">Ekip Üyeleri</h5>
+
+    @foreach (var uye in uyeler)
+    {
+        <div class="uye-kart @(uye.AktifMi ? "" : "pasif")">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <strong>@uye.Gonullu.AdSoyad</strong>
+
+                    @if (uye.AktifMi && uye.EkipLideriMi)
+                    {
+                        <span class="lider-etiket ms-2">
+                            Ekip Lideri
+                        </span>
+                    }
+
+                    <div class="small text-muted mt-1">
+                        Katılım:
+                        @uye.KatilimTarihi.ToLocalTime().ToString("dd.MM.yyyy")
+                    </div>
+                </div>
+
+                @if (uye.AktifMi)
+                {
+                    <span class="badge bg-success">Aktif</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">Pasif</span>
+                }
+            </div>
+
+            <div class="uye-islemler">
+                @if (uye.AktifMi && Model.AktifMi)
+                {
+                    @if (!uye.EkipLideriMi)
+                    {
+                        <form asp-area="DernekAdmin"
+                              asp-controller="AfadEkipler"
+                              asp-action="LiderYap"
+                              asp-route-id="@Model.Id"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+                            <input type="hidden"
+                                   name="uyeId"
+                                   value="@uye.Id" />
+
+                            <button type="submit"
+                                    class="btn btn-sm btn-outline-warning">
+                                Lider Yap
+                            </button>
+                        </form>
+                    }
+
+                    <form asp-area="DernekAdmin"
+                          asp-controller="AfadEkipler"
+                          asp-action="UyePasifYap"
+                          asp-route-id="@Model.Id"
+                          method="post"
+                          onsubmit="return confirm('Bu üyeyi pasife almak istiyor musunuz?');">
+
+                        @Html.AntiForgeryToken()
+                        <input type="hidden"
+                               name="uyeId"
+                               value="@uye.Id" />
+
+                        <button type="submit"
+                                class="btn btn-sm btn-outline-danger">
+                            Pasife Al
+                        </button>
+                    </form>
+                }
+                else if (!uye.AktifMi && Model.AktifMi)
+                {
+                    <form asp-area="DernekAdmin"
+                          asp-controller="AfadEkipler"
+                          asp-action="UyeAktifYap"
+                          asp-route-id="@Model.Id"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+                        <input type="hidden"
+                               name="uyeId"
+                               value="@uye.Id" />
+
+                        <button type="submit"
+                                class="btn btn-sm btn-outline-success">
+                            Yeniden Aktif Et
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    }
+
+    @if (!uyeler.Any())
+    {
+        <p class="text-muted">
+            Bu ekibe henüz gönüllü eklenmemiş.
+        </p>
+    }
+</div>

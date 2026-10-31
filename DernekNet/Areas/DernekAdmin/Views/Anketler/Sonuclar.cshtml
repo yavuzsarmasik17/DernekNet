@@ -1,0 +1,277 @@
+﻿@model DernekNet.Models.Anket
+@using System.Collections.Generic
+@using System.Globalization
+@using System.Linq
+@{
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+    ViewData["Title"] = "Anket Sonuçları";
+    var oySayilari = ViewBag.OySayilari as Dictionary<int, int> ?? new Dictionary<int, int>();
+    var toplamOy = oySayilari.Values.Sum();
+    var secenekler = Model.Secenekler.OrderBy(x => x.SiraNo).ToList();
+    var simdi = DateTime.UtcNow;
+    var durum = !Model.AktifMi ? "Pasif" : Model.BaslangicTarihi > simdi ? "Planlandı" : Model.BitisTarihi <= simdi ? "Sona Erdi" : "Yayında";
+}
+<style>
+    .sonuc-page {
+        max-width: 1100px;
+        margin: 20px auto 55px
+    }
+
+    .sonuc-hero {
+        background: linear-gradient(125deg,#087f8c,#16a6a0);
+        color: white;
+        padding: 32px;
+        border-radius: 22px;
+        margin-bottom: 22px
+    }
+
+        .sonuc-hero h1 {
+            font-size: 27px;
+            font-weight: 800;
+            margin: 12px 0;
+            overflow-wrap: anywhere
+        }
+
+        .sonuc-hero p {
+            margin: 0;
+            opacity: .92;
+            white-space: pre-line
+        }
+
+    .sonuc-hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 18px;
+        font-size: 13px
+    }
+
+        .sonuc-hero-meta span {
+            background: rgba(255,255,255,.17);
+            border-radius: 9px;
+            padding: 7px 11px
+        }
+
+    .sonuc-grid {
+        display: grid;
+        grid-template-columns: repeat(3,minmax(0,1fr));
+        gap: 16px;
+        margin-bottom: 22px
+    }
+
+    .sonuc-stat, .sonuc-card {
+        background: white;
+        border: 1px solid #e3ecee;
+        border-radius: 18px;
+        box-shadow: 0 8px 25px rgba(10,55,65,.04)
+    }
+
+    .sonuc-stat {
+        padding: 23px
+    }
+
+        .sonuc-stat small {
+            display: block;
+            color: #667e8c;
+            margin-bottom: 9px
+        }
+
+        .sonuc-stat strong {
+            font-size: 31px;
+            color: #087f8c
+        }
+
+    .sonuc-card {
+        padding: 28px
+    }
+
+        .sonuc-card h2 {
+            font-size: 21px;
+            font-weight: 750;
+            margin: 0 0 26px
+        }
+
+    .sonuc-option {
+        margin-bottom: 25px
+    }
+
+        .sonuc-option:last-child {
+            margin-bottom: 0
+        }
+
+    .sonuc-option-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 9px;
+        font-weight: 650
+    }
+
+        .sonuc-option-head span:first-child {
+            overflow-wrap: anywhere
+        }
+
+    .sonuc-track {
+        height: 15px;
+        background: #e8f2f0;
+        border-radius: 30px;
+        overflow: hidden
+    }
+
+    .sonuc-fill {
+        height: 100%;
+        background: linear-gradient(90deg,#0d9488,#2dd4bf);
+        border-radius: 30px
+    }
+
+    .sonuc-option-count {
+        margin-top: 8px;
+        color: #64748b;
+        font-size: 13px
+    }
+
+    .sonuc-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 20px 0
+    }
+
+    .sonuc-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #cbdfe2;
+        color: #087f8c;
+        background: #f2faf9;
+        border-radius: 10px;
+        padding: 11px 18px;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer
+    }
+
+        .sonuc-btn:hover {
+            background: #dff4f1;
+            color: #066874
+        }
+
+        .sonuc-btn.primary {
+            background: #087f8c;
+            color: white;
+            border-color: #087f8c
+        }
+
+            .sonuc-btn.primary:hover {
+                background: #066874
+            }
+
+    .sonuc-back {
+        margin-top: 23px
+    }
+
+    @@media(max-width:700px) {
+        .sonuc-grid {
+            grid-template-columns: 1fr
+        }
+
+        .sonuc-hero, .sonuc-card {
+            padding: 22px
+        }
+    }
+
+    @@media print {
+        @@page {
+            size: A4;
+            margin: 15mm
+        }
+
+        body {
+            background: white !important;
+            color: #172b35 !important
+        }
+
+        .sonuc-page {
+            max-width: none;
+            margin: 0
+        }
+
+        .sonuc-actions, .sonuc-back, nav, aside, .sidebar, .dn-sidebar, .dn-topbar, header, footer {
+            display: none !important
+        }
+
+        .sonuc-hero {
+            background: #fff !important;
+            color: #172b35 !important;
+            border: 1px solid #d1d5db;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact
+        }
+
+        .sonuc-hero-meta span {
+            background: #edf2f4 !important;
+            color: #172b35 !important
+        }
+
+        .sonuc-stat, .sonuc-card {
+            box-shadow: none !important;
+            break-inside: avoid
+        }
+
+        .sonuc-option {
+            break-inside: avoid
+        }
+
+        .sonuc-fill {
+            background: #087f8c !important;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact
+        }
+    }
+</style>
+<div class="sonuc-page">
+    <div class="sonuc-hero">
+        <div>📊 ANKET SONUÇLARI</div>
+        <h1>@Model.Soru</h1>
+        @if (!string.IsNullOrWhiteSpace(Model.Aciklama))
+        {
+            <p>@Model.Aciklama</p>
+        }
+        <div class="sonuc-hero-meta">
+            <span>Durum: @durum</span>
+            <span>Başlangıç: @Model.BaslangicTarihi.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
+            <span>Bitiş: @Model.BitisTarihi.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
+        </div>
+    </div>
+    <div class="sonuc-actions">
+        <a asp-area="DernekAdmin" asp-controller="Anketler" asp-action="ExcelIndir" asp-route-id="@Model.Id" class="sonuc-btn primary">📗 Excel'e Aktar</a>
+        <button type="button" class="sonuc-btn" onclick="window.print()">📄 PDF Olarak Kaydet</button>
+        <button type="button" class="sonuc-btn" onclick="window.print()">🖨️ Yazdır</button>
+    </div>
+    <div class="sonuc-grid">
+        <div class="sonuc-stat"><small>Toplam Oy</small><strong>@toplamOy</strong></div>
+        <div class="sonuc-stat"><small>Seçenek Sayısı</small><strong>@secenekler.Count</strong></div>
+        <div class="sonuc-stat"><small>Katılım Durumu</small><strong>@(toplamOy > 0 ? "Başladı" : "Henüz Yok")</strong></div>
+    </div>
+    <div class="sonuc-card">
+        <h2>Seçeneklere Göre Oy Dağılımı</h2>
+        @foreach (var secenek in secenekler)
+        {
+            var oy = oySayilari.TryGetValue(secenek.Id, out var sayi) ? sayi : 0;
+            var yuzde = toplamOy > 0 ? oy * 100.0 / toplamOy : 0.0;
+            var yuzdeCss = yuzde.ToString("0.##", CultureInfo.InvariantCulture);
+            <div class="sonuc-option">
+                <div class="sonuc-option-head"><span>@secenek.SecenekMetni</span><span>@yuzde.ToString("0.0")%</span></div>
+                <div class="sonuc-track" role="progressbar" aria-label="@secenek.SecenekMetni" aria-valuenow="@oy" aria-valuemin="0" aria-valuemax="@toplamOy">
+                    <div class="sonuc-fill" style="width:@(yuzdeCss)%"></div>
+                </div>
+                <div class="sonuc-option-count">@oy oy</div>
+            </div>
+        }
+        @if (toplamOy == 0)
+        {
+            <div class="alert alert-info mb-0">Bu ankete henüz oy verilmedi.</div>
+        }
+    </div>
+    <a asp-area="DernekAdmin" asp-controller="Anketler" asp-action="Index" class="sonuc-btn sonuc-back">← Anket Yönetimine Dön</a>
+</div>

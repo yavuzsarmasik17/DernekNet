@@ -1,0 +1,233 @@
+﻿@model DernekNet.Areas.PlatformAdmin.Controllers.DernekYoneticiOlusturModel
+
+@{
+    ViewData["Title"] = "Yeni Dernek Yöneticisi";
+    Layout = "~/Areas/PlatformAdmin/Views/Shared/_PlatformAdminLayout.cshtml";
+    var dernekler = ViewBag.Dernekler as Microsoft.AspNetCore.Mvc.Rendering.SelectList;
+}
+
+<style>
+    .yonetici-form-sayfa {
+        color: #e7edf5;
+    }
+
+    .yonetici-form-baslik {
+        font-size: 28px;
+        font-weight: 800;
+        color: #f5f7fb;
+        margin-bottom: 6px;
+        letter-spacing: -.5px;
+    }
+
+    .yonetici-form-aciklama {
+        color: #9baec4;
+        font-size: 14px;
+    }
+
+    .yonetici-form-kart {
+        background: #172332;
+        border: 1px solid #314255;
+        border-radius: 18px;
+        box-shadow: 0 12px 35px rgba(0,0,0,.16);
+        overflow: hidden;
+        max-width: 850px;
+    }
+
+    .yonetici-form-kart-ust {
+        padding: 26px 30px;
+        border-bottom: 1px solid #314255;
+        background: #1b2b3b;
+    }
+
+        .yonetici-form-kart-ust h5 {
+            color: #f5f7fb;
+        }
+
+        .yonetici-form-kart-ust .small {
+            color: #a8b8ca !important;
+        }
+
+    .yonetici-form-kart-icerik {
+        padding: 30px;
+    }
+
+    .yonetici-form-label {
+        display: inline-block;
+        font-size: 13px;
+        font-weight: 700;
+        color: #d7e2ef;
+        margin-bottom: 8px;
+    }
+
+    .yonetici-form-sayfa .yonetici-form-control,
+    .yonetici-form-sayfa .form-select.yonetici-form-control {
+        border-radius: 11px;
+        border: 1px solid #42566d;
+        background-color: #101b28;
+        color: #f1f5fa;
+        padding: 12px 14px;
+        font-size: 14px;
+        color-scheme: dark;
+    }
+
+        .yonetici-form-sayfa .yonetici-form-control::placeholder {
+            color: #8194a9;
+            opacity: 1;
+        }
+
+        .yonetici-form-sayfa .yonetici-form-control:focus {
+            border-color: #39b9b0;
+            background-color: #101b28;
+            color: #fff;
+            box-shadow: 0 0 0 4px rgba(57,185,176,.13);
+        }
+
+    .yonetici-form-sayfa .input-group-text {
+        background: #233549;
+        border: 1px solid #42566d;
+        color: #c6a56b;
+        border-radius: 11px 0 0 11px;
+    }
+
+    .yonetici-form-sayfa .input-group .yonetici-form-control {
+        border-radius: 0 11px 11px 0;
+    }
+
+    .yonetici-form-bilgi {
+        background: #112c32;
+        border: 1px solid #27666a;
+        color: #c4e8e6;
+        border-radius: 12px;
+        padding: 16px;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+        .yonetici-form-bilgi > i {
+            color: #47c9bd;
+        }
+
+    .yonetici-form-alt {
+        padding: 20px 30px;
+        border-top: 1px solid #314255;
+        background: #1b2b3b;
+        display: flex;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+        .yonetici-form-alt .btn {
+            border-radius: 10px;
+            padding: 11px 20px;
+            font-weight: 700;
+        }
+
+    .yonetici-form-sayfa .btn-altin {
+        background: #c5a064;
+        color: #101a25;
+        border: 1px solid #c5a064;
+    }
+
+        .yonetici-form-sayfa .btn-altin:hover {
+            background: #d9b779;
+            border-color: #d9b779;
+            color: #101a25;
+        }
+
+    .yonetici-form-sayfa .btn-geri {
+        background: #1b2b3b;
+        border: 1px solid #465b70;
+        color: #d9e4f0;
+    }
+
+        .yonetici-form-sayfa .btn-geri:hover {
+            background: #2a4055;
+            color: #fff;
+            border-color: #71879b;
+        }
+
+    .yonetici-form-sayfa .text-danger, .yonetici-form-sayfa .field-validation-error {
+        color: #ff9b9b !important;
+    }
+
+    .yonetici-form-sayfa .input-validation-error {
+        border-color: #ed7979 !important;
+    }
+
+    @@media (max-width: 600px) {
+        .yonetici-form-kart-ust, .yonetici-form-kart-icerik, .yonetici-form-alt {
+            padding: 20px;
+        }
+
+        .yonetici-form-baslik {
+            font-size: 24px;
+        }
+
+        .yonetici-form-alt .btn {
+            flex: 1 1 100%;
+        }
+    }
+</style>
+
+<div class="yonetici-form-sayfa">
+    <div class="mb-4">
+        <a asp-area="PlatformAdmin" asp-controller="DernekYoneticileri" asp-action="Index" class="btn btn-geri btn-sm mb-3">
+            <i class="bi bi-arrow-left me-1"></i> Yöneticilere Dön
+        </a>
+        <h1 class="yonetici-form-baslik">Yeni Dernek Yöneticisi</h1>
+        <p class="yonetici-form-aciklama mb-0">Bir dernek için yönetici hesabı oluşturun.</p>
+    </div>
+
+    <div class="yonetici-form-kart">
+        <div class="yonetici-form-kart-ust">
+            <h5 class="fw-bold mb-1"><i class="bi bi-person-plus me-2" style="color:#c5a064;"></i>Yönetici Hesap Bilgileri</h5>
+            <div class="small">Hesap oluşturulduktan sonra yönetici onayı gereklidir.</div>
+        </div>
+        <form asp-area="PlatformAdmin" asp-controller="DernekYoneticileri" asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <div class="yonetici-form-kart-icerik">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <div class="mb-4">
+                    <label asp-for="DernekId" class="yonetici-form-label">Bağlı Olacağı Dernek</label>
+                    <select asp-for="DernekId" asp-items="dernekler" class="form-select yonetici-form-control">
+                        <option value="0">-- Dernek Seçiniz --</option>
+                    </select>
+                    <span asp-validation-for="DernekId" class="text-danger small"></span>
+                </div>
+                <div class="mb-4">
+                    <label asp-for="Email" class="yonetici-form-label">Yönetici E-posta Adresi</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <input asp-for="Email" type="email" autocomplete="off" class="form-control yonetici-form-control" placeholder="ornek@dernek.com" />
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="Sifre" class="yonetici-form-label">Şifre</label>
+                        <input asp-for="Sifre" type="password" autocomplete="new-password" class="form-control yonetici-form-control" placeholder="Güçlü bir şifre belirleyin" />
+                        <span asp-validation-for="Sifre" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="SifreTekrar" class="yonetici-form-label">Şifre Tekrarı</label>
+                        <input asp-for="SifreTekrar" type="password" autocomplete="new-password" class="form-control yonetici-form-control" placeholder="Şifreyi tekrar girin" />
+                        <span asp-validation-for="SifreTekrar" class="text-danger small"></span>
+                    </div>
+                </div>
+                <div class="yonetici-form-bilgi">
+                    <i class="bi bi-shield-check me-2"></i><strong>Güvenlik Bilgilendirmesi</strong>
+                    <div class="mt-2">Oluşturulan yönetici hesabı başlangıçta onaysızdır. Yönetici, PlatformAdmin tarafından onaylandıktan sonra yalnızca bağlı olduğu derneğin yönetim paneline erişebilir.</div>
+                </div>
+            </div>
+            <div class="yonetici-form-alt">
+                <a asp-area="PlatformAdmin" asp-controller="DernekYoneticileri" asp-action="Index" class="btn btn-geri">Vazgeç</a>
+                <button type="submit" class="btn btn-altin"><i class="bi bi-person-check me-2"></i>Yönetici Hesabı Oluştur</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,119 @@
+﻿@model DernekNet.Models.Duyuru
+
+@{
+    Layout = "~/Areas/PlatformAdmin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Duyuru Düzenle";
+}
+
+<div class="mb-4">
+    <h1 class="page-title">Duyuru Düzenle</h1>
+    <p class="page-subtitle">
+        Duyuru bilgilerini ve yayın durumunu güncelleyin.
+    </p>
+</div>
+
+<form asp-area="PlatformAdmin"
+      asp-controller="Duyurular"
+      asp-action="Edit"
+      asp-route-id="@Model.Id"
+      method="post">
+
+    @Html.AntiForgeryToken()
+
+    <input asp-for="Id" type="hidden" />
+
+    <div asp-validation-summary="All"
+         class="text-danger mb-3"></div>
+
+    <div class="admin-card mb-4">
+        <div class="admin-card-header">
+            Duyuru Bilgileri
+        </div>
+
+        <div class="admin-card-body">
+            <div class="row g-4">
+
+                <div class="col-12">
+                    <label asp-for="DernekId"
+                           class="form-label">
+                        Dernek Seç *
+                    </label>
+
+                    <select asp-for="DernekId"
+                            asp-items="ViewBag.Dernekler"
+                            class="form-select"
+                            required>
+                        <option value="">
+                            -- Dernek Seçiniz --
+                        </option>
+                    </select>
+
+                    <span asp-validation-for="DernekId"
+                          class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Baslik"
+                           class="form-label">
+                        Duyuru Başlığı *
+                    </label>
+
+                    <input asp-for="Baslik"
+                           class="form-control"
+                           required />
+
+                    <span asp-validation-for="Baslik"
+                          class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Icerik"
+                           class="form-label">
+                        Duyuru İçeriği *
+                    </label>
+
+                    <textarea asp-for="Icerik"
+                              class="form-control"
+                              rows="8"
+                              required></textarea>
+
+                    <span asp-validation-for="Icerik"
+                          class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-check">
+                        <input asp-for="AktifMi"
+                               class="form-check-input" />
+
+                        <label asp-for="AktifMi"
+                               class="form-check-label fw-semibold">
+                            Duyuru Aktif
+                        </label>
+                    </div>
+
+                    <p class="text-muted small mt-2">
+                        İşareti kaldırırsanız duyuru
+                        yayından kaldırılacaktır.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap mb-5">
+        <button type="submit"
+                class="btn btn-primary px-4">
+            Değişiklikleri Kaydet
+        </button>
+
+        <a asp-area="PlatformAdmin"
+           asp-controller="Duyurular"
+           asp-action="Index"
+           class="btn btn-outline-secondary px-4">
+            İptal
+        </a>
+    </div>
+
+</form>

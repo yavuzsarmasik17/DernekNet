@@ -1,0 +1,425 @@
+﻿@model DernekNet.Models.Dernek
+@using System.Linq
+
+@{
+    Layout = "~/Areas/PlatformAdmin/Views/Shared/_PlatformAdminLayout.cshtml";
+    ViewData["Title"] = "Dernek Detayları";
+
+    var uyeler = ViewBag.Uyeler as List<DernekNet.Models.Uye>
+        ?? new List<DernekNet.Models.Uye>();
+    var kurullar = ViewBag.Kurullar as List<DernekNet.Models.YonetimKurulu>
+        ?? new List<DernekNet.Models.YonetimKurulu>();
+    string[] kurulTurleri = { "Yönetim Kurulu", "Denetim Kurulu", "Disiplin Kurulu" };
+    int aktifUye = uyeler.Count(x => x.AktifMi);
+    int aktifGorev = kurullar.Count(x => x.AktifMi);
+}
+
+<style>
+    /* Yalnızca bu sayfaya özel koyu tema */
+    .dn-detail {
+        color: #e9f1fb;
+    }
+
+        .dn-detail * {
+            box-sizing: border-box;
+        }
+
+        .dn-detail .detail-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            text-decoration: none;
+            color: #b9cce0;
+            border: 1px solid #344b62;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-weight: 650;
+            margin-bottom: 22px;
+            transition: .2s;
+        }
+
+            .dn-detail .detail-back:hover {
+                color: #fff;
+                background: #21364b;
+                border-color: #4c6b82;
+            }
+
+        .dn-detail .detail-panel {
+            background: #152638;
+            border: 1px solid #2c4259;
+            border-radius: 19px;
+            padding: 26px;
+            margin-bottom: 22px;
+            box-shadow: 0 12px 30px rgba(0,0,0,.12);
+        }
+
+        .dn-detail .detail-identity {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .dn-detail .detail-logo {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+            background: #e9f2f8;
+            padding: 10px;
+            border-radius: 17px;
+            flex-shrink: 0;
+        }
+
+        .dn-detail .detail-name {
+            font-size: clamp(22px, 2.3vw, 30px);
+            font-weight: 800;
+            line-height: 1.2;
+            color: #fff !important;
+            margin: 0 0 12px;
+            overflow-wrap: anywhere;
+        }
+
+        .dn-detail .detail-status {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 100px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .dn-detail .detail-active {
+            background: #123f39;
+            color: #83e9c1;
+            border: 1px solid #256d5d;
+        }
+
+        .dn-detail .detail-inactive {
+            background: #4a2933;
+            color: #ffb6bd;
+            border: 1px solid #86515c;
+        }
+
+        .dn-detail .detail-readonly {
+            margin-left: auto;
+            padding: 8px 12px;
+            border: 1px solid #51647b;
+            border-radius: 9px;
+            color: #cbd9e7;
+            font-size: 12px;
+            font-weight: 750;
+            white-space: nowrap;
+        }
+
+        .dn-detail .detail-divider {
+            border: 0;
+            border-top: 1px solid #32485e;
+            opacity: 1;
+            margin: 24px 0;
+        }
+
+        .dn-detail .detail-info {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .dn-detail .detail-label {
+            display: block;
+            color: #a4b9cd;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .dn-detail .detail-value {
+            display: block;
+            color: #f2f7fc;
+            font-size: 15px;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .dn-detail .detail-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 17px;
+            margin-bottom: 22px;
+        }
+
+        .dn-detail .detail-stat {
+            background: #152638;
+            border: 1px solid #2c4259;
+            border-radius: 17px;
+            padding: 23px;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .dn-detail .detail-stat::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: #22b6b3;
+            }
+
+            .dn-detail .detail-stat:nth-child(2)::before {
+                background: #e7b86a;
+            }
+
+            .dn-detail .detail-stat:nth-child(3)::before {
+                background: #82a8f0;
+            }
+
+        .dn-detail .detail-stat-label {
+            color: #b4c6d8;
+            font-size: 13px;
+            font-weight: 650;
+        }
+
+        .dn-detail .detail-stat-number {
+            color: #fff;
+            font-size: 36px;
+            font-weight: 850;
+            margin-top: 8px;
+            line-height: 1.1;
+        }
+
+        .dn-detail .detail-section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .dn-detail .detail-section-title {
+            color: #fff !important;
+            font-size: 20px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+            .dn-detail .detail-section-title i {
+                color: #51cfcc;
+                margin-right: 9px;
+            }
+
+        .dn-detail .detail-count {
+            background: #203c4e;
+            border: 1px solid #356073;
+            color: #a9e8e3;
+            border-radius: 30px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .dn-detail .detail-table-wrap {
+            overflow-x: auto;
+            border: 1px solid #30475d;
+            border-radius: 12px;
+        }
+
+        .dn-detail .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: #e6eff9;
+            margin: 0;
+            min-width: 500px;
+        }
+
+            .dn-detail .detail-table thead th {
+                background: #20354b;
+                color: #c4d6e7 !important;
+                padding: 15px 17px;
+                font-size: 13px;
+                font-weight: 750;
+                text-align: left;
+                white-space: nowrap;
+            }
+
+            .dn-detail .detail-table tbody td {
+                background: #152638;
+                color: #e5effa !important;
+                padding: 16px 17px;
+                border-top: 1px solid #30475d;
+                font-size: 14px;
+                vertical-align: middle;
+            }
+
+            .dn-detail .detail-table tbody tr:hover td {
+                background: #1b3147;
+            }
+
+            .dn-detail .detail-table strong {
+                color: #fff;
+            }
+
+        .dn-detail .detail-empty {
+            border: 1px dashed #38546b;
+            background: #192d41;
+            border-radius: 12px;
+            padding: 27px 18px;
+            text-align: center;
+            color: #afc4d7;
+            font-size: 14px;
+        }
+
+    @@media (max-width: 767px) {
+        .dn-detail .detail-panel {
+            padding: 19px;
+        }
+
+        .dn-detail .detail-info {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .dn-detail .detail-stats {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .dn-detail .detail-readonly {
+            margin-left: 0;
+        }
+
+        .dn-detail .detail-logo {
+            width: 72px;
+            height: 72px;
+        }
+    }
+</style>
+
+<div class="dn-detail">
+    <a asp-area="PlatformAdmin" asp-controller="Dernekler" asp-action="Index" class="detail-back">
+        <i class="bi bi-arrow-left"></i> Derneklere Dön
+    </a>
+
+    <section class="detail-panel" aria-label="Dernek bilgileri">
+        <div class="detail-identity">
+            @if (!string.IsNullOrWhiteSpace(Model.LogoUrl))
+            {
+                <img src="@Model.LogoUrl" class="detail-logo" alt="@Model.DernekAdi logosu" />
+            }
+            else
+            {
+                <div class="detail-logo d-flex align-items-center justify-content-center" aria-hidden="true" style="font-size:35px;">🏛️</div>
+            }
+            <div class="flex-grow-1">
+                <h2 class="detail-name">@Model.DernekAdi</h2>
+                @if (Model.AktifMi)
+                {
+                    <span class="detail-status detail-active">● Aktif Dernek</span>
+                }
+                else
+                {
+                    <span class="detail-status detail-inactive">● Pasif Dernek</span>
+                }
+            </div>
+            <span class="detail-readonly"><i class="bi bi-eye me-1"></i> Salt Okunur</span>
+        </div>
+        <hr class="detail-divider" />
+        <div class="detail-info">
+            <div><span class="detail-label">Dernek No</span><span class="detail-value">#@Model.Id</span></div>
+            <div><span class="detail-label">Telefon</span><span class="detail-value">@(string.IsNullOrWhiteSpace(Model.Telefon) ? "-" : Model.Telefon)</span></div>
+            <div><span class="detail-label">E-posta</span><span class="detail-value">@(string.IsNullOrWhiteSpace(Model.Email) ? "-" : Model.Email)</span></div>
+        </div>
+    </section>
+
+    <div class="detail-stats">
+        <div class="detail-stat"><div class="detail-stat-label">Toplam Üye</div><div class="detail-stat-number">@uyeler.Count</div></div>
+        <div class="detail-stat"><div class="detail-stat-label">Aktif Üye</div><div class="detail-stat-number">@aktifUye</div></div>
+        <div class="detail-stat"><div class="detail-stat-label">Aktif Kurul Görevi</div><div class="detail-stat-number">@aktifGorev</div></div>
+    </div>
+
+    <section class="detail-panel">
+        <div class="detail-section-head">
+            <h3 class="detail-section-title"><i class="bi bi-people"></i> Dernek Üyeleri</h3>
+            <span class="detail-count">@uyeler.Count üye</span>
+        </div>
+        @if (uyeler.Any())
+        {
+            <div class="detail-table-wrap">
+                <table class="detail-table">
+                    <thead><tr><th>Ad Soyad</th><th>Üyelik Tarihi</th><th>Durum</th></tr></thead>
+                    <tbody>
+                        @foreach (var uye in uyeler)
+                        {
+                            <tr>
+                                <td><strong>@uye.Ad @uye.Soyad</strong></td>
+                                <td>@uye.UyelikTarihi.ToString("dd.MM.yyyy")</td>
+                                <td>
+                                    @if (uye.AktifMi)
+                                    {
+                                        <span class="detail-status detail-active">Aktif</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="detail-status detail-inactive">Pasif</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="detail-empty"><i class="bi bi-people me-2"></i> Bu dernekte henüz üye bulunmuyor.</div>
+        }
+    </section>
+
+    @foreach (var kurulTuru in kurulTurleri)
+    {
+        var kurulUyeleri = kurullar
+        .Where(x => x.KurulTipi == kurulTuru)
+        .OrderBy(x => x.SiraNo)
+        .ThenBy(x => x.Id)
+        .ToList();
+
+        <section class="detail-panel">
+            <div class="detail-section-head">
+                <h3 class="detail-section-title"><i class="bi bi-person-badge"></i> @kurulTuru</h3>
+                <span class="detail-count">@kurulUyeleri.Count kayıt</span>
+            </div>
+            @if (kurulUyeleri.Any())
+            {
+                <div class="detail-table-wrap">
+                    <table class="detail-table">
+                        <thead><tr><th>Üye</th><th>Görev</th><th>Başlangıç</th><th>Durum</th></tr></thead>
+                        <tbody>
+                            @foreach (var kayit in kurulUyeleri)
+                            {
+                                <tr>
+                                    <td><strong>@kayit.Uye?.Ad @kayit.Uye?.Soyad</strong></td>
+                                    <td>@kayit.Gorev</td>
+                                    <td>@kayit.GorevBaslangicTarihi.ToString("dd.MM.yyyy")</td>
+                                    <td>
+                                        @if (kayit.AktifMi)
+                                        {
+                                            <span class="detail-status detail-active">Aktif</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="detail-status detail-inactive">Görevi Bitti</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="detail-empty">Bu kurulda henüz kayıt bulunmuyor.</div>
+            }
+        </section>
+    }
+</div>

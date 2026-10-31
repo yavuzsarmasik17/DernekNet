@@ -1,0 +1,363 @@
+﻿@model IEnumerable<DernekNet.Models.ApplicationUser>
+
+@{
+    Layout = "~/Areas/PlatformAdmin/Views/Shared/_PlatformAdminLayout.cshtml";
+    ViewData["Title"] = "Dernek Yöneticileri";
+
+    var yoneticiler = Model.ToList();
+    var dernekAdlari = ViewBag.DernekAdlari as Dictionary<int, string>
+        ?? new Dictionary<int, string>();
+    var onayliSayisi = yoneticiler.Count(x => x.EmailConfirmed);
+    var bekleyenSayisi = yoneticiler.Count(x => !x.EmailConfirmed);
+}
+
+<style>
+    .yonetici-sayfa {
+        color: #e8eef6;
+        padding-bottom: 28px;
+    }
+
+    .yonetici-baslik {
+        font-size: clamp(23px, 2.4vw, 29px);
+        font-weight: 800;
+        color: #f4f7fc;
+        margin: 0 0 7px;
+        letter-spacing: -.4px;
+    }
+
+    .yonetici-aciklama {
+        color: #9baec3;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .yonetici-ekle {
+        background: #caa365 !important;
+        color: #101c2a !important;
+        border: 1px solid #caa365 !important;
+        border-radius: 11px;
+        font-weight: 800;
+        padding: 11px 19px;
+        text-decoration: none;
+    }
+
+        .yonetici-ekle:hover {
+            background: #e0bb7e !important;
+            border-color: #e0bb7e !important;
+            color: #101c2a !important;
+        }
+
+    .yonetici-ozet {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin: 25px 0 30px;
+    }
+
+    .yonetici-ozet-kart {
+        position: relative;
+        overflow: hidden;
+        background: #172536;
+        border: 1px solid #2b3d51;
+        border-radius: 16px;
+        padding: 23px;
+        box-shadow: 0 8px 24px rgba(0,0,0,.14);
+    }
+
+        .yonetici-ozet-kart::before {
+            content: "";
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 3px;
+            background: #caa365;
+        }
+
+        .yonetici-ozet-kart:nth-child(2)::before {
+            background: #35c6b0;
+        }
+
+        .yonetici-ozet-kart:nth-child(3)::before {
+            background: #e0ad66;
+        }
+
+    .yonetici-ozet-etiket {
+        color: #a7b7ca;
+        font-size: 13px;
+        margin-bottom: 9px;
+    }
+
+    .yonetici-ozet-sayi {
+        font-size: 34px;
+        font-weight: 800;
+        color: #f5f8fd;
+        line-height: 1.2;
+    }
+
+    .yonetici-kartlar {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    .yonetici-kart {
+        background: #172536;
+        border: 1px solid #2b3d51;
+        border-radius: 17px;
+        padding: 24px;
+        box-shadow: 0 8px 24px rgba(0,0,0,.13);
+        min-width: 0;
+        transition: border-color .2s, transform .2s, box-shadow .2s;
+    }
+
+        .yonetici-kart:hover {
+            transform: translateY(-3px);
+            border-color: #4c697a;
+            box-shadow: 0 14px 30px rgba(0,0,0,.2);
+        }
+
+    .yonetici-kart-ust {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 22px;
+        min-width: 0;
+    }
+
+    .yonetici-kart-kimlik {
+        min-width: 0;
+    }
+
+    .yonetici-avatar {
+        width: 58px;
+        height: 58px;
+        border-radius: 15px;
+        background: #203d4a;
+        color: #49d5bf;
+        border: 1px solid #315e68;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 25px;
+        flex-shrink: 0;
+    }
+
+    .yonetici-email {
+        font-size: 16px;
+        font-weight: 750;
+        color: #f3f7fb;
+        overflow-wrap: anywhere;
+    }
+
+    .yonetici-bilgi {
+        background: #101c2b;
+        border: 1px solid #293a4d;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .yonetici-bilgi-satir {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid #2b3c4f;
+        font-size: 13px;
+    }
+
+        .yonetici-bilgi-satir:last-child {
+            border-bottom: none;
+        }
+
+        .yonetici-bilgi-satir span {
+            color: #a5b5c8;
+        }
+
+        .yonetici-bilgi-satir strong {
+            color: #edf4fb;
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+
+    .yonetici-durum {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    .yonetici-aktif {
+        background: #153c37;
+        color: #75ebce;
+        border: 1px solid #266d5d;
+    }
+
+    .yonetici-bekliyor {
+        background: #40331d;
+        color: #ffd18c;
+        border: 1px solid #785b30;
+    }
+
+    .yonetici-islem {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+        .yonetici-islem form {
+            margin: 0;
+        }
+
+        .yonetici-islem button {
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 750;
+        }
+
+    .yonetici-onayla {
+        background: #137d72 !important;
+        border-color: #137d72 !important;
+        color: #fff !important;
+    }
+
+        .yonetici-onayla:hover {
+            background: #189e8e !important;
+            border-color: #189e8e !important;
+        }
+
+    .yonetici-kapat {
+        background: #39252d !important;
+        border: 1px solid #89515c !important;
+        color: #ffb7bd !important;
+    }
+
+        .yonetici-kapat:hover {
+            background: #58303a !important;
+            color: #fff !important;
+        }
+
+    .yonetici-bos {
+        background: #172536;
+        border: 1px dashed #3b5065;
+        color: #bdccda;
+        border-radius: 14px;
+        text-align: center;
+        padding: 40px 18px;
+    }
+
+    .yonetici-sayfa .alert-success {
+        background: #153c37;
+        border-color: #266d5d;
+        color: #a1f3db;
+    }
+
+    .yonetici-sayfa .alert-danger {
+        background: #3b222a;
+        border-color: #824651;
+        color: #ffc2c8;
+    }
+
+    @@media (max-width: 850px) {
+        .yonetici-kartlar {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 650px) {
+        .yonetici-ozet {
+            grid-template-columns: 1fr;
+        }
+
+        .yonetici-kart {
+            padding: 18px;
+        }
+
+        .yonetici-bilgi-satir {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+
+<div class="yonetici-sayfa">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <h1 class="yonetici-baslik">Dernek Yöneticileri</h1>
+            <p class="yonetici-aciklama">Dernek yöneticilerinin hesaplarını ve giriş yetkilerini yönetin.</p>
+        </div>
+        <a asp-area="PlatformAdmin" asp-controller="DernekYoneticileri" asp-action="Create" class="btn yonetici-ekle">
+            <i class="bi bi-person-plus me-2"></i>Yeni Yönetici Ekle
+        </a>
+    </div>
+
+    @if (TempData["Basarili"] != null)
+    {
+        <div class="alert alert-success">@TempData["Basarili"]</div>
+    }
+    @if (TempData["Hata"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Hata"]</div>
+    }
+
+    <div class="yonetici-ozet">
+        <div class="yonetici-ozet-kart"><div class="yonetici-ozet-etiket">Toplam Yönetici</div><div class="yonetici-ozet-sayi">@yoneticiler.Count</div></div>
+        <div class="yonetici-ozet-kart"><div class="yonetici-ozet-etiket">Onaylı Yönetici</div><div class="yonetici-ozet-sayi">@onayliSayisi</div></div>
+        <div class="yonetici-ozet-kart"><div class="yonetici-ozet-etiket">Onay Bekleyen / Kapalı</div><div class="yonetici-ozet-sayi">@bekleyenSayisi</div></div>
+    </div>
+
+    <div class="yonetici-kartlar">
+        @foreach (var yonetici in yoneticiler)
+        {
+            string dernekAdi = "Dernek atanmamış";
+            if (yonetici.DernekId.HasValue && dernekAdlari.TryGetValue(yonetici.DernekId.Value, out var bulunanAd))
+            {
+                dernekAdi = bulunanAd;
+            }
+
+            <div class="yonetici-kart">
+                <div class="yonetici-kart-ust">
+                    <div class="yonetici-avatar"><i class="bi bi-person-badge"></i></div>
+                    <div class="yonetici-kart-kimlik">
+                        <div class="yonetici-email">@yonetici.Email</div>
+                        @if (yonetici.EmailConfirmed)
+                        {
+                            <span class="yonetici-durum yonetici-aktif mt-2">● Onaylı</span>
+                        }
+                        else
+                        {
+                            <span class="yonetici-durum yonetici-bekliyor mt-2">● Onay Bekliyor / Kapalı</span>
+                        }
+                    </div>
+                </div>
+                <div class="yonetici-bilgi">
+                    <div class="yonetici-bilgi-satir"><span>Bağlı Dernek</span><strong>@dernekAdi</strong></div>
+                    <div class="yonetici-bilgi-satir"><span>Hesap Durumu</span><strong>@(yonetici.EmailConfirmed ? "Onaylı" : "Onaysız")</strong></div>
+                </div>
+                <div class="yonetici-islem">
+                    @if (!yonetici.EmailConfirmed)
+                    {
+                        <form asp-area="PlatformAdmin" asp-controller="DernekYoneticileri" asp-action="Onayla" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@yonetici.Id" />
+                            <button type="submit" class="btn yonetici-onayla"><i class="bi bi-check-circle me-1"></i>Hesabı Onayla</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-area="PlatformAdmin" asp-controller="DernekYoneticileri" asp-action="OnayiKaldir" method="post" onsubmit="return confirm('Bu yöneticinin giriş yetkisini kapatmak istiyor musunuz?');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@yonetici.Id" />
+                            <button type="submit" class="btn yonetici-kapat"><i class="bi bi-shield-x me-1"></i>Erişimi Kapat</button>
+                        </form>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (!yoneticiler.Any())
+    {
+        <div class="yonetici-bos mt-4"><i class="bi bi-person-x fs-2 d-block mb-2"></i>Henüz dernek yöneticisi oluşturulmamış.</div>
+    }
+</div>

@@ -1,0 +1,29 @@
+﻿@model DernekNet.Areas.DernekAdmin.Controllers.AfadDuyuruForm
+@{
+    bool duzenle = Model.Id > 0;
+    ViewData["Title"] = duzenle ? "AFAD Duyurusu Düzenle" : "AFAD Duyurusu Ekle";
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+}
+<h2 class="h4 mb-4">@(duzenle ? "AFAD Duyurusunu Düzenle" : "Yeni AFAD Duyurusu")</h2>
+<div class="dn-card">
+    <form asp-area="DernekAdmin" asp-controller="AfadDuyurular" asp-action="@(duzenle ? "Duzenle" : "Ekle")" asp-route-id="@(duzenle ? Model.Id : (int?)null)" method="post">
+        @Html.AntiForgeryToken()
+        <input asp-for="Id" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div class="mb-3"><label asp-for="Baslik" class="form-label">Duyuru Başlığı</label><input asp-for="Baslik" class="form-control" maxlength="200" /><span asp-validation-for="Baslik" class="text-danger"></span></div>
+        <div class="mb-3"><label asp-for="Icerik" class="form-label">Duyuru İçeriği</label><textarea asp-for="Icerik" class="form-control" rows="9"></textarea><span asp-validation-for="Icerik" class="text-danger"></span></div>
+        <div class="dn-metin-aktar mb-4" style="background:#172535;border:1px solid #34465a;border-radius:14px;padding:18px;color:#e9eff7">
+            <div class="fw-bold mb-2"><i class="bi bi-file-earmark-arrow-up me-2" style="color:#42c7b7"></i>Dosyadan Metin Aktar</div>
+            <p class="small mb-3" style="color:#afc0d2">TXT, Word (.docx) veya metin içeren PDF (en fazla 5 MB). Dosyadaki yazılar açıklama alanına aktarılır; dosya ayrıca saklanmaz.</p>
+            <input type="file" class="form-control dn-metin-dosya" accept=".txt,.docx,.pdf" aria-label="Metin aktarılacak dosya" style="background:#0f1c2b;color:#e9eff7;border-color:#43546b" />
+            <div class="dn-metin-durum small mt-2" role="status" aria-live="polite" style="color:#b9cedd"></div>
+        </div>
+        <div class="form-check mb-3"><input asp-for="AktifMi" class="form-check-input" /><label asp-for="AktifMi" class="form-check-label">Duyuru yayında olsun</label></div>
+        <div class="form-check mb-4"><input asp-for="SadeceGonullulereMi" class="form-check-input" /><label asp-for="SadeceGonullulereMi" class="form-check-label">Sadece AFAD gönüllülerine göster</label></div>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i>@(duzenle ? "Değişiklikleri Kaydet" : "Duyuruyu Kaydet")</button>
+        <a asp-area="DernekAdmin" asp-controller="AfadDuyurular" asp-action="Index" class="btn btn-outline-secondary ms-2">Vazgeç</a>
+    </form>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" /> <script src="~/js/duyuru-metin-aktar.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,247 @@
+﻿@model DernekNet.Models.AfadGonullu
+@using DernekNet.Models
+
+@{
+    ViewData["Title"] = "Gönüllü Yetkinlik Detayı";
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+
+    var yetkinlikler = ViewBag.Yetkinlikler as List<AfadYetkinlik>
+        ?? new List<AfadYetkinlik>();
+
+    var kayitlar = Model.Yetkinlikleri
+        .OrderBy(x => x.Yetkinlik.Ad)
+        .ToList();
+
+    var bugun = DateTime.Today;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="h4 mb-1">@Model.AdSoyad</h2>
+        <div class="text-muted">Gönüllü Yetkinlik ve Belge Yönetimi</div>
+    </div>
+
+    <a asp-action="Gonulluler" class="btn btn-outline-secondary">
+        Gönüllülere Dön
+    </a>
+</div>
+
+@if (TempData["AfadYetkinlikMesaj"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["AfadYetkinlikMesaj"]
+    </div>
+}
+
+@if (TempData["AfadYetkinlikHata"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["AfadYetkinlikHata"]
+    </div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="dn-card">
+            <h3>Toplam Yetkinlik</h3>
+            <div class="h2">@kayitlar.Count</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="dn-card">
+            <h3>Süresi Dolmayan</h3>
+            <div class="h2 text-success">
+                @kayitlar.Count(x =>
+                         !x.GecerlilikBitisi.HasValue ||
+                         x.GecerlilikBitisi.Value.Date >= bugun)
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="dn-card">
+            <h3>Süresi Dolan</h3>
+            <div class="h2 text-danger">
+                @kayitlar.Count(x =>
+                         x.GecerlilikBitisi.HasValue &&
+                         x.GecerlilikBitisi.Value.Date < bugun)
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="dn-card mb-4">
+    <h3>Yeni Yetkinlik Ata</h3>
+
+    @if (!Model.AktifMi || !Model.OnaylandiMi)
+    {
+        <div class="alert alert-warning">
+            Yalnızca onaylı ve aktif gönüllülere yetkinlik atanabilir.
+        </div>
+    }
+    else if (!yetkinlikler.Any())
+    {
+        <div class="alert alert-secondary">
+            Atanabilecek yeni yetkinlik bulunmuyor.
+            Önce yetkinlik tanımlayın veya mevcut atamaları kontrol edin.
+        </div>
+    }
+    else
+    {
+        <form asp-action="Ata"
+              asp-route-id="@Model.Id"
+              method="post"
+              class="row g-3">
+
+            @Html.AntiForgeryToken()
+
+            <div class="col-md-6">
+                <label for="yetkinlikId" class="form-label">
+                    Yetkinlik
+                </label>
+                <select id="yetkinlikId"
+                        name="yetkinlikId"
+                        class="form-select"
+                        required>
+                    <option value="">Yetkinlik seçin</option>
+                    @foreach (var y in yetkinlikler)
+                    {
+                        <option value="@y.Id">@y.Ad</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label for="belgeNo" class="form-label">Belge Numarası</label>
+                <input id="belgeNo"
+                       name="belgeNo"
+                       class="form-control"
+                       maxlength="200" />
+            </div>
+
+            <div class="col-md-6">
+                <label for="belgeTarihi" class="form-label">Belge Tarihi</label>
+                <input id="belgeTarihi"
+                       name="belgeTarihi"
+                       type="date"
+                       class="form-control" />
+            </div>
+
+            <div class="col-md-6">
+                <label for="gecerlilikBitisi" class="form-label">
+                    Geçerlilik Bitişi
+                </label>
+                <input id="gecerlilikBitisi"
+                       name="gecerlilikBitisi"
+                       type="date"
+                       class="form-control" />
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i>
+                    Yetkinlik Ata
+                </button>
+            </div>
+        </form>
+    }
+</div>
+
+<div class="dn-card">
+    <h3>Atanmış Yetkinlikler</h3>
+
+    @foreach (var k in kayitlar)
+    {
+        var suresiDolmus = k.GecerlilikBitisi.HasValue &&
+        k.GecerlilikBitisi.Value.Date < bugun;
+
+        <div class="border rounded-3 p-3 mb-3">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                <div>
+                    <strong class="fs-5">@k.Yetkinlik.Ad</strong>
+                    @if (!string.IsNullOrWhiteSpace(k.Yetkinlik.Aciklama))
+                    {
+                        <div class="text-muted small">
+                            @k.Yetkinlik.Aciklama
+                        </div>
+                    }
+                </div>
+
+                @if (suresiDolmus)
+                {
+                    <span class="badge bg-danger">Süresi Dolmuş</span>
+                }
+                else if (!k.GecerlilikBitisi.HasValue)
+                {
+                    <span class="badge bg-secondary">Bitiş Tarihi Yok</span>
+                }
+                else
+                {
+                    <span class="badge bg-success">Süresi Dolmamış</span>
+                }
+            </div>
+
+            <form asp-action="Guncelle"
+                  asp-route-id="@Model.Id"
+                  method="post"
+                  class="row g-3">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="kayitId" value="@k.Id" />
+
+                <div class="col-md-4">
+                    <label class="form-label">Belge Numarası</label>
+                    <input name="belgeNo"
+                           value="@k.BelgeNo"
+                           maxlength="200"
+                           class="form-control" />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Belge Tarihi</label>
+                    <input name="belgeTarihi"
+                           type="date"
+                           value="@(k.BelgeTarihi?.ToString("yyyy-MM-dd"))"
+                           class="form-control" />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Geçerlilik Bitişi</label>
+                    <input name="gecerlilikBitisi"
+                           type="date"
+                           value="@(k.GecerlilikBitisi?.ToString("yyyy-MM-dd"))"
+                           class="form-control" />
+                </div>
+
+                <div class="col-12">
+                    <button type="submit"
+                            class="btn btn-sm btn-outline-primary">
+                        Belge Bilgilerini Güncelle
+                    </button>
+                </div>
+            </form>
+
+            <form asp-action="Kaldir"
+                  asp-route-id="@Model.Id"
+                  method="post"
+                  class="mt-2"
+                  onsubmit="return confirm('Bu yetkinlik ataması kaldırılsın mı?');">
+
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="kayitId" value="@k.Id" />
+
+                <button type="submit"
+                        class="btn btn-sm btn-outline-danger">
+                    Yetkinliği Kaldır
+                </button>
+            </form>
+        </div>
+    }
+
+    @if (!kayitlar.Any())
+    {
+        <p class="text-muted">
+            Bu gönüllüye henüz yetkinlik atanmamış.
+        </p>
+    }
+</div>

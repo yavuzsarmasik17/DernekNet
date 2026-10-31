@@ -1,0 +1,337 @@
+﻿
+:root {
+    --sidebar: #101c35;
+    --sidebar-hover: #233656;
+    --primary: #2563eb;
+    --bg: #f3f6fb;
+    --text: #17243c;
+    --muted: #718096;
+    --border: #e5eaf2;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.admin-sidebar {
+    width: 255px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: var(--sidebar);
+    color: white;
+    padding: 25px 15px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.admin-logo {
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 10px 15px 30px;
+    color: white;
+}
+
+.admin-menu-title {
+    color: #8091ae;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 20px 15px 10px;
+}
+
+.admin-link {
+    display: block;
+    padding: 13px 16px;
+    margin-bottom: 5px;
+    border-radius: 10px;
+    color: #c4d0e4;
+    text-decoration: none;
+    transition: .2s;
+}
+
+    .admin-link:hover,
+    .admin-link.active {
+        background: var(--sidebar-hover);
+        color: white;
+    }
+
+.admin-main {
+    margin-left: 255px;
+    min-height: 100vh;
+}
+
+.admin-topbar {
+    background: white;
+    min-height: 78px;
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.admin-content {
+    padding: 32px;
+    max-width: 1600px;
+    margin: auto;
+}
+
+.page-title {
+    font-size: 28px;
+    font-weight: 750;
+    margin-bottom: 7px;
+}
+
+.page-subtitle {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.admin-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 5px 20px rgba(20, 40, 80, .035);
+    overflow: hidden;
+}
+
+.admin-card-header {
+    padding: 22px 26px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 700;
+    font-size: 17px;
+}
+
+.admin-card-body {
+    padding: 26px;
+}
+
+.stat-card {
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 5px 20px rgba(20, 40, 80, .035);
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.stat-number {
+    font-size: 32px;
+    font-weight: 800;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .admin-table th {
+        background: #f8faff;
+        color: #718096;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        padding: 17px;
+        white-space: nowrap;
+    }
+
+    .admin-table td {
+        padding: 18px 17px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+    }
+
+    .admin-table tbody tr:hover {
+        background: #f9fbff;
+    }
+
+    .admin-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+.status-active,
+.status-passive {
+    padding: 7px 12px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.status-active {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-passive {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.form-label {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.form-control {
+    border: 1px solid #dce3ee;
+    border-radius: 9px;
+    padding: 12px 14px;
+}
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37,99,235,.10);
+    }
+
+.btn {
+    border-radius: 9px;
+    padding: 10px 17px;
+    font-weight: 600;
+}
+
+.btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+@media (max-width: 900px) {
+    .admin-sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+    }
+
+    .admin-main {
+        margin-left: 0;
+    }
+
+    .admin-topbar {
+        padding: 16px;
+    }
+
+    .admin-content {
+        padding: 18px;
+    }
+
+    .page-title {
+        font-size: 23px;
+    }
+}
+
+/* DERNEKNET - Modern Dernek Formları */
+
+.admin-content form {
+    max-width: 1050px;
+    margin: 0 auto;
+}
+
+    .admin-content form .admin-card {
+        border: 1px solid #e7ecf5;
+        border-radius: 20px;
+        background: #fff;
+        box-shadow: 0 12px 35px rgba(20, 40, 80, .06);
+        margin-bottom: 25px !important;
+    }
+
+    .admin-content form .admin-card-header {
+        background: linear-gradient(110deg, #f0f5ff, #ffffff);
+        color: #17366d;
+        font-size: 18px;
+        font-weight: 750;
+        padding: 24px 30px;
+        border-bottom: 1px solid #e6edf8;
+    }
+
+    .admin-content form .admin-card-body {
+        padding: 35px;
+    }
+
+    .admin-content form .form-label {
+        font-size: 14px;
+        font-weight: 650;
+        color: #334155;
+        margin-bottom: 10px;
+    }
+
+    .admin-content form .form-control {
+        background: #f8faff;
+        border: 1px solid #dce5f2;
+        border-radius: 12px;
+        padding: 15px 18px;
+        font-size: 15px;
+        transition: all .2s ease;
+    }
+
+        .admin-content form .form-control:focus {
+            background: #fff;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37,99,235,.09);
+        }
+
+    .admin-content form textarea.form-control {
+        min-height: 105px;
+        resize: vertical;
+    }
+
+    .admin-content form .form-control-color {
+        width: 85px;
+        height: 55px;
+        padding: 6px;
+        cursor: pointer;
+    }
+
+    .admin-content form .form-check {
+        background: #f4f8ff;
+        padding: 20px 20px 20px 48px;
+        border-radius: 12px;
+        border: 1px solid #e1eafb;
+    }
+
+    .admin-content form .form-check-input {
+        cursor: pointer;
+    }
+
+    .admin-content form .btn {
+        padding: 13px 25px;
+        border-radius: 11px;
+        font-weight: 650;
+    }
+
+    .admin-content form .btn-primary {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        border: none;
+        box-shadow: 0 6px 15px rgba(37,99,235,.18);
+    }
+
+        .admin-content form .btn-primary:hover {
+            background: #1e40af;
+            transform: translateY(-1px);
+        }
+
+@media (max-width: 768px) {
+    .admin-content form .admin-card-body {
+        padding: 20px;
+    }
+
+    .admin-content form .admin-card-header {
+        padding: 20px;
+    }
+}

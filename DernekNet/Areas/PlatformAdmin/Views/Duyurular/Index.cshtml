@@ -1,0 +1,277 @@
+﻿@model IEnumerable<DernekNet.Models.Duyuru>
+
+@{
+    Layout = "~/Areas/PlatformAdmin/Views/Shared/_PlatformAdminLayout.cshtml";
+    ViewData["Title"] = "Duyurular";
+
+    var duyurular = Model?.ToList() ?? new List<DernekNet.Models.Duyuru>();
+}
+
+<style>
+    .pa-duyurular {
+        color: #e8eef6;
+        padding-bottom: 30px;
+    }
+
+    .pa-duyuru-ust {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 26px;
+    }
+
+    .pa-duyuru-baslik {
+        font-size: clamp(23px, 3vw, 29px);
+        font-weight: 800;
+        letter-spacing: -.5px;
+        color: #f4f7fb;
+        margin: 0 0 7px;
+    }
+
+    .pa-duyuru-aciklama {
+        color: #9caec1;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .pa-duyuru-salt {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 14px;
+        border-radius: 11px;
+        background: #182c3d;
+        color: #d5b47b;
+        border: 1px solid #425066;
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    .pa-duyuru-ozet {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 17px;
+        margin-bottom: 28px;
+    }
+
+    .pa-duyuru-istatistik {
+        background: linear-gradient(145deg, #1b2a3b, #172333);
+        border: 1px solid #344459;
+        border-radius: 17px;
+        padding: 23px;
+        box-shadow: 0 9px 24px rgba(0,0,0,.13);
+        min-width: 0;
+    }
+
+        .pa-duyuru-istatistik .etiket {
+            color: #a8b8c9;
+            font-size: 13px;
+            margin-bottom: 9px;
+        }
+
+        .pa-duyuru-istatistik .deger {
+            color: #f6f8fb;
+            font-size: 33px;
+            line-height: 1.15;
+            font-weight: 800;
+        }
+
+        .pa-duyuru-istatistik:nth-child(2) {
+            border-top: 3px solid #34c5ac;
+        }
+
+        .pa-duyuru-istatistik:nth-child(3) {
+            border-top: 3px solid #c8a56d;
+        }
+
+        .pa-duyuru-istatistik:first-child {
+            border-top: 3px solid #7794bc;
+        }
+
+    .pa-duyuru-liste-baslik {
+        color: #f4f7fb;
+        font-size: 20px;
+        font-weight: 800;
+        margin: 0 0 17px;
+    }
+
+    .pa-duyuru-kart {
+        background: #1a2838;
+        border: 1px solid #35465b;
+        border-radius: 17px;
+        padding: 24px;
+        margin-bottom: 17px;
+        box-shadow: 0 7px 22px rgba(0,0,0,.12);
+        transition: border-color .2s, transform .2s;
+    }
+
+        .pa-duyuru-kart:hover {
+            border-color: #567189;
+            transform: translateY(-2px);
+        }
+
+    .pa-duyuru-kart-ust {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .pa-duyuru-adi {
+        color: #f3f6fa;
+        font-size: 18px;
+        font-weight: 750;
+        line-height: 1.4;
+        margin-bottom: 11px;
+        overflow-wrap: anywhere;
+    }
+
+    .pa-duyuru-bilgi {
+        color: #aebed0;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 6px;
+    }
+
+        .pa-duyuru-bilgi i {
+            color: #55cbb7;
+        }
+
+    .pa-duyuru-durum {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        padding: 7px 13px;
+        font-size: 12px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .pa-duyuru-aktif {
+        background: #123f3a;
+        color: #7ae3bd;
+        border: 1px solid #24675c;
+    }
+
+    .pa-duyuru-pasif {
+        background: #38332c;
+        color: #e3c18b;
+        border: 1px solid #62533d;
+    }
+
+    .pa-duyuru-ayrac {
+        border: 0;
+        border-top: 1px solid #3c4c60;
+        margin: 20px 0;
+        opacity: 1;
+    }
+
+    .pa-duyuru-icerik {
+        color: #d3dce8;
+        font-size: 14px;
+        line-height: 1.8;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .pa-duyuru-bos {
+        background: #1a2838;
+        border: 1px dashed #52637a;
+        color: #b9c9d9;
+        border-radius: 16px;
+        padding: 45px 22px;
+        text-align: center;
+    }
+
+        .pa-duyuru-bos i {
+            display: block;
+            font-size: 29px;
+            color: #d2ae76;
+            margin-bottom: 10px;
+        }
+
+    @@media (max-width: 700px) {
+        .pa-duyuru-ozet {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .pa-duyuru-istatistik {
+            padding: 18px;
+        }
+
+        .pa-duyuru-kart {
+            padding: 18px;
+        }
+    }
+</style>
+
+<div class="pa-duyurular">
+    <div class="pa-duyuru-ust">
+        <div>
+            <h1 class="pa-duyuru-baslik">Dernek Duyuruları</h1>
+            <p class="pa-duyuru-aciklama">Bütün derneklerin duyurularını görüntüleyebilirsiniz.</p>
+        </div>
+        <span class="pa-duyuru-salt"><i class="bi bi-eye"></i> Salt Okunur</span>
+    </div>
+
+    <div class="pa-duyuru-ozet">
+        <div class="pa-duyuru-istatistik">
+            <div class="etiket">Toplam Duyuru</div>
+            <div class="deger">@duyurular.Count</div>
+        </div>
+        <div class="pa-duyuru-istatistik">
+            <div class="etiket">Aktif Duyuru</div>
+            <div class="deger">@duyurular.Count(x => x.AktifMi)</div>
+        </div>
+        <div class="pa-duyuru-istatistik">
+            <div class="etiket">Pasif Duyuru</div>
+            <div class="deger">@duyurular.Count(x => !x.AktifMi)</div>
+        </div>
+    </div>
+
+    <h2 class="pa-duyuru-liste-baslik">Yayınlanan Duyurular</h2>
+
+    @foreach (var duyuru in duyurular)
+    {
+        <article class="pa-duyuru-kart">
+            <div class="pa-duyuru-kart-ust">
+                <div>
+                    <div class="pa-duyuru-adi">@duyuru.Baslik</div>
+                    <div class="pa-duyuru-bilgi">
+                        <i class="bi bi-building"></i>
+                        <span>@(duyuru.Dernek?.DernekAdi ?? "Dernek bulunamadı")</span>
+                    </div>
+                    <div class="pa-duyuru-bilgi">
+                        <i class="bi bi-calendar3"></i>
+                        <span>@duyuru.YayinTarihi.ToString("dd.MM.yyyy HH:mm")</span>
+                    </div>
+                </div>
+                @if (duyuru.AktifMi)
+                {
+                    <span class="pa-duyuru-durum pa-duyuru-aktif"><i class="bi bi-check-circle-fill"></i> Aktif</span>
+                }
+                else
+                {
+                    <span class="pa-duyuru-durum pa-duyuru-pasif"><i class="bi bi-pause-circle-fill"></i> Pasif</span>
+                }
+            </div>
+            <hr class="pa-duyuru-ayrac" />
+            <div class="pa-duyuru-icerik">@duyuru.Icerik</div>
+        </article>
+    }
+
+    @if (!duyurular.Any())
+    {
+        <div class="pa-duyuru-bos">
+            <i class="bi bi-megaphone"></i>
+            Henüz duyuru bulunmuyor.
+        </div>
+    }
+</div>

@@ -1,0 +1,585 @@
+﻿@model DernekNet.Models.Dernek
+@using DernekNet.Models
+@using System.Linq
+@using System.Collections.Generic
+
+@{
+    Layout = "~/Areas/PlatformAdmin/Views/Shared/_PlatformAdminLayout.cshtml";
+
+    ViewData["Title"] = "AFAD Dernek Detayı";
+
+    var ekipler = ViewBag.Ekipler as List<AfadEkip>
+                 ?? new List<AfadEkip>();
+
+    var gonulluler = ViewBag.Gonulluler as List<AfadGonullu>
+                    ?? new List<AfadGonullu>();
+
+    var gorevler = ViewBag.Gorevler as List<AfadGorev>
+                  ?? new List<AfadGorev>();
+
+    var egitimler = ViewBag.Egitimler as List<AfadEgitim>
+                   ?? new List<AfadEgitim>();
+
+    var tatbikatlar = ViewBag.Tatbikatlar as List<AfadTatbikat>
+                     ?? new List<AfadTatbikat>();
+
+    var yetkinlikler = ViewBag.Yetkinlikler as List<AfadYetkinlik>
+                      ?? new List<AfadYetkinlik>();
+}
+
+<div class="container-fluid py-4">
+
+    <!-- SAYFA BAŞLIĞI -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">
+                🛡️ @Model.DernekAdi
+            </h2>
+            <p class="text-muted mb-0">
+                AFAD faaliyetleri, ekipler, gönüllüler,
+                görevler, eğitimler, tatbikatlar ve yetkinlikler
+            </p>
+        </div>
+
+        <span class="badge bg-secondary fs-6">
+            👁️ Salt Okunur
+        </span>
+    </div>
+
+    <!-- GERİ DÖN -->
+    <a asp-area="PlatformAdmin"
+       asp-controller="AfadIzleme"
+       asp-action="Index"
+       class="btn btn-outline-secondary mb-4">
+        ← AFAD İzleme Merkezine Dön
+    </a>
+
+    <!-- ÖZET KARTLARI -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4 col-lg">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Toplam Ekip</div>
+                    <h3 class="fw-bold mb-0">@ekipler.Count</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-lg">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Toplam Gönüllü</div>
+                    <h3 class="fw-bold mb-0">@gonulluler.Count</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-lg">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Toplam Görev</div>
+                    <h3 class="fw-bold mb-0">@gorevler.Count</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Toplam Eğitim</div>
+                    <h3 class="fw-bold mb-0">@egitimler.Count</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Toplam Tatbikat</div>
+                    <h3 class="fw-bold mb-0">@tatbikatlar.Count</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Toplam Yetkinlik</div>
+                    <h3 class="fw-bold mb-0">@yetkinlikler.Count</h3>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- AFAD EKİPLERİ -->
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-white py-3">
+            <h5 class="fw-bold mb-0">
+                AFAD Ekipleri (@ekipler.Count)
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            @if (!ekipler.Any())
+            {
+                <div class="alert alert-info mb-0">
+                    Bu derneğe ait henüz AFAD ekibi bulunmuyor.
+                </div>
+            }
+            else
+            {
+                @foreach (var ekip in ekipler)
+                {
+                    <div class="card border mb-3">
+                        <div class="card-body">
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="fw-bold mb-1">
+                                    @ekip.Ad
+                                </h5>
+
+                                @if (ekip.AktifMi)
+                                {
+                                    <span class="badge bg-success">
+                                        Aktif
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+                                        Pasif
+                                    </span>
+                                }
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(ekip.Aciklama))
+                            {
+                                <p class="text-muted mt-2">
+                                    @ekip.Aciklama
+                                </p>
+                            }
+
+                            <div class="table-responsive mt-3">
+                                <table class="table table-sm table-bordered align-middle">
+
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Adı Soyadı</th>
+                                            <th>Ekip Görevi</th>
+                                            <th>Durum</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+
+                                        @foreach (var uye in ekip.Uyeler)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @(uye.Gonullu?.AdSoyad ?? "-")
+                                                </td>
+
+                                                <td>
+                                                    @(uye.EkipLideriMi
+                                                        ? "Ekip Lideri"
+                                                        : "Ekip Üyesi")
+                                                </td>
+
+                                                <td>
+                                                    @if (uye.AktifMi)
+                                                    {
+                                                        <span class="badge bg-success">
+                                                            Aktif
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-secondary">
+                                                            Pasif
+                                                        </span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+
+                                        @if (!ekip.Uyeler.Any())
+                                        {
+                                            <tr>
+                                                <td colspan="3"
+                                                    class="text-center text-muted">
+                                                    Bu ekipte henüz gönüllü bulunmuyor.
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                }
+            }
+
+        </div>
+    </div>
+
+    <!-- AFAD GÖNÜLLÜLERİ -->
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-white py-3">
+            <h5 class="fw-bold mb-0">
+                AFAD Gönüllüleri (@gonulluler.Count)
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            @if (!gonulluler.Any())
+            {
+                <div class="alert alert-info mb-0">
+                    Bu derneğe ait henüz AFAD gönüllüsü bulunmuyor.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th>Adı Soyadı</th>
+                                <th>Kayıt Tarihi</th>
+                                <th>Onay Durumu</th>
+                                <th>Aktiflik Durumu</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var gonullu in gonulluler)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">
+                                        @gonullu.AdSoyad
+                                    </td>
+
+                                    <td>
+                                        @gonullu.KayitTarihi.ToString("dd.MM.yyyy")
+                                    </td>
+
+                                    <td>
+                                        @if (gonullu.OnaylandiMi)
+                                        {
+                                            <span class="badge bg-success">
+                                                Onaylandı
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                Onay Bekliyor
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (gonullu.AktifMi)
+                                        {
+                                            <span class="badge bg-success">
+                                                Aktif
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                Pasif
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+        </div>
+    </div>
+
+    <!-- AFAD GÖREVLERİ VE ATAMALAR -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3"><h5 class="fw-bold mb-0">AFAD Görevleri (@gorevler.Count)</h5></div>
+        <div class="card-body">
+            @if (!gorevler.Any())
+            {
+                <div class="alert alert-info mb-0">Bu derneğe ait henüz AFAD görevi bulunmuyor.</div>
+            }
+            else
+            {
+                @foreach (var gorev in gorevler)
+                {
+                    <div class="card border mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <h5 class="fw-bold mb-1">@gorev.Baslik</h5>
+                                @if (gorev.AktifMi)
+                                {
+                                    <span class="badge bg-success">Aktif</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Pasif</span>
+                                }
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(gorev.Aciklama))
+                            {
+                                <p class="text-muted mt-2">@gorev.Aciklama</p>
+                            }
+                            <p class="small text-muted mt-2">
+                                Başlangıç: @(gorev.BaslangicTarihi?.ToString("dd.MM.yyyy HH:mm") ?? "-")
+                                | Bitiş: @(gorev.BitisTarihi?.ToString("dd.MM.yyyy HH:mm") ?? "-")
+                            </p>
+                            <h6 class="fw-bold mt-3">Atanan Gönüllüler (@gorev.Atamalar.Count)</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered align-middle">
+                                    <thead class="table-light"><tr><th>Gönüllü</th><th>Atama Tarihi</th><th>Görev Durumu</th></tr></thead>
+                                    <tbody>
+                                        @foreach (var atama in gorev.Atamalar.OrderBy(x => x.Gonullu.AdSoyad))
+                                        {
+                                            <tr>
+                                                <td>@(atama.Gonullu?.AdSoyad ?? "-")</td>
+                                                <td>@atama.AtamaTarihi.ToString("dd.MM.yyyy HH:mm")</td>
+                                                <td>@(string.IsNullOrWhiteSpace(atama.Durum) ? "-" : atama.Durum)</td>
+                                            </tr>
+                                        }
+                                        @if (!gorev.Atamalar.Any())
+                                        {
+                                            <tr><td colspan="3" class="text-center text-muted">Henüz gönüllü atanmamış.</td></tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    <!-- AFAD EĞİTİMLERİ VE KATILIMLAR -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3"><h5 class="fw-bold mb-0">AFAD Eğitimleri (@egitimler.Count)</h5></div>
+        <div class="card-body">
+            @if (!egitimler.Any())
+            {
+                <div class="alert alert-info mb-0">Bu derneğe ait henüz AFAD eğitimi bulunmuyor.</div>
+            }
+            else
+            {
+                @foreach (var egitim in egitimler)
+                {
+                    <div class="card border mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <h5 class="fw-bold mb-1">@egitim.Baslik</h5>
+                                @if (egitim.AktifMi)
+                                {
+                                    <span class="badge bg-success">Aktif</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Pasif</span>
+                                }
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(egitim.Aciklama))
+                            {
+                                <p class="text-muted mt-2">@egitim.Aciklama</p>
+                            }
+                            <p class="small text-muted mt-2">Eğitim Tarihi: @egitim.Tarih.ToString("dd.MM.yyyy HH:mm")</p>
+                            <h6 class="fw-bold mt-3">Katılım Listesi (@egitim.Katilimlar.Count)</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered align-middle">
+                                    <thead class="table-light"><tr><th>Gönüllü</th><th>Katılım Durumu</th></tr></thead>
+                                    <tbody>
+                                        @foreach (var katilim in egitim.Katilimlar.OrderBy(x => x.Gonullu.AdSoyad))
+                                        {
+                                            <tr>
+                                                <td>@(katilim.Gonullu?.AdSoyad ?? "-")</td>
+                                                <td>
+                                                    @if (katilim.KatildiMi)
+                                                    {
+                                                        <span class="badge bg-success">Katıldı</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-secondary">Katılmadı / İşaretlenmedi</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                        @if (!egitim.Katilimlar.Any())
+                                        {
+                                            <tr><td colspan="2" class="text-center text-muted">Henüz katılım kaydı bulunmuyor.</td></tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    <!-- AFAD TATBİKATLARI VE KATILIMLAR -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3"><h5 class="fw-bold mb-0">AFAD Tatbikatları (@tatbikatlar.Count)</h5></div>
+        <div class="card-body">
+            @if (!tatbikatlar.Any())
+            {
+                <div class="alert alert-info mb-0">Bu derneğe ait henüz AFAD tatbikatı bulunmuyor.</div>
+            }
+            else
+            {
+                @foreach (var tatbikat in tatbikatlar)
+                {
+                    <div class="card border mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <h5 class="fw-bold mb-1">@tatbikat.Baslik</h5>
+                                @if (tatbikat.AktifMi)
+                                {
+                                    <span class="badge bg-success">Aktif</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Pasif</span>
+                                }
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(tatbikat.Aciklama))
+                            {
+                                <p class="text-muted mt-2">@tatbikat.Aciklama</p>
+                            }
+                            <p class="small text-muted mt-2">Tatbikat Tarihi: @tatbikat.Tarih.ToString("dd.MM.yyyy HH:mm")</p>
+                            <h6 class="fw-bold mt-3">Katılım Listesi (@tatbikat.Katilimlar.Count)</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered align-middle">
+                                    <thead class="table-light"><tr><th>Gönüllü</th><th>Tatbikattaki Görevi</th><th>Katılım Durumu</th></tr></thead>
+                                    <tbody>
+                                        @foreach (var katilim in tatbikat.Katilimlar.OrderBy(x => x.Gonullu.AdSoyad))
+                                        {
+                                            <tr>
+                                                <td>@(katilim.Gonullu?.AdSoyad ?? "-")</td>
+                                                <td>@(string.IsNullOrWhiteSpace(katilim.Gorevi) ? "-" : katilim.Gorevi)</td>
+                                                <td>
+                                                    @if (katilim.KatildiMi)
+                                                    {
+                                                        <span class="badge bg-success">Katıldı</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-secondary">Katılmadı / İşaretlenmedi</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                        @if (!tatbikat.Katilimlar.Any())
+                                        {
+                                            <tr><td colspan="3" class="text-center text-muted">Henüz katılım kaydı bulunmuyor.</td></tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    <!-- AFAD YETKİNLİKLERİ -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3">
+            <h5 class="fw-bold mb-0">AFAD Yetkinlikleri (@yetkinlikler.Count)</h5>
+        </div>
+        <div class="card-body">
+            @if (!yetkinlikler.Any())
+            {
+                <div class="alert alert-info mb-0">Bu derneğe ait henüz AFAD yetkinliği bulunmuyor.</div>
+            }
+            else
+            {
+                @foreach (var yetkinlik in yetkinlikler)
+                {
+                    <div class="card border mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                                <div>
+                                    <h5 class="fw-bold mb-1">@yetkinlik.Ad</h5>
+                                    @if (!string.IsNullOrWhiteSpace(yetkinlik.Aciklama))
+                                    {
+                                        <p class="text-muted mb-0">@yetkinlik.Aciklama</p>
+                                    }
+                                </div>
+                                <span class="badge bg-primary">@yetkinlik.Gonulluler.Count Gönüllü</span>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Gönüllü Adı Soyadı</th>
+                                            <th>Belge No</th>
+                                            <th>Belge Tarihi</th>
+                                            <th>Geçerlilik Bitişi</th>
+                                            <th>Belge Durumu</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var kayit in yetkinlik.Gonulluler)
+                                        {
+                                            var suresiDolmus = kayit.GecerlilikBitisi.HasValue
+                                            && kayit.GecerlilikBitisi.Value.Date < DateTime.Today;
+                                            <tr>
+                                                <td class="fw-semibold">@(kayit.Gonullu?.AdSoyad ?? "-")</td>
+                                                <td>@(string.IsNullOrWhiteSpace(kayit.BelgeNo) ? "-" : kayit.BelgeNo)</td>
+                                                <td>@(kayit.BelgeTarihi?.ToString("dd.MM.yyyy") ?? "-")</td>
+                                                <td>@(kayit.GecerlilikBitisi?.ToString("dd.MM.yyyy") ?? "-")</td>
+                                                <td>
+                                                    @if (suresiDolmus)
+                                                    {
+                                                        <span class="badge bg-danger">Süresi Dolmuş</span>
+                                                    }
+                                                    else if (kayit.GecerlilikBitisi.HasValue)
+                                                    {
+                                                        <span class="badge bg-success">Süresi Dolmamış</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-secondary">Bitiş Tarihi Yok</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                        @if (!yetkinlik.Gonulluler.Any())
+                                        {
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted">Bu yetkinliğe atanmış gönüllü bulunmuyor.</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+</div>

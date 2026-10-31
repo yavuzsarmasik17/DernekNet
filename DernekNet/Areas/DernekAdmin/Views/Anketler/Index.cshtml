@@ -1,0 +1,586 @@
+﻿@model List<DernekNet.Models.Anket>
+
+@{
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+}
+
+
+
+
+@{
+    ViewData["Title"] = "Anket Yönetimi";
+
+    var simdi = DateTime.UtcNow;
+    var toplamAnket = Model.Count;
+    var aktifAnket = Model.Count(x =>
+        x.AktifMi &&
+        x.BaslangicTarihi <= simdi &&
+        x.BitisTarihi > simdi);
+
+    var toplamOy = Model.Sum(x => x.Oylar.Count);
+}
+
+<style>
+    /* DERNEKNET - ANKET YONETIMI / DARK PREMIUM */
+    .anket-page {
+        --ak-panel: #192737;
+        --ak-panel-hover: #213348;
+        --ak-border: #35485d;
+        --ak-text: #edf3fa;
+        --ak-muted: #afc1d4;
+        --ak-accent: #4cc6b1;
+        max-width: 1250px;
+        margin: 35px auto;
+        padding: 0 18px 60px;
+        font-family: "Segoe UI", Arial, sans-serif;
+        color: var(--ak-text);
+    }
+
+        .anket-page .anket-hero {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(120deg, #123e50 0%, #087d80 100%) !important;
+            border: 1px solid #237d82;
+            border-radius: 22px;
+            padding: 35px;
+            color: #f5fafc;
+            margin-bottom: 25px;
+        }
+
+            .anket-page .anket-hero::after {
+                content: "";
+                position: absolute;
+                width: 230px;
+                height: 230px;
+                border-radius: 50%;
+                background: rgba(76,198,177,.13);
+                right: -60px;
+                top: -100px;
+                pointer-events: none;
+            }
+
+            .anket-page .anket-hero h1 {
+                color: #ffffff !important;
+                font-size: 29px;
+                font-weight: 750;
+                margin-bottom: 10px;
+            }
+
+            .anket-page .anket-hero p {
+                color: #e0f2f2 !important;
+                margin: 0;
+            }
+
+        .anket-page .anket-hero-inner {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .anket-page .anket-yeni-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #c4a16a !important;
+            border: 1px solid #d5b57e;
+            color: #111b26 !important;
+            text-decoration: none;
+            padding: 13px 22px;
+            border-radius: 11px;
+            font-weight: 750;
+            transition: background .2s, transform .2s;
+        }
+
+            .anket-page .anket-yeni-btn:hover {
+                background: #dfba80 !important;
+                color: #101923 !important;
+                transform: translateY(-2px);
+            }
+
+        .anket-page .anket-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0,1fr));
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .anket-page .anket-stat {
+            background: var(--ak-panel) !important;
+            padding: 25px;
+            border-radius: 17px;
+            border: 1px solid var(--ak-border) !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,.13);
+            transition: transform .2s, border-color .2s;
+        }
+
+            .anket-page .anket-stat:hover {
+                transform: translateY(-3px);
+                border-color: var(--ak-accent) !important;
+            }
+
+        .anket-page .anket-stat-label {
+            color: var(--ak-muted) !important;
+            font-size: 14px;
+            margin-bottom: 9px;
+        }
+
+        .anket-page .anket-stat-value {
+            font-size: 34px;
+            font-weight: 800;
+            color: var(--ak-accent) !important;
+        }
+
+        .anket-page .anket-section-title {
+            color: var(--ak-text) !important;
+            font-size: 21px;
+            font-weight: 750;
+            margin-bottom: 20px;
+        }
+
+        .anket-page .anket-list {
+            display: grid;
+            gap: 18px;
+        }
+
+        .anket-page .anket-card {
+            background: var(--ak-panel) !important;
+            border: 1px solid var(--ak-border) !important;
+            border-radius: 19px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,.13);
+            transition: transform .2s, border-color .2s;
+        }
+
+            .anket-page .anket-card:hover {
+                transform: translateY(-3px);
+                border-color: #478b88 !important;
+            }
+
+        .anket-page .anket-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .anket-page .anket-card h3 {
+            color: #f2f6fb !important;
+            font-size: 19px;
+            font-weight: 750;
+            margin: 0;
+        }
+
+        .anket-page .anket-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 7px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+            .anket-page .anket-status.active {
+                color: #75e8c6 !important;
+                background: #123c35 !important;
+                border: 1px solid #276957;
+            }
+
+            .anket-page .anket-status.waiting {
+                color: #f6d18b !important;
+                background: #44351e !important;
+                border: 1px solid #745c37;
+            }
+
+            .anket-page .anket-status.ended {
+                color: #c5d0df !important;
+                background: #2a394b !important;
+                border: 1px solid #43556b;
+            }
+
+            .anket-page .anket-status.disabled {
+                color: #f2a7b2 !important;
+                background: #442a34 !important;
+                border: 1px solid #7c4855;
+            }
+
+        .anket-page .anket-description {
+            color: var(--ak-muted) !important;
+            margin-bottom: 18px;
+            white-space: pre-line;
+            overflow-wrap: anywhere;
+        }
+
+        .anket-page .anket-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            color: #b5c8da !important;
+            font-size: 13px;
+            padding-top: 15px;
+            border-top: 1px solid var(--ak-border);
+        }
+
+        .anket-page .anket-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+            .anket-page .anket-actions form {
+                margin: 0;
+            }
+
+        .anket-page .anket-sonuc-link {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid #319e9a;
+            border-radius: 10px;
+            padding: 10px 17px;
+            background: #116f75 !important;
+            color: #ffffff !important;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+            .anket-page .anket-sonuc-link:hover {
+                background: #15938f !important;
+                color: #ffffff !important;
+            }
+
+        .anket-page .anket-action-btn {
+            border: 1px solid #527083 !important;
+            border-radius: 10px;
+            background: #25394b !important;
+            color: #dce9f5 !important;
+            font-weight: 700;
+            padding: 10px 17px;
+            cursor: pointer;
+        }
+
+            .anket-page .anket-action-btn:hover {
+                background: #324d60 !important;
+            }
+
+            .anket-page .anket-action-btn.anket-delete-btn {
+                background: #422932 !important;
+                color: #f4b1ba !important;
+                border-color: #874956 !important;
+            }
+
+                .anket-page .anket-action-btn.anket-delete-btn:hover {
+                    background: #5a303c !important;
+                }
+
+        .anket-page .anket-empty {
+            text-align: center;
+            background: var(--ak-panel) !important;
+            padding: 65px 20px;
+            border-radius: 20px;
+            border: 1px dashed #4b6c7b !important;
+        }
+
+        .anket-page .anket-empty-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .anket-page .anket-empty h3 {
+            color: #f1f6fc !important;
+            font-size: 20px;
+            font-weight: 750;
+        }
+
+        .anket-page .anket-empty p {
+            color: var(--ak-muted) !important;
+        }
+
+    /* Silme penceresi: Bootstrap modal korunur, sadece koyu gorunum */
+    #anketSilModal .modal-content {
+        background: #1b2a3b !important;
+        color: #edf3fa !important;
+        border: 1px solid #3b5066 !important;
+        border-radius: 20px !important;
+    }
+
+    #anketSilModal h4 {
+        color: #f1f5f9 !important;
+    }
+
+    #anketSilModal #silinecekAnketSorusu {
+        color: #f1f5f9 !important;
+    }
+
+    #anketSilModal .text-muted {
+        color: #b8c9da !important;
+    }
+
+    #anketSilModal .btn-light {
+        background: #344357 !important;
+        color: #e8eef6 !important;
+        border-color: #465a70 !important;
+    }
+
+    #anketSilModal .btn-danger {
+        background: #a74352 !important;
+        color: #fff !important;
+        border-color: #a74352 !important;
+    }
+
+    #anketSilModal .modal-body > div:first-child {
+        background: #472a34 !important;
+        color: #f2a7b2 !important;
+    }
+
+    @@media (max-width: 700px) {
+        .anket-page {
+            padding: 0 8px 40px;
+        }
+
+            .anket-page .anket-hero {
+                padding: 25px;
+            }
+
+            .anket-page .anket-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .anket-page .anket-card {
+                padding: 20px;
+            }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .anket-page .anket-card, .anket-page .anket-stat, .anket-page .anket-yeni-btn {
+            transition: none;
+        }
+    }
+</style>
+
+<div class="anket-page">
+
+    <div class="anket-hero">
+        <div class="anket-hero-inner">
+            <div>
+                <h1>📊 Anket Yönetimi</h1>
+                <p>
+                    Derneğiniz için anketler oluşturun,
+                    katılımı takip edin ve yönetin.
+                </p>
+            </div>
+
+            <a asp-area="DernekAdmin"
+               asp-controller="Anketler"
+               asp-action="Create"
+               class="anket-yeni-btn">
+                ＋ Yeni Anket Oluştur
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Hata"] != null)
+    {
+        <div class="alert alert-danger" role="alert">@TempData["Hata"]</div>
+    }
+
+    @if (TempData["Basarili"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Basarili"]
+        </div>
+    }
+
+    <div class="anket-stats">
+        <div class="anket-stat">
+            <div class="anket-stat-label">Toplam Anket</div>
+            <div class="anket-stat-value">@toplamAnket</div>
+        </div>
+
+        <div class="anket-stat">
+            <div class="anket-stat-label">Yayındaki Anket</div>
+            <div class="anket-stat-value">@aktifAnket</div>
+        </div>
+
+        <div class="anket-stat">
+            <div class="anket-stat-label">Toplam Kullanılan Oy</div>
+            <div class="anket-stat-value">@toplamOy</div>
+        </div>
+    </div>
+
+    <h2 class="anket-section-title">Anketleriniz</h2>
+
+    @if (Model.Any())
+    {
+        <div class="anket-list">
+            @foreach (var anket in Model)
+            {
+                var yayinda = anket.AktifMi &&
+                anket.BaslangicTarihi <= simdi &&
+                anket.BitisTarihi > simdi;
+
+                var planlandi = anket.AktifMi &&
+                anket.BaslangicTarihi > simdi;
+
+                var bitti = anket.AktifMi &&
+                anket.BitisTarihi <= simdi;
+
+                <article class="anket-card">
+                    <div class="anket-card-header">
+                        <h3>@anket.Soru</h3>
+
+                        @if (!anket.AktifMi)
+                        {
+                            <span class="anket-status disabled">● Pasif</span>
+                        }
+                        else if (yayinda)
+                        {
+                            <span class="anket-status active">● Yayında</span>
+                        }
+                        else if (planlandi)
+                        {
+                            <span class="anket-status waiting">● Planlandı</span>
+                        }
+                        else if (bitti)
+                        {
+                            <span class="anket-status ended">● Sona Erdi</span>
+                        }
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(anket.Aciklama))
+                    {
+                        <div class="anket-description">
+                            @anket.Aciklama
+                        </div>
+                    }
+
+                    <div class="anket-meta">
+                        <span>☑ @anket.Secenekler.Count seçenek</span>
+                        <span>👥 @anket.Oylar.Count oy</span>
+                        <span>
+                            📅 @anket.BaslangicTarihi.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
+                        </span>
+                        <span>
+                            🏁 @anket.BitisTarihi.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
+                        </span>
+                    </div>
+
+                    <div class="anket-actions">
+                        <a asp-area="DernekAdmin"
+                           asp-controller="Anketler"
+                           asp-action="Sonuclar"
+                           asp-route-id="@anket.Id"
+                           class="anket-sonuc-link">📊 Sonuçları Gör</a>
+                        <a asp-area="DernekAdmin" asp-controller="Anketler"
+                           asp-action="Edit" asp-route-id="@anket.Id"
+                           class="anket-sonuc-link">✏️ Düzenle</a>
+                        @if (anket.Oylar.Count == 0)
+                        {
+                            <button type="button"
+                                    class="anket-action-btn anket-delete-btn"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#anketSilModal"
+                                    data-anket-id="@anket.Id"
+                                    data-anket-soru="@anket.Soru">
+                                🗑 Sil
+                            </button>
+                        }
+                        <form asp-area="DernekAdmin"
+                              asp-controller="Anketler"
+                              asp-action="DurumDegistir"
+                              method="post">
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@anket.Id" />
+
+                            <button type="submit"
+                                    class="anket-action-btn">
+                                @(anket.AktifMi
+                                    ? "⏸ Yayından Kaldır"
+                                    : "▶ Yayına Al")
+                            </button>
+                        </form>
+                    </div>
+                </article>
+
+            }
+        </div>
+    }
+    else
+    {
+        <div class="anket-empty">
+            <div class="anket-empty-icon">🗳️</div>
+            <h3>Henüz anket oluşturmadınız</h3>
+            <p>
+                İlk anketinizi oluşturarak
+                ziyaretçilerin görüşlerini toplamaya başlayın.
+            </p>
+
+            <a asp-area="DernekAdmin"
+               asp-controller="Anketler"
+               asp-action="Create"
+               class="anket-yeni-btn">
+                ＋ İlk Anketi Oluştur
+            </a>
+        </div>
+    }
+
+</div>
+
+<!-- ANKET SİLME ONAY PENCERESİ -->
+<div class="modal fade" id="anketSilModal" tabindex="-1"
+     aria-labelledby="anketSilBaslik" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:20px;">
+            <div class="modal-body text-center p-4 p-md-5">
+                <div class="mx-auto mb-3 d-flex align-items-center justify-content-center"
+                     style="width:76px;height:76px;border-radius:50%;background:#fee2e2;color:#dc2626;font-size:32px;">
+                    &#128465;
+                </div>
+                <h4 id="anketSilBaslik" class="fw-bold mb-3">
+                    Anketi Silmek İstiyor musunuz?
+                </h4>
+                <p id="silinecekAnketSorusu" class="fw-semibold text-dark text-break"></p>
+                <p class="text-muted mb-4">
+                    Bu anket ve seçenekleri kalıcı olarak silinecektir.
+                    Bu işlem geri alınamaz.
+                </p>
+                <form asp-area="DernekAdmin" asp-controller="Anketler"
+                      asp-action="Sil" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="silinecekAnketId" name="id" />
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-light flex-fill py-3"
+                                data-bs-dismiss="modal">
+                            Vazgeç
+                        </button>
+                        <button type="submit" class="btn btn-danger flex-fill py-3">
+                            Evet, Sil
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("anketSilModal")
+        .addEventListener("show.bs.modal", function (event) {
+            const button = event.relatedTarget;
+            if (!button) return;
+            document.getElementById("silinecekAnketId").value =
+                button.getAttribute("data-anket-id");
+            document.getElementById("silinecekAnketSorusu").textContent =
+                button.getAttribute("data-anket-soru");
+        });
+</script>

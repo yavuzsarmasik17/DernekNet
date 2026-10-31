@@ -1,0 +1,40 @@
+﻿@model DernekNet.Models.AfadGorevFormVm
+@{
+    bool duzenleme = Model.Id > 0;
+    ViewData["Title"] = duzenleme ? "AFAD Görev Düzenle" : "AFAD Yeni Görev";
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+}
+<h2 class="h4 mb-4">@ViewData["Title"]</h2>
+<div class="dn-card" style="max-width:850px">
+    <form asp-action="@(duzenleme ? "Duzenle" : "Olustur")" asp-route-id="@(duzenleme ? Model.Id : (int?)null)" method="post">
+        @Html.AntiForgeryToken()
+        <input asp-for="Id" type="hidden" />
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+        <div class="mb-3">
+            <label asp-for="Baslik" class="form-label"></label>
+            <input asp-for="Baslik" class="form-control" maxlength="200" />
+            <span asp-validation-for="Baslik" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Aciklama" class="form-label"></label>
+            <textarea asp-for="Aciklama" rows="5" class="form-control"></textarea>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="BaslangicTarihi" class="form-label"></label>
+                <input asp-for="BaslangicTarihi" type="datetime-local" class="form-control" asp-format="{0:yyyy-MM-ddTHH:mm}" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="BitisTarihi" class="form-label"></label>
+                <input asp-for="BitisTarihi" type="datetime-local" class="form-control" asp-format="{0:yyyy-MM-ddTHH:mm}" />
+                <span asp-validation-for="BitisTarihi" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-check mb-4">
+            <input asp-for="AktifMi" class="form-check-input" />
+            <label asp-for="AktifMi" class="form-check-label"></label>
+        </div>
+        <button type="submit" class="btn btn-primary">Kaydet</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Vazgeç</a>
+    </form>
+</div>

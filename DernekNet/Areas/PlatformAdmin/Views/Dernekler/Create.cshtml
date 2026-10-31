@@ -1,0 +1,346 @@
+﻿@model DernekNet.Models.Dernek
+
+@{
+    Layout = "~/Areas/PlatformAdmin/Views/Shared/_PlatformAdminLayout.cshtml";
+    ViewData["Title"] = "Yeni Dernek Ekle";
+}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <h1 class="page-title">Yeni Dernek Ekle</h1>
+        <p class="page-subtitle mb-0">
+            DERNEKNET platformuna yeni bir dernek kaydedin.
+        </p>
+    </div>
+
+    <a asp-area="PlatformAdmin"
+       asp-controller="Dernekler"
+       asp-action="Index"
+       class="btn btn-outline-secondary">
+        ← Dernek Listesine Dön
+    </a>
+</div>
+
+<form asp-area="PlatformAdmin"
+      asp-controller="Dernekler"
+      asp-action="Create"
+      method="post"
+      enctype="multipart/form-data">
+
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="All"
+         class="text-danger mb-3"></div>
+
+    <div class="admin-card mb-4">
+
+        <div class="admin-card-header">
+            Dernek Bilgileri
+        </div>
+
+        <div class="admin-card-body">
+
+            <div class="row g-4">
+
+                <!-- DERNEK ADI -->
+                <div class="col-12">
+
+                    <label asp-for="DernekAdi"
+                           class="form-label fw-semibold">
+                        Dernek Adı *
+                    </label>
+
+                    <input asp-for="DernekAdi"
+                           class="form-control"
+                           placeholder="Derneğin resmi adını girin"
+                           required />
+
+                    <span asp-validation-for="DernekAdi"
+                          class="text-danger small"></span>
+                </div>
+
+                <!-- DERNEK LOGOSU -->
+                <div class="col-12">
+
+                    <label for="logoDosyasi"
+                           class="form-label fw-semibold">
+                        Dernek Logosu
+                    </label>
+
+                    <div class="border rounded-3 bg-white p-4">
+
+                        <div class="d-flex align-items-center gap-4 flex-wrap">
+
+                            <!-- LOGO ÖNİZLEME -->
+                            <div style="
+                                width:120px;
+                                height:120px;
+                                border:1px solid #dee2e6;
+                                border-radius:18px;
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                                overflow:hidden;
+                                background:#f8fafc;
+                                flex-shrink:0;">
+
+                                <img id="logoOnizleme"
+                                     alt="Dernek logosu önizleme"
+                                     style="
+                                        width:100%;
+                                        height:100%;
+                                        object-fit:contain;
+                                        display:none;" />
+
+                                <span id="logoBos"
+                                      style="font-size:45px;">
+                                    🏛️
+                                </span>
+
+                            </div>
+
+                            <!-- DOSYA SEÇME -->
+                            <div class="flex-grow-1"
+                                 style="min-width:220px;">
+
+                                <input type="file"
+                                       id="logoDosyasi"
+                                       name="logoDosyasi"
+                                       class="form-control"
+                                       accept=".jpg,.jpeg,.png,.webp"
+                                       onchange="logoGoster(this)" />
+
+                                <small class="text-muted d-block mt-2">
+                                    JPG, JPEG, PNG veya WEBP formatında
+                                    logo yükleyebilirsiniz.
+                                    Maksimum dosya boyutu 5 MB.
+                                </small>
+
+                                <div id="logoHata"
+                                     class="text-danger small mt-2"
+                                     role="alert"
+                                     style="display:none;">
+                                </div>
+
+                                <button type="button"
+                                        id="logoTemizle"
+                                        class="btn btn-outline-secondary btn-sm mt-3"
+                                        onclick="logoKaldir()"
+                                        style="display:none;">
+                                    Seçilen Logoyu Kaldır
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- TELEFON -->
+                <div class="col-md-6">
+
+                    <label asp-for="Telefon"
+                           class="form-label fw-semibold">
+                        Telefon Numarası
+                    </label>
+
+                    <input asp-for="Telefon"
+                           class="form-control"
+                           placeholder="05XX XXX XX XX" />
+
+                    <span asp-validation-for="Telefon"
+                          class="text-danger small"></span>
+
+                </div>
+
+                <!-- E-POSTA -->
+                <div class="col-md-6">
+
+                    <label asp-for="Email"
+                           class="form-label fw-semibold">
+                        E-posta Adresi
+                    </label>
+
+                    <input asp-for="Email"
+                           type="email"
+                           class="form-control"
+                           placeholder="iletisim@dernek.org" />
+
+                    <span asp-validation-for="Email"
+                          class="text-danger small"></span>
+
+                </div>
+
+                <!-- ADRES -->
+                <div class="col-12">
+
+                    <label asp-for="Adres"
+                           class="form-label fw-semibold">
+                        Dernek Adresi
+                    </label>
+
+                    <textarea asp-for="Adres"
+                              class="form-control"
+                              rows="3"
+                              placeholder="Derneğin açık adresini girin"></textarea>
+
+                    <span asp-validation-for="Adres"
+                          class="text-danger small"></span>
+
+                </div>
+
+                <!-- DERNEK HAKKINDA -->
+                <div class="col-12">
+
+                    <label asp-for="Aciklama"
+                           class="form-label fw-semibold">
+                        Dernek Hakkında
+                    </label>
+
+                    <textarea asp-for="Aciklama"
+                              class="form-control"
+                              rows="4"
+                              placeholder="Derneğin amacı ve faaliyetleri hakkında bilgi girin"></textarea>
+
+                    <span asp-validation-for="Aciklama"
+                          class="text-danger small"></span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- DERNEK DURUMU -->
+    <div class="admin-card mb-4">
+
+        <div class="admin-card-header">
+            Dernek Durumu
+        </div>
+
+        <div class="admin-card-body">
+
+            <div class="form-check">
+
+                <input asp-for="AktifMi"
+                       class="form-check-input" />
+
+                <label asp-for="AktifMi"
+                       class="form-check-label fw-semibold">
+                    Dernek Aktif
+                </label>
+
+            </div>
+
+            <p class="text-muted small mt-3 mb-0">
+                Aktif dernekler DERNEKNET üzerinde hizmet verebilir.
+                Dernek için renk teması sistem tarafından otomatik atanır.
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- KAYDET VE İPTAL -->
+    <div class="d-flex gap-3 flex-wrap mb-5">
+
+        <button type="submit"
+                class="btn btn-primary px-4">
+            Derneği Kaydet
+        </button>
+
+        <a asp-area="PlatformAdmin"
+           asp-controller="Dernekler"
+           asp-action="Index"
+           class="btn btn-outline-secondary px-4">
+            İptal
+        </a>
+
+    </div>
+
+</form>
+
+<script>
+    function logoGoster(input) {
+
+        const resim = document.getElementById("logoOnizleme");
+        const bos = document.getElementById("logoBos");
+        const hata = document.getElementById("logoHata");
+        const temizle = document.getElementById("logoTemizle");
+
+        hata.style.display = "none";
+        hata.textContent = "";
+
+        const dosya = input.files && input.files[0];
+
+        if (!dosya) {
+            logoKaldir();
+            return;
+        }
+
+        const izinliTurler = [
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+        ];
+
+        if (!izinliTurler.includes(dosya.type)) {
+            logoKaldir();
+
+            hata.textContent =
+                "Lütfen JPG, PNG veya WEBP formatında logo seçin.";
+
+            hata.style.display = "block";
+            return;
+        }
+
+        const maksimumBoyut = 5 * 1024 * 1024;
+
+        if (dosya.size > maksimumBoyut) {
+            logoKaldir();
+
+            hata.textContent =
+                "Logo dosyası en fazla 5 MB olabilir.";
+
+            hata.style.display = "block";
+            return;
+        }
+
+        const okuyucu = new FileReader();
+
+        okuyucu.onload = function (e) {
+
+            resim.src = e.target.result;
+            resim.style.display = "block";
+
+            bos.style.display = "none";
+            temizle.style.display = "inline-block";
+        };
+
+        okuyucu.readAsDataURL(dosya);
+    }
+
+    function logoKaldir() {
+
+        const input = document.getElementById("logoDosyasi");
+        const resim = document.getElementById("logoOnizleme");
+        const bos = document.getElementById("logoBos");
+        const temizle = document.getElementById("logoTemizle");
+
+        input.value = "";
+
+        resim.removeAttribute("src");
+        resim.style.display = "none";
+
+        bos.style.display = "block";
+        temizle.style.display = "none";
+    }
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

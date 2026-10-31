@@ -1,0 +1,74 @@
+﻿@model DernekNet.Models.Duyuru
+@{
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+    ViewData["Title"] = "Yeni Duyuru";
+}
+<h1 class="fw-bold mb-2">Yeni Duyuru Oluştur</h1>
+<p class="mb-4" style="color:#aabbd0">Derneğiniz adına fotoğraflı ve videolu duyuru hazırlayın.</p>
+<div class="dn-card">
+    <form asp-area="DernekAdmin" asp-controller="Duyurular" asp-action="Create" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+        <div class="mb-4">
+            <label asp-for="Baslik" class="form-label fw-semibold">Duyuru Başlığı</label>
+            <input asp-for="Baslik" class="form-control" maxlength="200" required />
+            <span asp-validation-for="Baslik" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Icerik" class="form-label fw-semibold">Duyuru İçeriği</label>
+            <textarea asp-for="Icerik" class="form-control" rows="9" required></textarea>
+            <span asp-validation-for="Icerik" class="text-danger"></span>
+        </div>
+        <div class="dn-metin-aktar mb-4" style="background:#172535;border:1px solid #34465a;border-radius:14px;padding:18px;color:#e9eff7">
+            <div class="fw-bold mb-2"><i class="bi bi-file-earmark-arrow-up me-2" style="color:#42c7b7"></i>Dosyadan Metin Aktar</div>
+            <p class="small mb-3" style="color:#afc0d2">TXT, Word (.docx) veya metin içeren PDF (en fazla 5 MB). Dosyadaki yazılar açıklama alanına aktarılır; dosya ayrıca saklanmaz.</p>
+            <input type="file" class="form-control dn-metin-dosya" accept=".txt,.docx,.pdf" aria-label="Metin aktarılacak dosya" style="background:#0f1c2b;color:#e9eff7;border-color:#43546b" />
+            <div class="dn-metin-durum small mt-2" role="status" aria-live="polite" style="color:#b9cedd"></div>
+        </div>
+        <div class="mb-4" style="background:#172535;border:1px solid #34465a;border-radius:14px;padding:20px">
+            <h5 class="fw-bold mb-2"><i class="bi bi-images me-2"></i>Fotoğraf ve Video Ekle</h5>
+            <p class="small" style="color:#aabbd0">Birden fazla fotoğraf veya video ekleyebilirsiniz.</p>
+            <input type="file" id="medyaDosyalari" name="medyaDosyalari" class="form-control" accept=".jpg,.jpeg,.png,.webp,.mp4,.webm" multiple />
+            <div class="form-text">Fotoğraflar en fazla 5 MB, videolar en fazla 50 MB. En fazla 10 dosya.</div>
+            <div id="medyaOnizleme" class="row g-3 mt-2"></div>
+        </div>
+        <div class="form-check mb-4">
+            <input asp-for="AktifMi" class="form-check-input" />
+            <label asp-for="AktifMi" class="form-check-label">Duyuruyu Yayınla</label>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <button type="submit" class="btn btn-primary px-4"><i class="bi bi-check-circle me-2"></i>Duyuruyu Kaydet</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">İptal</a>
+        </div>
+    </form>
+</div>
+@section Scripts {
+    <script src="~/js/duyuru-metin-aktar.js" asp-append-version="true"></script>
+    <script>
+        const medyaInput = document.getElementById("medyaDosyalari");
+        const onizleme = document.getElementById("medyaOnizleme");
+        medyaInput.addEventListener("change", function () {
+            onizleme.innerHTML = "";
+            const dosyalar = Array.from(this.files);
+            if (dosyalar.length > 10) { alert("En fazla 10 dosya seçebilirsiniz."); this.value = ""; return; }
+            for (const dosya of dosyalar) {
+                const videoMu = dosya.type.startsWith("video/");
+                const limit = videoMu ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+                if (dosya.size > limit) { alert(dosya.name + " dosyası boyut sınırını aşıyor."); medyaInput.value = ""; onizleme.innerHTML = ""; return; }
+            }
+            dosyalar.forEach(function (dosya) {
+                const videoMu = dosya.type.startsWith("video/");
+                const kolon = document.createElement("div"); kolon.className = "col-6 col-md-4 col-lg-3";
+                const kutu = document.createElement("div"); kutu.className = "border rounded-3 p-2 h-100";
+                kutu.style.background = "#132131";
+                const url = URL.createObjectURL(dosya);
+                const medya = document.createElement(videoMu ? "video" : "img");
+                if (videoMu) medya.controls = true;
+                medya.src = url; medya.style.width = "100%"; medya.style.height = "140px"; medya.style.objectFit = "contain";
+                medya.addEventListener(videoMu ? "loadeddata" : "load", () => URL.revokeObjectURL(url), { once: true });
+                const ad = document.createElement("div"); ad.className = "small text-truncate mt-2"; ad.textContent = dosya.name;
+                kutu.appendChild(medya); kutu.appendChild(ad); kolon.appendChild(kutu); onizleme.appendChild(kolon);
+            });
+        });
+    </script>
+}

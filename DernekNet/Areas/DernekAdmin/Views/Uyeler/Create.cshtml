@@ -1,0 +1,249 @@
+﻿@model DernekNet.Models.Uye
+
+@{
+    ViewData["Title"] = "Yeni Üye Ekle";
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Yeni Üye Kaydı</h3>
+        <p class="text-muted mb-0">
+            Derneğinize yeni üye ekleyin.
+        </p>
+    </div>
+
+    <a asp-action="Index"
+       class="btn btn-outline-secondary">
+        ← Üye Listesi
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+
+        <form asp-area="DernekAdmin"
+              asp-controller="Uyeler"
+              asp-action="Create"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-3"></div>
+
+            <div class="row g-4">
+
+                <!-- FOTOĞRAF -->
+                <div class="col-md-4 text-center">
+                    <div class="border rounded-4 p-4">
+
+                        <img id="fotografOnizleme"
+                             alt="Fotoğraf önizleme"
+                             style="width:160px;
+                                    height:160px;
+                                    object-fit:cover;
+                                    border-radius:50%;
+                                    display:none;
+                                    margin:0 auto 15px;" />
+
+                        <div id="varsayilanAvatar"
+                             style="width:160px;
+                                    height:160px;
+                                    border-radius:50%;
+                                    background:#e0eaff;
+                                    display:flex;
+                                    align-items:center;
+                                    justify-content:center;
+                                    font-size:65px;
+                                    margin:0 auto 15px;">
+                            👤
+                        </div>
+
+                        <label class="form-label fw-semibold">
+                            Üye Fotoğrafı
+                        </label>
+
+                        <input type="file"
+                               id="fotograf"
+                               name="fotograf"
+                               class="form-control"
+                               accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+
+                        <span class="text-danger"
+                              data-valmsg-for="fotograf"></span>
+
+                        <small class="text-muted d-block mt-2">
+                            JPG, PNG, WEBP • En fazla 2 MB
+                        </small>
+                    </div>
+                </div>
+
+                <!-- ÜYE BİLGİLERİ -->
+                <div class="col-md-8">
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label asp-for="Ad"
+                                   class="form-label fw-semibold">
+                                Ad *
+                            </label>
+                            <input asp-for="Ad"
+                                   class="form-control"
+                                   maxlength="100" />
+                            <span asp-validation-for="Ad"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Soyad"
+                                   class="form-label fw-semibold">
+                                Soyad *
+                            </label>
+                            <input asp-for="Soyad"
+                                   class="form-control"
+                                   maxlength="100" />
+                            <span asp-validation-for="Soyad"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Telefon"
+                                   class="form-label fw-semibold">
+                                Telefon
+                            </label>
+                            <input asp-for="Telefon"
+                                   class="form-control"
+                                   placeholder="05xxxxxxxxx" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Email"
+                                   class="form-label fw-semibold">
+                                E-posta
+                            </label>
+                            <input asp-for="Email"
+                                   type="email"
+                                   class="form-control" />
+                            <span asp-validation-for="Email"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="UyelikTarihi"
+                                   class="form-label fw-semibold">
+                                Üyelik Tarihi
+                            </label>
+                            <input asp-for="UyelikTarihi"
+                                   type="date"
+                                   asp-format="{0:yyyy-MM-dd}"
+                                   class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">
+                                Üyelik Durumu
+                            </label>
+
+                            <div class="form-check mt-2">
+                                <input asp-for="AktifMi"
+                                       class="form-check-input" />
+                                <label asp-for="AktifMi"
+                                       class="form-check-label">
+                                    Aktif Üye
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Aciklama"
+                                   class="form-label fw-semibold">
+                                Açıklama / Not
+                            </label>
+
+                            <textarea asp-for="Aciklama"
+                                      class="form-control"
+                                      rows="4"
+                                      maxlength="500"></textarea>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+
+            <div class="d-flex justify-content-end gap-2">
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary">
+                    Vazgeç
+                </a>
+
+                <button type="submit"
+                        class="btn btn-success px-4">
+                    Üyeyi Kaydet
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.getElementById("fotograf")
+            .addEventListener("change", function () {
+
+                const dosya = this.files[0];
+                const resim = document.getElementById(
+                    "fotografOnizleme");
+
+                const avatar = document.getElementById(
+                    "varsayilanAvatar");
+
+                if (!dosya) {
+                    resim.removeAttribute("src");
+                    resim.style.display = "none";
+                    avatar.style.display = "flex";
+                    return;
+                }
+
+                if (dosya.size > 2 * 1024 * 1024) {
+                    alert("Fotoğraf en fazla 2 MB olabilir.");
+                    this.value = "";
+                    resim.removeAttribute("src");
+                    resim.style.display = "none";
+                    avatar.style.display = "flex";
+                    return;
+                }
+
+                const izinliTurler = [
+                    "image/jpeg",
+                    "image/png",
+                    "image/webp"
+                ];
+
+                if (!izinliTurler.includes(dosya.type)) {
+                    alert("JPG, PNG veya WEBP seçiniz.");
+                    this.value = "";
+                    resim.removeAttribute("src");
+                    resim.style.display = "none";
+                    avatar.style.display = "flex";
+                    return;
+                }
+
+                const okuyucu = new FileReader();
+
+                okuyucu.onload = function (e) {
+                    resim.src = e.target.result;
+                    resim.style.display = "block";
+                    avatar.style.display = "none";
+                };
+
+                okuyucu.readAsDataURL(dosya);
+            });
+    </script>
+}

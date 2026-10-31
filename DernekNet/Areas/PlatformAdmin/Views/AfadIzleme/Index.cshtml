@@ -1,0 +1,126 @@
+﻿@{
+    Layout = "~/Areas/PlatformAdmin/Views/Shared/_PlatformAdminLayout.cshtml";
+
+    ViewData["Title"] = "AFAD İzleme Merkezi";
+
+    var dernekler = ViewBag.Dernekler as System.Collections.IEnumerable;
+
+    int toplamGonullu = ViewBag.ToplamGonullu ?? 0;
+    int toplamEkip = ViewBag.ToplamEkip ?? 0;
+    int toplamGorev = ViewBag.ToplamGorev ?? 0;
+}
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">🛡️ AFAD İzleme Merkezi</h2>
+            <p class="text-muted mb-0">
+                Derneklerin AFAD faaliyetlerini buradan takip edebilirsiniz.
+            </p>
+        </div>
+        <span class="badge bg-secondary fs-6">
+            👁️ Salt Okunur
+        </span>
+    </div>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="text-muted">Toplam Gönüllü</div>
+                    <h2 class="fw-bold">@toplamGonullu</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="text-muted">AFAD Ekipleri</div>
+                    <h2 class="fw-bold">@toplamEkip</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="text-muted">Toplam Görev</div>
+                    <h2 class="fw-bold">@toplamGorev</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0 fw-bold">Derneklerin AFAD Birimleri</h5>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Dernek</th>
+                            <th>Durum</th>
+                            <th>Gönüllü</th>
+                            <th>Ekip</th>
+                            <th>Görev</th>
+                            <th>Eğitim</th>
+                            <th>Tatbikat</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (dernekler != null)
+                        {
+                            foreach (dynamic d in dernekler)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@d.DernekAdi</td>
+                                    <td>
+                                        @if (d.AktifMi)
+                                        {
+                                            <span class="badge bg-success">Aktif</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Pasif</span>
+                                        }
+                                    </td>
+                                    <td>@d.GonulluSayisi</td>
+                                    <td>@d.EkipSayisi</td>
+                                    <td>@d.GorevSayisi</td>
+                                    <td>@d.EgitimSayisi</td>
+                                    <td>@d.TatbikatSayisi</td>
+                                    <td>
+                                        <a asp-area="PlatformAdmin"
+                                           asp-controller="AfadIzleme"
+                                           asp-action="Detay"
+                                           asp-route-id="@d.Id"
+                                           class="btn btn-sm btn-outline-primary">
+                                            👁️ İncele
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-muted">
+                                    Kayıt bulunamadı.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>

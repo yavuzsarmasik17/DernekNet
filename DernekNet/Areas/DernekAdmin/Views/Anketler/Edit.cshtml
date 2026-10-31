@@ -1,0 +1,221 @@
+﻿@model DernekNet.Models.Anket
+@using System.Linq
+@using System.Collections.Generic
+@{
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+    ViewData["Title"] = "Anket Düzenle";
+    bool oyVar = ViewBag.OyVar is bool b && b;
+    string soru = ViewBag.Soru as string ?? Model.Soru;
+    string aciklama = ViewBag.Aciklama as string ?? Model.Aciklama ?? "";
+    DateTime baslangic = ViewBag.Baslangic is DateTime bas ? bas : Model.BaslangicTarihi.ToLocalTime();
+    DateTime bitis = ViewBag.Bitis is DateTime bit ? bit : Model.BitisTarihi.ToLocalTime();
+    var secenekler = ViewBag.Secenekler as List<string> ??
+        Model.Secenekler.OrderBy(x => x.SiraNo).Select(x => x.SecenekMetni).ToList();
+}
+<style>
+    .edit-wrap {
+        max-width: 850px;
+        margin: 30px auto 70px;
+        padding: 0 16px;
+        font-family: "Segoe UI",Arial,sans-serif;
+    }
+
+    .edit-hero {
+        background: linear-gradient(120deg,#087f8c,#16a6a0);
+        color: white;
+        padding: 30px;
+        border-radius: 22px 22px 0 0;
+    }
+
+        .edit-hero h1 {
+            font-size: 27px;
+            font-weight: 750;
+            margin: 0 0 8px;
+        }
+
+        .edit-hero p {
+            margin: 0;
+            opacity: .92;
+        }
+
+    .edit-card {
+        background: white;
+        padding: 32px;
+        border: 1px solid #e1eaeb;
+        border-radius: 0 0 22px 22px;
+    }
+
+    .edit-field {
+        margin-bottom: 22px;
+    }
+
+        .edit-field label {
+            display: block;
+            font-weight: 700;
+            color: #234657;
+            margin-bottom: 9px;
+        }
+
+        .edit-field input, .edit-field textarea {
+            width: 100%;
+            padding: 13px 15px;
+            border: 1px solid #cfdee2;
+            border-radius: 11px;
+            outline: none;
+        }
+
+            .edit-field input:focus, .edit-field textarea:focus {
+                border-color: #087f8c;
+                box-shadow: 0 0 0 3px #e2f5f3;
+            }
+
+            .edit-field input:disabled {
+                background: #f2f6f7;
+                color: #5c6c75;
+            }
+
+    .edit-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .edit-note {
+        padding: 15px 18px;
+        border-radius: 12px;
+        background: #eaf8f6;
+        color: #0d605b;
+        margin-bottom: 22px;
+    }
+
+    .edit-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+        .edit-option input {
+            flex: 1;
+            min-width: 0;
+        }
+
+    .edit-remove {
+        background: #fff0f0;
+        border: 1px solid #f4caca;
+        color: #9b2635;
+        border-radius: 9px;
+        padding: 11px 15px;
+        cursor: pointer;
+    }
+
+    .edit-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 25px;
+    }
+
+    .edit-save {
+        border: 0;
+        background: #087f8c;
+        color: white;
+        padding: 13px 22px;
+        border-radius: 11px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .edit-back {
+        border: 1px solid #cfdee2;
+        color: #234657;
+        text-decoration: none;
+        padding: 13px 22px;
+        border-radius: 11px;
+    }
+
+    @@media (max-width:650px) {
+        .edit-row {
+            grid-template-columns: 1fr;
+        }
+
+        .edit-card {
+            padding: 22px;
+        }
+    }
+</style>
+<div class="edit-wrap">
+    <div class="edit-hero"><h1>✏️ Anket Düzenle</h1><p>Derneğinizin anket bilgilerini güncelleyin.</p></div>
+    <div class="edit-card">
+        @if (oyVar)
+        {
+            <div class="edit-note">Bu ankete oy verilmiş. Sonuçların güvenliği için soru ve seçenekler değiştirilemez; açıklama ve tarihler güncellenebilir.</div>
+        }
+        <form asp-area="DernekAdmin" asp-controller="Anketler" asp-action="Edit" asp-route-id="@Model.Id" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+            <div class="edit-field">
+                <label for="soru">Anket sorusu</label>
+                <input id="soru" name="soru" value="@soru" maxlength="300" required readonly="@oyVar" />
+            </div>
+            <div class="edit-field">
+                <label for="aciklama">Açıklama</label>
+                <textarea id="aciklama" name="aciklama" rows="4">@aciklama</textarea>
+            </div>
+            <div class="edit-row">
+                <div class="edit-field">
+                    <label for="baslangicTarihi">Başlangıç tarihi</label>
+                    <input id="baslangicTarihi" name="baslangicTarihi" type="datetime-local" required value="@baslangic.ToString("yyyy-MM-ddTHH:mm")" />
+                </div>
+                <div class="edit-field">
+                    <label for="bitisTarihi">Bitiş tarihi</label>
+                    <input id="bitisTarihi" name="bitisTarihi" type="datetime-local" required value="@bitis.ToString("yyyy-MM-ddTHH:mm")" />
+                </div>
+            </div>
+            <div class="edit-field">
+                <label>Seçenekler</label>
+                <div id="secenekKutusu">
+                    @foreach (var secenek in secenekler)
+                    {
+                        <div class="edit-option">
+                            <input name="secenekler" value="@secenek" maxlength="200" required readonly="@oyVar" />
+                            @if (!oyVar)
+                            {
+                                <button type="button" class="edit-remove" onclick="this.parentElement.remove()">Sil</button>
+                            }
+                        </div>
+                    }
+                </div>
+                @if (!oyVar)
+                {
+                    <button type="button" class="edit-save" style="margin-top:10px;background:#e2f5f3;color:#087f8c;" onclick="secenekEkle()">＋ Seçenek Ekle</button>
+                    <p style="color:#657986;font-size:13px;margin-top:8px;">En az 2, en fazla 10 seçenek.</p>
+                }
+            </div>
+            <div class="edit-actions">
+                <button type="submit" class="edit-save">Değişiklikleri Kaydet</button>
+                <a asp-area="DernekAdmin" asp-controller="Anketler" asp-action="Index" class="edit-back">Vazgeç</a>
+            </div>
+        </form>
+    </div>
+</div>
+@if (!oyVar)
+{
+    <script>
+        function secenekEkle() {
+            const kutu = document.getElementById('secenekKutusu');
+            if (kutu.querySelectorAll('input').length >= 10) {
+                alert('En fazla 10 seçenek eklenebilir.'); return;
+            }
+            const satir = document.createElement('div');
+            satir.className = 'edit-option';
+            const input = document.createElement('input');
+            input.name = 'secenekler'; input.maxLength = 200;
+            input.required = true; input.placeholder = 'Yeni seçenek';
+            const sil = document.createElement('button');
+            sil.type = 'button'; sil.className = 'edit-remove'; sil.textContent = 'Sil';
+            sil.addEventListener('click', () => satir.remove());
+            satir.append(input, sil); kutu.appendChild(satir); input.focus();
+        }
+    </script>
+}

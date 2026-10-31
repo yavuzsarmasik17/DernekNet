@@ -1,0 +1,211 @@
+﻿@model DernekNet.Models.Etkinlik
+
+@{
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+    ViewData["Title"] = "Yeni Etkinlik";
+}
+
+<h1 class="fw-bold mb-2">Yeni Etkinlik Oluştur</h1>
+
+<p class="text-muted mb-4">
+    Derneğiniz için fotoğraflı ve videolu etkinlik oluşturun.
+</p>
+
+<div class="dn-card">
+    <form asp-area="DernekAdmin"
+          asp-controller="Etkinlikler"
+          asp-action="Create"
+          method="post"
+          enctype="multipart/form-data">
+
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="All"
+             class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label asp-for="EtkinlikAdi" class="form-label">
+                Etkinlik Adı *
+            </label>
+
+            <input asp-for="EtkinlikAdi"
+                   class="form-control"
+                   maxlength="200"
+                   required />
+
+            <span asp-validation-for="EtkinlikAdi"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6 mb-3">
+                <label asp-for="EtkinlikTarihi"
+                       class="form-label">
+                    Tarih ve Saat *
+                </label>
+
+                <input asp-for="EtkinlikTarihi"
+                       type="datetime-local"
+                       asp-format="{0:yyyy-MM-ddTHH:mm}"
+                       class="form-control"
+                       required />
+
+                <span asp-validation-for="EtkinlikTarihi"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="Konum" class="form-label">
+                    Etkinlik Yeri
+                </label>
+
+                <input asp-for="Konum"
+                       class="form-control"
+                       placeholder="Örneğin: Dernek Merkezi" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Aciklama" class="form-label">
+                Açıklama
+            </label>
+
+            <textarea asp-for="Aciklama"
+                      class="form-control"
+                      rows="6"></textarea>
+        </div>
+
+        <div class="border rounded-4 p-4 mb-4 bg-light">
+            <h5 class="fw-bold mb-2">
+                <i class="bi bi-images me-2"></i>
+                Etkinlik Fotoğrafları ve Videoları
+            </h5>
+
+            <p class="text-muted small">
+                Etkinlik afişi, fotoğraflar veya videolar ekleyebilirsiniz.
+            </p>
+
+            <input type="file"
+                   id="etkinlikDosyalari"
+                   name="medyaDosyalari"
+                   class="form-control"
+                   accept=".jpg,.jpeg,.png,.webp,.mp4,.webm"
+                   multiple />
+
+            <div class="form-text mt-2">
+                En fazla 10 dosya seçebilirsiniz.
+                Fotoğraf başına 5 MB, video başına 50 MB.
+            </div>
+
+            <div id="etkinlikOnizleme"
+                 class="row g-3 mt-2"></div>
+        </div>
+
+        <div class="form-check mb-4">
+            <input asp-for="AktifMi"
+                   class="form-check-input" />
+
+            <label asp-for="AktifMi"
+                   class="form-check-label">
+                Etkinliği Yayınla
+            </label>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit"
+                    class="btn btn-primary px-4">
+                <i class="bi bi-check-circle me-2"></i>
+                Etkinliği Kaydet
+            </button>
+
+            <a asp-area="DernekAdmin"
+               asp-controller="Etkinlikler"
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+                İptal
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        const dosyaInput = document.getElementById("etkinlikDosyalari");
+        const onizleme = document.getElementById("etkinlikOnizleme");
+
+        dosyaInput.addEventListener("change", function () {
+            onizleme.innerHTML = "";
+
+            const dosyalar = Array.from(this.files);
+
+            if (dosyalar.length > 10) {
+                alert("En fazla 10 dosya seçebilirsiniz.");
+                this.value = "";
+                return;
+            }
+
+            const izinliUzantilar = [
+                ".jpg", ".jpeg", ".png",
+                ".webp", ".mp4", ".webm"
+            ];
+
+            for (const dosya of dosyalar) {
+                const uzanti = "." + dosya.name.split(".").pop().toLowerCase();
+                const videoMu = uzanti === ".mp4" || uzanti === ".webm";
+                const limit = videoMu
+                    ? 50 * 1024 * 1024
+                    : 5 * 1024 * 1024;
+
+                if (!izinliUzantilar.includes(uzanti) ||
+                    dosya.size === 0 ||
+                    dosya.size > limit) {
+                    alert("Geçersiz dosya veya boyut: " + dosya.name);
+                    this.value = "";
+                    onizleme.innerHTML = "";
+                    return;
+                }
+            }
+
+            dosyalar.forEach(function (dosya) {
+                const videoMu = dosya.type.startsWith("video/");
+
+                const kolon = document.createElement("div");
+                kolon.className = "col-6 col-md-4 col-lg-3";
+
+                const kutu = document.createElement("div");
+                kutu.className = "border rounded-3 p-2 bg-white";
+
+                const url = URL.createObjectURL(dosya);
+
+                const medya = document.createElement(
+                    videoMu ? "video" : "img"
+                );
+
+                medya.src = url;
+                medya.style.width = "100%";
+                medya.style.height = "140px";
+                medya.style.objectFit = "contain";
+
+                if (videoMu) {
+                    medya.controls = true;
+                    medya.addEventListener("loadeddata", function () {
+                        URL.revokeObjectURL(url);
+                    }, { once: true });
+                } else {
+                    medya.addEventListener("load", function () {
+                        URL.revokeObjectURL(url);
+                    }, { once: true });
+                }
+
+                const dosyaAdi = document.createElement("div");
+                dosyaAdi.className = "small text-truncate mt-2";
+                dosyaAdi.textContent = dosya.name;
+
+                kutu.appendChild(medya);
+                kutu.appendChild(dosyaAdi);
+                kolon.appendChild(kutu);
+                onizleme.appendChild(kolon);
+            });
+        });
+    </script>
+}

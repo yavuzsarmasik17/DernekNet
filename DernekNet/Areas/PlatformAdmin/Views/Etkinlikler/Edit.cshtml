@@ -1,0 +1,147 @@
+﻿@model DernekNet.Models.Etkinlik
+
+@{
+    Layout = "~/Areas/PlatformAdmin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Etkinlik Düzenle";
+}
+
+<div class="mb-4">
+    <h1 class="page-title">Etkinlik Düzenle</h1>
+    <p class="page-subtitle">
+        Etkinliğin bilgilerini ve yayın durumunu güncelleyin.
+    </p>
+</div>
+
+<form asp-area="PlatformAdmin"
+      asp-controller="Etkinlikler"
+      asp-action="Edit"
+      asp-route-id="@Model.Id"
+      method="post">
+
+    @Html.AntiForgeryToken()
+
+    <input asp-for="Id" type="hidden" />
+
+    <div asp-validation-summary="All"
+         class="text-danger mb-3"></div>
+
+    <div class="admin-card mb-4">
+        <div class="admin-card-header">
+            Etkinlik Bilgileri
+        </div>
+
+        <div class="admin-card-body">
+            <div class="row g-4">
+
+                <div class="col-12">
+                    <label asp-for="DernekId"
+                           class="form-label">
+                        Dernek Seç *
+                    </label>
+
+                    <select asp-for="DernekId"
+                            asp-items="ViewBag.Dernekler"
+                            class="form-select"
+                            required>
+                        <option value="">
+                            -- Dernek Seçiniz --
+                        </option>
+                    </select>
+
+                    <span asp-validation-for="DernekId"
+                          class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="EtkinlikAdi"
+                           class="form-label">
+                        Etkinlik Adı *
+                    </label>
+
+                    <input asp-for="EtkinlikAdi"
+                           class="form-control"
+                           required />
+
+                    <span asp-validation-for="EtkinlikAdi"
+                          class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="EtkinlikTarihi"
+                           class="form-label">
+                        Etkinlik Tarihi ve Saati *
+                    </label>
+
+                    <input asp-for="EtkinlikTarihi"
+                           type="datetime-local"
+                           asp-format="{0:yyyy-MM-ddTHH:mm}"
+                           class="form-control"
+                           required />
+
+                    <span asp-validation-for="EtkinlikTarihi"
+                          class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Konum"
+                           class="form-label">
+                        Etkinlik Yeri
+                    </label>
+
+                    <input asp-for="Konum"
+                           class="form-control" />
+
+                    <span asp-validation-for="Konum"
+                          class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Aciklama"
+                           class="form-label">
+                        Etkinlik Açıklaması
+                    </label>
+
+                    <textarea asp-for="Aciklama"
+                              class="form-control"
+                              rows="6"></textarea>
+
+                    <span asp-validation-for="Aciklama"
+                          class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-check">
+                        <input asp-for="AktifMi"
+                               class="form-check-input" />
+
+                        <label asp-for="AktifMi"
+                               class="form-check-label fw-semibold">
+                            Etkinlik Aktif
+                        </label>
+                    </div>
+
+                    <p class="text-muted small mt-2 mb-0">
+                        İşareti kaldırırsanız etkinlik
+                        yayından kaldırılacaktır.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap mb-5">
+        <button type="submit"
+                class="btn btn-primary px-4">
+            Değişiklikleri Kaydet
+        </button>
+
+        <a asp-area="PlatformAdmin"
+           asp-controller="Etkinlikler"
+           asp-action="Index"
+           class="btn btn-outline-secondary px-4">
+            İptal
+        </a>
+    </div>
+
+</form>

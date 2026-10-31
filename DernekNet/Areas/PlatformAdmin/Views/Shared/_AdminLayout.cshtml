@@ -1,0 +1,90 @@
+﻿@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - DERNEKNET</title>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/platform-admin.css"
+          asp-append-version="true" />
+</head>
+
+<body>
+
+    <aside class="admin-sidebar">
+        <div class="admin-logo">◆ DERNEKNET</div>
+
+        <div class="admin-menu-title">GENEL</div>
+
+        <a asp-area="PlatformAdmin"
+           asp-controller="Home"
+           asp-action="Index"
+           class="admin-link @(controller == "Home" ? "active" : "")">
+            ◫ &nbsp; Gösterge Paneli
+        </a>
+
+        <a asp-area="PlatformAdmin"
+           asp-controller="Dernekler"
+           asp-action="Index"
+           class="admin-link @(controller == "Dernekler" ? "active" : "")">
+            ▦ &nbsp; Dernek Yönetimi
+        </a>
+
+        <div class="admin-menu-title">YAKINDA</div>
+
+        <div class="admin-link opacity-50">
+            ♙ &nbsp; Kullanıcılar
+        </div>
+
+        <div class="admin-link opacity-50">
+            ♧ &nbsp; Gönüllüler
+        </div>
+
+        <div class="admin-link opacity-50">
+            ▤ &nbsp; Eğitimler
+        </div>
+
+        <div class="admin-link opacity-50">
+            ◉ &nbsp; Bildirimler
+        </div>
+
+    </aside>
+
+    <main class="admin-main">
+
+        <header class="admin-topbar">
+            <div>
+                <strong>DERNEKNET</strong>
+                <div class="small text-muted">
+                    Merkezi Yönetim Sistemi
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-light text-dark border p-2">
+                    Platform Yöneticisi
+                </span>
+                <span class="small text-muted d-none d-md-inline">
+                    @User.Identity?.Name
+                </span>
+            </div>
+        </header>
+
+        <section class="admin-content">
+            @RenderBody()
+        </section>
+
+    </main>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

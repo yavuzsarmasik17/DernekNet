@@ -1,0 +1,103 @@
+﻿@model DernekNet.Models.Uye
+
+@{
+    ViewData["Title"] = "Üye Detayı";
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold">Üye Detayı</h3>
+
+    <a asp-action="Index"
+       class="btn btn-outline-secondary">
+        ← Üye Listesi
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+
+        <div class="row g-4">
+
+            <div class="col-md-4 text-center">
+                @if (!string.IsNullOrWhiteSpace(Model.FotografUrl))
+                {
+                    <img src="@Url.Action("Fotograf", "Uyeler",
+                              new { area = "DernekAdmin", id = Model.Id })"
+                         alt="Üye fotoğrafı"
+                         style="width:210px;height:210px;
+                                object-fit:cover;
+                                border-radius:50%;
+                                border:5px solid #e2e8f0;" />
+                }
+                else
+                {
+                    <div style="width:210px;height:210px;
+                                border-radius:50%;
+                                background:#dbeafe;
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                                font-size:85px;
+                                margin:auto;">
+                        👤
+                    </div>
+                }
+
+                <h4 class="fw-bold mt-3">
+                    @Model.Ad @Model.Soyad
+                </h4>
+
+                @if (Model.AktifMi)
+                {
+                    <span class="badge bg-success">Aktif Üye</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">Pasif Üye</span>
+                }
+            </div>
+
+            <div class="col-md-8">
+                <h5 class="fw-bold mb-4">Üyelik Bilgileri</h5>
+
+                <table class="table table-bordered align-middle">
+                    <tr>
+                        <th style="width:35%">Üye No</th>
+                        <td>@Model.Id</td>
+                    </tr>
+                    <tr>
+                        <th>Ad</th>
+                        <td>@Model.Ad</td>
+                    </tr>
+                    <tr>
+                        <th>Soyad</th>
+                        <td>@Model.Soyad</td>
+                    </tr>
+                    <tr>
+                        <th>Telefon</th>
+                        <td>@(Model.Telefon ?? "-")</td>
+                    </tr>
+                    <tr>
+                        <th>E-posta</th>
+                        <td>@(Model.Email ?? "-")</td>
+                    </tr>
+                    <tr>
+                        <th>Üyelik Tarihi</th>
+                        <td>@Model.UyelikTarihi.ToString("dd.MM.yyyy")</td>
+                    </tr>
+                    <tr>
+                        <th>Açıklama</th>
+                        <td>@(Model.Aciklama ?? "-")</td>
+                    </tr>
+                </table>
+
+                <a asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-primary">
+                    ✏️ Üyeyi Düzenle
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,86 @@
+﻿@model DernekNet.Models.AfadBasvuruForm
+@{
+	Layout = null; ViewData["Title"] = "AFAD Gönüllü Başvurusu";
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>@ViewData["Title"]</title>
+	<style>
+		body {
+			margin: 0;
+			background: #f2f8f8;
+			font-family: Segoe UI,Arial;
+			color: #173747
+		}
+
+		.panel {
+			max-width: 530px;
+			margin: 45px auto;
+			background: white;
+			border-radius: 20px;
+			padding: 32px;
+			box-shadow: 0 10px 35px #164e6314
+		}
+
+		h1 {
+			color: #087f8c;
+			font-size: 27px
+		}
+
+		label {
+			display: block;
+			font-weight: 650;
+			margin: 16px 0 6px
+		}
+
+		input {
+			width: 100%;
+			box-sizing: border-box;
+			border: 1px solid #cbdde0;
+			border-radius: 10px;
+			padding: 12px;
+			font-size: 16px
+		}
+
+		button {
+			width: 100%;
+			background: #087f8c;
+			color: white;
+			border: 0;
+			border-radius: 10px;
+			padding: 14px;
+			margin-top: 22px;
+			font-weight: 700;
+			cursor: pointer
+		}
+
+		a {
+			color: #087f8c
+		}
+
+		.validation-summary-errors, .field-validation-error {
+			color: #b42318
+		}
+
+		.foot {
+			margin-top: 20px
+		}</style>
+</head>
+<body>
+	<main class="panel">
+		<h1>🛡️ Gönüllü Başvurusu</h1><p><strong>@ViewBag.DernekAdi</strong> AFAD birimine katılın.</p><p>Başvurunuz dernek yöneticisinin onayından sonra etkinleşir.</p>
+		<form asp-controller="AfadHesap" asp-action="Basvuru" method="post">
+			@Html.AntiForgeryToken()<input asp-for="DernekId" type="hidden" /><div asp-validation-summary="ModelOnly"></div>
+			<label asp-for="AdSoyad">Ad Soyad</label><input asp-for="AdSoyad" autocomplete="name" /><span asp-validation-for="AdSoyad"></span>
+			<label asp-for="Telefon">Telefon</label><input asp-for="Telefon" autocomplete="tel" /><span asp-validation-for="Telefon"></span>
+			<label asp-for="Email">E-posta</label><input asp-for="Email" type="email" autocomplete="email" /><span asp-validation-for="Email"></span>
+			<label asp-for="Sifre">Şifre</label><input asp-for="Sifre" type="password" autocomplete="new-password" /><span asp-validation-for="Sifre"></span>
+			<label asp-for="SifreTekrar">Şifre Tekrar</label><input asp-for="SifreTekrar" type="password" autocomplete="new-password" /><span asp-validation-for="SifreTekrar"></span>
+			<button type="submit">Başvuruyu Gönder</button>
+		</form><div class="foot"><a asp-controller="AfadHesap" asp-action="Giris" asp-route-dernekId="@Model.DernekId">Zaten kayıtlıyım, giriş yap</a> · <a asp-controller="Afad" asp-action="Index" asp-route-dernekId="@Model.DernekId">AFAD ana sayfa</a></div>
+	</main>
+</body>
+</html>

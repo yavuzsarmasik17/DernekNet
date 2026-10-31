@@ -1,0 +1,585 @@
+﻿@model DernekNet.Models.Dernek
+
+@{
+    Layout = null;
+    ViewData["Title"] = Model.DernekAdi + " - Afetlere Hazırlık";
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f3f7f8;
+            color: #173b4b;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .wrap {
+            width: min(1180px, 94%);
+            margin: auto;
+        }
+
+        header {
+            background: white;
+            border-bottom: 1px solid #dce7eb;
+        }
+
+        .head {
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .brand {
+            font-size: 20px;
+            font-weight: 800;
+            color: #087f8c;
+        }
+
+        .back {
+            padding: 11px 18px;
+            border: 1px solid #bfd4da;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .hero {
+            background: linear-gradient(120deg, #063f55, #087f8c, #13a69a);
+            color: white;
+            padding: 85px 0;
+        }
+
+        .hero-content {
+            max-width: 820px;
+        }
+
+        .eyebrow {
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #b6f7e9;
+        }
+
+        .hero h1 {
+            font-size: clamp(32px, 5vw, 54px);
+            line-height: 1.15;
+            margin: 20px 0;
+        }
+
+        .hero p {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #e2faf9;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 28px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-weight: 800;
+        }
+
+        .btn-white {
+            background: white;
+            color: #087f8c;
+        }
+
+        .btn-outline {
+            border: 1px solid white;
+            color: white;
+        }
+
+        .section {
+            padding: 55px 0;
+        }
+
+        .section-heading {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+            .section-heading h2 {
+                font-size: 32px;
+                margin-bottom: 12px;
+            }
+
+            .section-heading p {
+                color: #607985;
+                line-height: 1.7;
+            }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid #e0e9ec;
+            box-shadow: 0 8px 25px rgba(0, 60, 75, .06);
+        }
+
+            .card img {
+                width: 100%;
+                height: 215px;
+                object-fit: cover;
+                display: block;
+            }
+
+        .card-body {
+            padding: 24px;
+        }
+
+        .card h3 {
+            font-size: 22px;
+            margin: 0 0 12px;
+        }
+
+        .card p {
+            color: #5c7480;
+            line-height: 1.7;
+        }
+
+        .card ul {
+            padding-left: 20px;
+            line-height: 1.9;
+            color: #435d68;
+        }
+
+        .card li {
+            margin-bottom: 6px;
+        }
+
+        .info-section {
+            background: #e8f2f3;
+            padding: 60px 0;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 25px;
+        }
+
+        .info-box {
+            background: white;
+            border-radius: 18px;
+            padding: 30px;
+            border: 1px solid #dce8eb;
+        }
+
+            .info-box h3 {
+                font-size: 24px;
+                margin-top: 0;
+            }
+
+            .info-box p,
+            .info-box li {
+                color: #4f6c79;
+                line-height: 1.9;
+            }
+
+            .info-box ul {
+                padding-left: 22px;
+            }
+
+        .emergency {
+            padding: 55px 0;
+            text-align: center;
+        }
+
+        .emergency-box {
+            background: #fff3f0;
+            border: 1px solid #f5d5cf;
+            border-radius: 18px;
+            padding: 35px;
+        }
+
+            .emergency-box h2 {
+                color: #a82e22;
+                margin-top: 0;
+            }
+
+        .emergency-number {
+            font-size: 55px;
+            font-weight: 900;
+            color: #c33226;
+        }
+
+        .emergency-box p {
+            line-height: 1.7;
+        }
+
+        footer {
+            background: #123744;
+            color: #d9eaee;
+            padding: 35px 0;
+            text-align: center;
+        }
+
+        @@media(max-width: 950px) {
+            .grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @@media(max-width: 680px) {
+            .grid,
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                padding: 55px 0;
+            }
+
+            .section {
+                padding: 40px 0;
+            }
+
+            .section-heading h2 {
+                font-size: 27px;
+            }
+
+            .card img {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ÜST MENÜ -->
+    <header>
+        <div class="wrap head">
+
+            <a class="brand"
+               asp-controller="Afad"
+               asp-action="Index"
+               asp-route-dernekId="@Model.Id">
+                🛡️ @Model.DernekAdi
+            </a>
+
+            <a class="back"
+               asp-controller="Dernek"
+               asp-action="Index"
+               asp-route-id="@Model.Id">
+                ← Dernek Sitesine Dön
+            </a>
+
+        </div>
+    </header>
+
+    <!-- ANA KARŞILAMA -->
+    <section class="hero">
+        <div class="wrap">
+
+            <div class="hero-content">
+
+                <div class="eyebrow">
+                    AFET BİLİNCİ VE GÖNÜLLÜLÜK
+                </div>
+
+                <h1>
+                    Afetlere Hazırlıklı Ol,
+                    Güvende Kal
+                </h1>
+
+                <p>
+                    Deprem, sel, yangın ve diğer doğal afetlere
+                    karşı bilinçli olmak hayat kurtarır.
+                    Afetlerden önce, afet sırasında ve sonrasında
+                    yapılması gerekenleri öğrenin.
+                </p>
+
+                <div class="hero-actions">
+
+                    <a class="btn btn-white"
+                       asp-controller="AfadHesap"
+                       asp-action="Basvuru"
+                       asp-route-dernekId="@Model.Id">
+                        Gönüllü Ol
+                    </a>
+
+                    <a class="btn btn-outline"
+                       asp-controller="AfadHesap"
+                       asp-action="Giris"
+                       asp-route-dernekId="@Model.Id">
+                        Gönüllü Girişi
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- AFET TÜRLERİ -->
+    <section class="section" id="afetler">
+        <div class="wrap">
+
+            <div class="section-heading">
+                <h2>Doğal Afetlerden Korunma Yolları</h2>
+                <p>
+                    Afet türlerini tanıyın ve güvenli davranışları öğrenin.
+                </p>
+            </div>
+
+            <div class="grid">
+
+                <!-- DEPREM -->
+                <article class="card">
+                    <img src="~/images/afet/deprem.jpg"
+                         alt="Deprem güvenliği"
+                         loading="lazy" />
+
+                    <div class="card-body">
+                        <h3>🏠 Deprem</h3>
+
+                        <p>
+                            Deprem sırasında panik yapmadan
+                            güvenli davranışları uygulayın.
+                        </p>
+
+                        <ul>
+                            <li>Çök, Kapan, Tutun hareketini uygulayın.</li>
+                            <li>Pencere ve devrilebilecek eşyalardan uzak durun.</li>
+                            <li>Sarsıntı sırasında merdivene veya asansöre koşmayın.</li>
+                            <li>Sarsıntı bitince güvenli şekilde tahliye olun.</li>
+                        </ul>
+                    </div>
+                </article>
+
+                <!-- SEL -->
+                <article class="card">
+                    <img src="~/images/afet/sel.jpg"
+                         alt="Sel ve su baskını"
+                         loading="lazy" />
+
+                    <div class="card-body">
+                        <h3>🌊 Sel ve Su Baskını</h3>
+
+                        <p>
+                            Şiddetli yağışlarda sel riski taşıyan
+                            bölgelerden uzak durun.
+                        </p>
+
+                        <ul>
+                            <li>Dere yataklarından uzaklaşın.</li>
+                            <li>Yüksek ve güvenli alanlara geçin.</li>
+                            <li>Sel suyundan yürüyerek veya araçla geçmeyin.</li>
+                            <li>Resmî tahliye uyarılarına uyun.</li>
+                        </ul>
+                    </div>
+                </article>
+
+                <!-- YANGIN -->
+                <article class="card">
+                    <img src="~/images/afet/yangin.jpg"
+                         alt="Yangından korunma"
+                         loading="lazy" />
+
+                    <div class="card-body">
+                        <h3>🔥 Yangın</h3>
+
+                        <p>
+                            Yangınlara karşı önlem alın,
+                            tahliye yollarını önceden belirleyin.
+                        </p>
+
+                        <ul>
+                            <li>Elektrik tesisatını güvenli kullanın.</li>
+                            <li>Yangın çıkışlarını açık tutun.</li>
+                            <li>Duman varsa yere yakın ilerleyin.</li>
+                            <li>Yangın sırasında asansör kullanmayın.</li>
+                        </ul>
+                    </div>
+                </article>
+
+                <!-- HEYELAN -->
+                <article class="card">
+                    <img src="~/images/afet/heyelan.jpg"
+                         alt="Heyelan tehlikesi"
+                         loading="lazy" />
+
+                    <div class="card-body">
+                        <h3>⛰️ Heyelan</h3>
+
+                        <p>
+                            Toprak kayması riski bulunan bölgelerde
+                            erken uyarı işaretlerini takip edin.
+                        </p>
+
+                        <ul>
+                            <li>Yamaçlardaki yeni çatlaklara dikkat edin.</li>
+                            <li>Riskli alanlardan uzaklaşın.</li>
+                            <li>Yoğun yağış sonrasında dikkatli olun.</li>
+                            <li>Yetkililerin yönlendirmelerine uyun.</li>
+                        </ul>
+                    </div>
+                </article>
+
+                <!-- FIRTINA -->
+                <article class="card">
+                    <img src="~/images/afet/firtina.jpg"
+                         alt="Fırtınadan korunma"
+                         loading="lazy" />
+
+                    <div class="card-body">
+                        <h3>🌪️ Fırtına</h3>
+
+                        <p>
+                            Kuvvetli rüzgâr ve fırtınalarda
+                            güvenli kapalı alanları tercih edin.
+                        </p>
+
+                        <ul>
+                            <li>Ağaç ve elektrik direklerinden uzak durun.</li>
+                            <li>Balkondaki gevşek eşyaları sabitleyin.</li>
+                            <li>Mümkünse dışarı çıkmayın.</li>
+                            <li>Meteorolojik uyarıları takip edin.</li>
+                        </ul>
+                    </div>
+                </article>
+
+                <!-- AFET ÇANTASI -->
+                <article class="card">
+                    <img src="~/images/afet/afet-cantasi.jpg"
+                         alt="Afet ve acil durum çantası"
+                         loading="lazy" />
+
+                    <div class="card-body">
+                        <h3>🎒 Afet Çantası</h3>
+
+                        <p>
+                            Acil durumlarda kullanabileceğiniz
+                            temel ihtiyaç malzemelerini hazır tutun.
+                        </p>
+
+                        <ul>
+                            <li>İçme suyu ve dayanıklı gıdalar.</li>
+                            <li>El feneri, pil ve düdük.</li>
+                            <li>İlk yardım malzemeleri.</li>
+                            <li>İlaçlar ve önemli belge kopyaları.</li>
+                        </ul>
+                    </div>
+                </article>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- AFET HAZIRLIK BİLGİLERİ -->
+    <section class="info-section">
+        <div class="wrap">
+
+            <div class="section-heading">
+                <h2>Afet Öncesinde Hazırlık</h2>
+                <p>
+                    Ailenizle birlikte önceden plan yapmanız
+                    acil durumlarda doğru hareket etmenizi kolaylaştırır.
+                </p>
+            </div>
+
+            <div class="info-grid">
+
+                <div class="info-box">
+                    <h3>👨‍👩‍👧‍👦 Aile Afet Planı</h3>
+
+                    <ul>
+                        <li>Ailenizle bir buluşma noktası belirleyin.</li>
+                        <li>Acil durumda aranacak kişileri kararlaştırın.</li>
+                        <li>Evdeki güvenli alanları belirleyin.</li>
+                        <li>Tahliye yollarını önceden öğrenin.</li>
+                        <li>Planınızı düzenli aralıklarla gözden geçirin.</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h3>🏡 Evde Alınacak Önlemler</h3>
+
+                    <ul>
+                        <li>Dolapları ve devrilebilecek eşyaları sabitleyin.</li>
+                        <li>Gaz, su ve elektrik vanalarını öğrenin.</li>
+                        <li>Yangın söndürücü bulundurun.</li>
+                        <li>Acil çıkış yollarını açık tutun.</li>
+                        <li>Afet çantanızı kolay ulaşılabilir yerde saklayın.</li>
+                    </ul>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ACİL DURUM -->
+    <section class="emergency">
+        <div class="wrap">
+
+            <div class="emergency-box">
+
+                <h2>🚨 Acil Durumlarda</h2>
+
+                <p>
+                    Hayati tehlike, yangın, kaza veya acil yardım
+                    gerektiren durumlarda Türkiye'nin tek acil
+                    çağrı numarasını arayın.
+                </p>
+
+                <div class="emergency-number">
+                    112
+                </div>
+
+                <p>
+                    Konumunuzu ve olayın türünü açıkça bildirin.
+                    Yetkililerin talimatlarını takip edin.
+                </p>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ALT BİLGİ -->
+    <footer>
+        <div class="wrap">
+            🛡️ @Model.DernekAdi · Afet Bilinci ve Gönüllülük
+        </div>
+    </footer>
+
+</body>
+</html>

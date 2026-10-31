@@ -1,0 +1,193 @@
+﻿@model IEnumerable<DernekNet.Models.Duyuru>
+
+@{
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+    ViewData["Title"] = "Duyuru Yönetimi";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+        <h1 class="fw-bold">Duyurularım</h1>
+        <p class="text-muted">
+            Derneğinize ait duyuruları yönetin.
+        </p>
+    </div>
+
+    <a asp-area="DernekAdmin"
+       asp-controller="Duyurular"
+       asp-action="Create"
+       class="btn btn-primary">
+        + Yeni Duyuru
+    </a>
+</div>
+
+@if (TempData["Basarili"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Basarili"]
+    </div>
+}
+
+<div class="dn-card">
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Başlık</th>
+                    <th>Yayın Tarihi</th>
+                    <th>Durum</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var duyuru in Model)
+                {
+                    <tr>
+                        <td>
+                            <strong>@duyuru.Baslik</strong>
+                        </td>
+
+                        <td>
+                            @duyuru.YayinTarihi.ToLocalTime().ToString("dd.MM.yyyy")
+                        </td>
+
+                        <td>
+                            @if (duyuru.AktifMi)
+                            {
+                                <span class="badge bg-success">Yayında</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Pasif</span>
+                            }
+                        </td>
+
+                        <td>
+                            <div class="d-flex gap-2 flex-wrap">
+
+                                <a asp-area="DernekAdmin"
+                                   asp-controller="Duyurular"
+                                   asp-action="Edit"
+                                   asp-route-id="@duyuru.Id"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Düzenle
+                                </a>
+
+                                <form asp-area="DernekAdmin"
+                                      asp-controller="Duyurular"
+                                      asp-action="Sil"
+                                      method="post"
+                                      onsubmit="return confirm('Bu duyuruyu kalıcı olarak silmek istediğinize emin misiniz? Fotoğraf ve videolar da silinecektir.');">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@duyuru.Id" />
+
+
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#duyuruSilModal"
+                                            data-duyuru-id="@duyuru.Id"
+                                            data-duyuru-baslik="@duyuru.Baslik">
+                                        Sil
+                                    </button>
+
+                                </form>
+
+                            </div>
+                        </td>
+                    </tr>
+                }
+
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="4"
+                            class="text-center text-muted py-4">
+                            Henüz duyuru bulunmuyor.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade"
+     id="duyuruSilModal"
+     tabindex="-1"
+     aria-labelledby="duyuruSilBaslik"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg"
+             style="border-radius:20px;">
+
+            <div class="modal-body text-center p-4 p-md-5">
+
+                <div class="mx-auto mb-3 d-flex align-items-center justify-content-center"
+                     style="width:76px;height:76px;border-radius:50%;background:#fee2e2;color:#dc2626;font-size:32px;">
+                    &#128465;
+                </div>
+
+                <h4 id="duyuruSilBaslik" class="fw-bold mb-3">
+                    Duyuruyu Silmek İstiyor musunuz?
+                </h4>
+
+                <p id="silinecekDuyuru"
+                   class="fw-semibold text-dark text-break"></p>
+
+                <p class="text-muted mb-4">
+                    Bu duyuru ve ekli fotoğraf/videolar
+                    kalıcı olarak silinecektir.
+                    Bu işlem geri alınamaz.
+                </p>
+
+                <form asp-area="DernekAdmin"
+                      asp-controller="Duyurular"
+                      asp-action="Sil"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           id="silinecekDuyuruId"
+                           name="id" />
+
+                    <div class="d-flex gap-2">
+
+                        <button type="button"
+                                class="btn btn-light flex-fill py-3"
+                                data-bs-dismiss="modal">
+                            Vazgeç
+                        </button>
+
+                        <button type="submit"
+                                class="btn btn-danger flex-fill py-3">
+                            Evet, Sil
+                        </button>
+
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("duyuruSilModal")
+        .addEventListener("show.bs.modal", function (event) {
+
+            const button = event.relatedTarget;
+
+            const id = button.getAttribute("data-duyuru-id");
+            const baslik = button.getAttribute("data-duyuru-baslik");
+
+            document.getElementById("silinecekDuyuruId").value = id;
+            document.getElementById("silinecekDuyuru").textContent = baslik;
+        });
+</script>

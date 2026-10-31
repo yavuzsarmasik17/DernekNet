@@ -1,0 +1,96 @@
+﻿@model IEnumerable<DernekNet.Models.AfadGonullu>
+
+@{
+    ViewData["Title"] = "Gönüllü Yetkinlikleri";
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+    var bugun = DateTime.Today;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="h4 mb-1">Gönüllü Yetkinlikleri</h2>
+        <div class="text-muted">
+            Gönüllülerin belgelerini ve yetkinliklerini yönetin.
+        </div>
+    </div>
+
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        Yetkinliklere Dön
+    </a>
+</div>
+
+<div class="dn-card">
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Gönüllü</th>
+                    <th>Durum</th>
+                    <th>Yetkinlik Sayısı</th>
+                    <th>Geçerli Belge</th>
+                    <th>Süresi Dolan</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var g in Model)
+                {
+                    var gecerli = g.Yetkinlikleri.Count(x =>
+                    !x.GecerlilikBitisi.HasValue ||
+                    x.GecerlilikBitisi.Value.Date >= bugun);
+
+                    var suresiDolan = g.Yetkinlikleri.Count(x =>
+                    x.GecerlilikBitisi.HasValue &&
+                    x.GecerlilikBitisi.Value.Date < bugun);
+
+                    <tr>
+                        <td><strong>@g.AdSoyad</strong></td>
+
+                        <td>
+                            @if (g.AktifMi && g.OnaylandiMi)
+                            {
+                                <span class="badge bg-success">Aktif</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Pasif / Onay Bekliyor
+                                </span>
+                            }
+                        </td>
+
+                        <td>@g.Yetkinlikleri.Count</td>
+                        <td>@gecerli</td>
+                        <td>
+                            @if (suresiDolan > 0)
+                            {
+                                <span class="badge bg-danger">@suresiDolan</span>
+                            }
+                            else
+                            {
+                                <span>0</span>
+                            }
+                        </td>
+
+                        <td>
+                            <a asp-action="Detay"
+                               asp-route-id="@g.Id"
+                               class="btn btn-sm btn-outline-primary">
+                                Yetkinlikleri Yönet
+                            </a>
+                        </td>
+                    </tr>
+                }
+
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            Henüz gönüllü bulunmuyor.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

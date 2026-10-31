@@ -1,0 +1,1813 @@
+﻿@model DernekNet.Models.Dernek
+@using System.Linq
+
+@{
+    Layout = null;
+    ViewData["Title"] = Model.DernekAdi;
+
+    var duyurular = ViewBag.Duyurular as List<DernekNet.Models.Duyuru>
+        ?? new List<DernekNet.Models.Duyuru>();
+    var etkinlikler = ViewBag.Etkinlikler as List<DernekNet.Models.Etkinlik>
+        ?? new List<DernekNet.Models.Etkinlik>();
+    var anketler = ViewBag.Anketler as List<DernekNet.Models.Anket>
+        ?? new List<DernekNet.Models.Anket>();
+    var anketOySayilari = ViewBag.AnketOySayilari as Dictionary<int, int>
+        ?? new Dictionary<int, int>();
+    var yonetimKurulu = ViewBag.YonetimKurulu as List<DernekNet.Models.YonetimKurulu>
+        ?? new List<DernekNet.Models.YonetimKurulu>();
+    var denetimKurulu = ViewBag.DenetimKurulu as List<DernekNet.Models.YonetimKurulu>
+        ?? new List<DernekNet.Models.YonetimKurulu>();
+    var disiplinKurulu = ViewBag.DisiplinKurulu as List<DernekNet.Models.YonetimKurulu>
+        ?? new List<DernekNet.Models.YonetimKurulu>();
+    var kurullar = new[]
+    {
+        new { Ad = "Yönetim Kurulu", Uyeler = yonetimKurulu },
+        new { Ad = "Denetim Kurulu", Uyeler = denetimKurulu },
+        new { Ad = "Disiplin Kurulu", Uyeler = disiplinKurulu }
+    };
+    var anaRenk = System.Text.RegularExpressions.Regex.IsMatch(Model.AnaRenk ?? "", @"^#[0-9a-fA-F]{6}$")
+        ? Model.AnaRenk : "#147d78";
+    var ikinciRenk = System.Text.RegularExpressions.Regex.IsMatch(Model.IkinciRenk ?? "", @"^#[0-9a-fA-F]{6}$")
+        ? Model.IkinciRenk : "#ffffff";
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="@anaRenk" />
+    <meta name="description" content="@Model.DernekAdi - Duyurularımız, etkinliklerimiz ve çalışmalarımız." />
+    <title>@Model.DernekAdi | DERNEKNET</title>
+    <style>
+        :root {
+            --brand: @anaRenk;
+            --brand-text: @ikinciRenk;
+            --ink: #17313b;
+            --muted: #61737b;
+            --paper: #fff;
+            --canvas: #f7faf8;
+            --line: #e4eeea;
+            --orange: #ed9b58;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 110px;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-size: 16px;
+            color: var(--ink);
+            background: var(--canvas);
+        }
+
+        a {
+            color: inherit;
+        }
+
+        button, input {
+            font: inherit;
+        }
+
+        img, video {
+            max-width: 100%;
+        }
+
+        .wrap {
+            width: min(1200px, calc(100% - 48px));
+            margin-inline: auto;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255,255,255,.96);
+            border-bottom: 1px solid var(--line);
+            backdrop-filter: blur(14px);
+            transition: box-shadow .25s;
+        }
+
+            .topbar.scrolled {
+                box-shadow: 0 12px 35px rgba(20,55,55,.09);
+            }
+
+        .nav-inner {
+            min-height: 84px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            text-decoration: none;
+            min-width: 0;
+        }
+
+        .brand-logo {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            object-fit: contain;
+            background: #fff;
+            border: 1px solid var(--line);
+            padding: 4px;
+        }
+
+        .brand-placeholder {
+            display: grid;
+            place-items: center;
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: var(--brand);
+            color: var(--brand-text);
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .brand-copy {
+            display: grid;
+            gap: 3px;
+            min-width: 0;
+        }
+
+            .brand-copy strong {
+                font-size: 19px;
+                line-height: 1.2;
+                overflow-wrap: anywhere;
+            }
+
+            .brand-copy small {
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 2px;
+                color: var(--brand);
+            }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+            .nav-links a {
+                padding: 10px 12px;
+                border-radius: 10px;
+                text-decoration: none;
+                font-size: 15px;
+                font-weight: 600;
+                transition: background .2s, color .2s;
+            }
+
+                .nav-links a:hover, .nav-links a:focus-visible {
+                    background: #eaf4ef;
+                    color: var(--brand);
+                }
+
+                .nav-links a:last-child {
+                    background: var(--brand);
+                    color: var(--brand-text);
+                }
+
+        .nav-toggle {
+            display: none;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: white;
+            padding: 10px 13px;
+            cursor: pointer;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            background: #e9f4ee;
+            isolation: isolate;
+        }
+
+            .hero::before {
+                content: "";
+                position: absolute;
+                inset: 0 0 0 50%;
+                background: radial-gradient(circle at 60% 40%, rgba(237,155,88,.26), transparent 45%), radial-gradient(circle at 35% 75%, rgba(35,151,137,.20), transparent 52%);
+                z-index: -1;
+            }
+
+        .hero-inner {
+            display: grid;
+            grid-template-columns: 1.1fr .9fr;
+            align-items: center;
+            gap: 65px;
+            min-height: 510px;
+            padding-block: 74px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--brand);
+            text-transform: uppercase;
+            font-weight: 800;
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+            .eyebrow::before {
+                content: "";
+                width: 26px;
+                height: 3px;
+                border-radius: 2px;
+                background: var(--orange);
+            }
+
+        .hero h1 {
+            margin: 20px 0;
+            font-size: clamp(32px, 5vw, 52px);
+            line-height: 1.12;
+            letter-spacing: -.9px;
+            overflow-wrap: anywhere;
+        }
+
+        .hero p {
+            max-width: 630px;
+            color: #4f6970;
+            font-size: 19px;
+            line-height: 1.8;
+            margin: 0 0 28px;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 21px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: transform .2s, box-shadow .2s;
+        }
+
+            .action:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 10px 22px rgba(20,80,70,.14);
+            }
+
+            .action.primary {
+                background: var(--brand);
+                color: var(--brand-text);
+            }
+
+            .action.secondary {
+                background: #fff;
+                color: var(--ink);
+                border: 1px solid #dce9e4;
+            }
+
+        .hero-art {
+            min-height: 330px;
+            position: relative;
+            display: grid;
+            place-items: center;
+        }
+
+        .art-blob {
+            position: absolute;
+            width: min(390px, 90%);
+            aspect-ratio: 1;
+            border-radius: 39% 61% 60% 40% / 48% 43% 57% 52%;
+            background: linear-gradient(140deg, var(--brand), #79c5aa);
+            opacity: .92;
+            animation: morph 13s ease-in-out infinite alternate;
+            box-shadow: 0 30px 70px rgba(33,109,92,.2);
+        }
+
+        .art-logo {
+            position: relative;
+            z-index: 1;
+            width: min(235px, 65%);
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: white;
+            padding: 25px;
+            object-fit: contain;
+            box-shadow: 0 20px 45px rgba(0,0,0,.12);
+        }
+
+        .art-symbol {
+            position: relative;
+            z-index: 1;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: #fff;
+            display: grid;
+            place-items: center;
+            font-size: 80px;
+            font-weight: 800;
+            color: var(--brand);
+            box-shadow: 0 20px 45px rgba(0,0,0,.12);
+        }
+
+        .art-note {
+            position: absolute;
+            z-index: 2;
+            right: 0;
+            bottom: 12px;
+            background: #fff;
+            border-radius: 15px;
+            padding: 16px 20px;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 12px 35px rgba(20,50,45,.1);
+            animation: float 5s ease-in-out infinite;
+        }
+
+            .art-note span {
+                color: var(--brand);
+            }
+
+        main {
+            padding-block: 38px 65px;
+        }
+
+        .section {
+            padding-block: 54px;
+            scroll-margin-top: 100px;
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .section-kicker {
+            display: block;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--brand);
+            margin-bottom: 9px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            margin: 0;
+            line-height: 1.25;
+        }
+
+        .section-subtitle {
+            color: var(--muted);
+            margin: 8px 0 0;
+            font-size: 15px;
+        }
+
+        .about-layout {
+            display: grid;
+            grid-template-columns: 1.3fr .7fr;
+            gap: 24px;
+        }
+
+        .about-panel {
+            padding: 35px;
+            border-radius: 23px;
+            background: #fff;
+            border: 1px solid var(--line);
+        }
+
+            .about-panel p {
+                margin: 0;
+                line-height: 1.8;
+                color: #53666e;
+                white-space: pre-line;
+                overflow-wrap: anywhere;
+            }
+
+        .about-aside {
+            border-radius: 23px;
+            padding: 34px;
+            background: var(--brand);
+            color: var(--brand-text);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 16px;
+        }
+
+            .about-aside .symbol {
+                font-size: 42px;
+            }
+
+            .about-aside strong {
+                font-size: 21px;
+                line-height: 1.4;
+            }
+
+            .about-aside span {
+                font-size: 14px;
+                opacity: .88;
+                line-height: 1.7;
+            }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 24px;
+        }
+
+        .story-card {
+            background: #fff;
+            border-radius: 22px;
+            border: 1px solid var(--line);
+            overflow: hidden;
+            box-shadow: 0 9px 30px rgba(28,61,56,.04);
+            transition: transform .3s, box-shadow .3s;
+            min-width: 0;
+        }
+
+            .story-card:hover {
+                transform: translateY(-6px);
+                box-shadow: 0 20px 45px rgba(28,61,56,.12);
+            }
+
+        .story-cover {
+            height: 235px;
+            background: linear-gradient(135deg, #dceee7, #fcebdc);
+            overflow: hidden;
+            position: relative;
+        }
+
+            .story-cover img, .story-cover video {
+                width: 100%;
+                height: 100%;
+                display: block;
+                object-fit: cover;
+            }
+
+            .story-cover img {
+                cursor: zoom-in;
+                transition: transform .5s;
+            }
+
+        .story-card:hover .story-cover img {
+            transform: scale(1.04);
+        }
+
+        .story-cover.empty {
+            display: grid;
+            place-items: center;
+        }
+
+        .cover-mark {
+            font-size: 68px;
+            color: var(--brand);
+            opacity: .65;
+        }
+
+        .story-content {
+            padding: 25px 28px 29px;
+        }
+
+        .date {
+            color: var(--brand);
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 11px;
+        }
+
+        .story-content h3 {
+            font-size: 21px;
+            margin: 0 0 13px;
+            overflow-wrap: anywhere;
+        }
+
+        .story-content p {
+            margin: 0;
+            color: #53627a;
+            line-height: 1.8;
+            white-space: pre-line;
+            overflow-wrap: anywhere;
+        }
+
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
+            margin-top: 19px;
+        }
+
+        .media-item {
+            min-width: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #edf4f0;
+        }
+
+            .media-item img, .media-item video {
+                display: block;
+                width: 100%;
+                height: 125px;
+                object-fit: cover;
+            }
+
+            .media-item img {
+                cursor: zoom-in;
+                transition: transform .25s;
+            }
+
+                .media-item img:hover {
+                    transform: scale(1.06);
+                }
+
+            .media-item video {
+                background: #142238;
+                object-fit: contain;
+            }
+
+        .event-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .event-card {
+            display: grid;
+            grid-template-columns: 125px minmax(0,1fr) 225px;
+            align-items: stretch;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            overflow: hidden;
+            transition: transform .3s, box-shadow .3s;
+        }
+
+            .event-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 18px 40px rgba(28,61,56,.1);
+            }
+
+        .event-date {
+            background: #e4f3eb;
+            color: var(--brand);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 15px;
+        }
+
+            .event-date strong {
+                font-size: 32px;
+                line-height: 1;
+            }
+
+            .event-date span {
+                font-size: 13px;
+                font-weight: 700;
+            }
+
+        .event-body {
+            padding: 27px 30px;
+            min-width: 0;
+        }
+
+            .event-body h3 {
+                margin: 0 0 12px;
+                font-size: 21px;
+                overflow-wrap: anywhere;
+            }
+
+        .event-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 20px;
+            font-size: 14px;
+            color: #53666e;
+            margin-bottom: 13px;
+        }
+
+        .event-body p {
+            margin: 0;
+            color: #53627a;
+            line-height: 1.8;
+            white-space: pre-line;
+            overflow-wrap: anywhere;
+        }
+
+        .event-media {
+            min-height: 190px;
+            background: #e5f0eb;
+            overflow: hidden;
+        }
+
+            .event-media > img, .event-media > video {
+                width: 100%;
+                height: 100%;
+                max-height: 290px;
+                min-height: 190px;
+                object-fit: cover;
+                display: block;
+            }
+
+            .event-media img {
+                cursor: zoom-in;
+                transition: transform .35s;
+            }
+
+                .event-media img:hover {
+                    transform: scale(1.05);
+                }
+
+            .event-media video {
+                background: #142238;
+                object-fit: contain;
+            }
+
+            .event-media.empty {
+                display: grid;
+                place-items: center;
+                font-size: 54px;
+                color: var(--brand);
+            }
+
+        .event-extras {
+            grid-column: 2 / 4;
+            padding: 0 25px 22px;
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 23px;
+        }
+
+        .tab {
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--ink);
+            border-radius: 12px;
+            padding: 13px 19px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .2s, color .2s, transform .2s;
+        }
+
+            .tab:hover {
+                transform: translateY(-2px);
+            }
+
+            .tab.active {
+                background: var(--brand);
+                color: var(--brand-text);
+                border-color: var(--brand);
+            }
+
+        .panel {
+            display: none;
+        }
+
+            .panel.active {
+                display: block;
+            }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+            gap: 20px;
+        }
+
+        .team-card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: transform .3s, box-shadow .3s;
+        }
+
+            .team-card:hover {
+                transform: translateY(-6px);
+                box-shadow: 0 16px 35px rgba(28,61,56,.1);
+            }
+
+            .team-card.president {
+                border-top: 4px solid var(--orange);
+            }
+
+        .team-photo, .team-placeholder {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            margin: 0 auto 17px;
+            border: 4px solid #edf5f1;
+        }
+
+        .team-photo {
+            object-fit: cover;
+            display: block;
+        }
+
+        .team-placeholder {
+            display: grid;
+            place-items: center;
+            background: #e9f4ee;
+            font-size: 46px;
+        }
+
+        .team-name {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            overflow-wrap: anywhere;
+        }
+
+        .team-role {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--brand);
+        }
+
+        .empty-state {
+            padding: 30px;
+            background: #fff;
+            border: 1px dashed #bfd6cb;
+            border-radius: 20px;
+            color: var(--muted);
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .contact-card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 28px;
+            overflow-wrap: anywhere;
+            transition: transform .3s;
+        }
+
+            .contact-card:hover {
+                transform: translateY(-4px);
+            }
+
+        .contact-icon {
+            display: grid;
+            place-items: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 13px;
+            background: #e7f4ed;
+            color: var(--brand);
+            font-size: 22px;
+            margin-bottom: 18px;
+        }
+
+        .contact-card strong {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--ink);
+        }
+
+        .contact-card p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.7;
+            white-space: pre-line;
+        }
+
+        footer {
+            background: #16353c;
+            color: #e5f0eb;
+            padding: 30px 0;
+            font-size: 14px;
+        }
+
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(6,24,29,.94);
+            padding: 60px 22px;
+        }
+
+            .lightbox.open {
+                display: flex;
+            }
+
+            .lightbox img {
+                max-width: 95%;
+                max-height: 88vh;
+                object-fit: contain;
+                border-radius: 10px;
+            }
+
+        .lightbox-close {
+            position: absolute;
+            top: 12px;
+            right: 25px;
+            border: 0;
+            background: transparent;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity .7s ease, transform .7s ease;
+        }
+
+            .reveal.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        @@keyframes morph {
+            to {
+                border-radius: 60% 40% 35% 65% / 40% 60% 40% 60%;
+                transform: rotate(10deg) scale(1.03);
+            }
+        }
+
+        @@keyframes float {
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+
+        @@media (max-width: 1000px) {
+            .hero-inner {
+                gap: 25px;
+            }
+
+            .nav-links a {
+                padding: 9px 8px;
+            }
+
+            .event-card {
+                grid-template-columns: 110px minmax(0,1fr) 170px;
+            }
+        }
+
+        @@media (max-width: 760px) {
+            .wrap {
+                width: min(100% - 32px, 1200px);
+            }
+
+            .nav-inner {
+                min-height: 74px;
+                flex-wrap: wrap;
+            }
+
+            .nav-toggle {
+                display: block;
+                margin-left: auto;
+            }
+
+            .nav-links {
+                display: none;
+                flex-basis: 100%;
+                padding-bottom: 16px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+                .nav-links.open {
+                    display: flex;
+                }
+
+                .nav-links a {
+                    padding: 12px;
+                }
+
+            .hero-inner {
+                grid-template-columns: 1fr;
+                padding-block: 54px 42px;
+                min-height: auto;
+            }
+
+            .hero-art {
+                min-height: 250px;
+            }
+
+            .art-blob {
+                width: 250px;
+            }
+
+            .art-logo {
+                width: 165px;
+            }
+
+            .art-symbol {
+                width: 165px;
+                height: 165px;
+            }
+
+            .art-note {
+                right: 8px;
+                bottom: 0;
+            }
+
+            .section {
+                padding-block: 36px;
+            }
+
+            .about-layout, .news-grid, .contact-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .event-card {
+                grid-template-columns: 85px minmax(0, 1fr);
+            }
+
+            .event-date {
+                padding: 10px;
+            }
+
+                .event-date strong {
+                    font-size: 28px;
+                }
+
+            .event-body {
+                padding: 20px;
+            }
+
+            .event-media {
+                grid-column: 1 / -1;
+                max-height: 250px;
+            }
+
+            .event-extras {
+                grid-column: 1 / -1;
+                padding: 12px 18px 20px;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+        }
+
+        @@media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation: none !important;
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+            }
+
+            .reveal {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        /* Anketler ve oylamalar */
+        .poll-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .poll-card {
+            min-width: 0;
+            padding: 29px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            box-shadow: 0 9px 30px rgba(28,61,56,.04);
+        }
+
+        .poll-label {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 30px;
+            background: #e7f4ed;
+            color: var(--brand);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .poll-card h3 {
+            margin: 16px 0 10px;
+            font-size: 22px;
+            overflow-wrap: anywhere;
+        }
+
+        .poll-description {
+            color: var(--muted);
+            line-height: 1.65;
+            white-space: pre-line;
+        }
+
+        .poll-options {
+            display: grid;
+            gap: 10px;
+            margin: 22px 0;
+        }
+
+        .poll-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 15px;
+            border: 1px solid #dce9e4;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+            .poll-option:has(input:checked) {
+                border-color: var(--brand);
+                background: #f1f8f4;
+            }
+
+            .poll-option input {
+                accent-color: var(--brand);
+            }
+
+        .poll-submit {
+            padding: 13px 23px;
+            border: 0;
+            border-radius: 12px;
+            background: var(--brand);
+            color: var(--brand-text);
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+            .poll-submit:hover {
+                filter: brightness(.94);
+            }
+
+        .poll-results {
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px solid var(--line);
+        }
+
+            .poll-results h4 {
+                margin: 0 0 15px;
+                font-size: 15px;
+            }
+
+        .poll-result {
+            margin: 12px 0;
+        }
+
+        .poll-result-label {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .poll-track {
+            height: 9px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #e8f0ec;
+        }
+
+        .poll-fill {
+            height: 100%;
+            background: var(--brand);
+            border-radius: 20px;
+        }
+
+        .poll-meta {
+            margin-top: 13px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .poll-alert {
+            margin-bottom: 22px;
+            padding: 15px 20px;
+            border-radius: 13px;
+            background: #e8f5ef;
+            border: 1px solid #b9d9c8;
+            color: #174e3c;
+        }
+
+        @@media (max-width: 760px) {
+            .poll-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .poll-card {
+                padding: 22px;
+            }
+        }
+
+        /* DERNEKNET 2026 — yeni kurumsal görünüm */
+        :root {
+            --ink: #10243a;
+            --muted: #64748b;
+            --canvas: #f1f5f9;
+            --line: #dce5ee;
+            --orange: #f5bc69;
+        }
+
+        body {
+            background: var(--canvas);
+            color: var(--ink);
+        }
+
+        .wrap {
+            width: min(1240px,calc(100% - 48px));
+        }
+
+        .topbar {
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .nav-inner {
+            min-height: 94px;
+        }
+
+        .brand-logo, .brand-placeholder {
+            width: 60px;
+            height: 60px;
+            border-radius: 18px;
+        }
+
+        .brand-copy strong {
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .brand-copy small {
+            letter-spacing: 3px;
+        }
+
+        .nav-links a {
+            border-radius: 999px;
+            padding: 11px 14px;
+            font-size: 14px;
+        }
+
+            .nav-links a:last-child {
+                background: #10243a;
+                color: white;
+                padding: 13px 18px;
+                box-shadow: 0 6px 20px rgba(16,36,58,.18);
+            }
+
+        .hero {
+            background: linear-gradient(125deg,#071d31 0%,#133957 55%,#195c65 100%);
+            color: white;
+        }
+
+            .hero::before {
+                inset: 0;
+                background: radial-gradient(circle at 83% 15%,rgba(255,255,255,.14),transparent 35%),radial-gradient(circle at 20% 90%,rgba(56,189,170,.14),transparent 40%);
+            }
+
+        .hero-inner {
+            min-height: 620px;
+            padding-block: 95px;
+            gap: 60px;
+        }
+
+        .eyebrow {
+            color: #f7c979;
+            letter-spacing: 3px;
+        }
+
+        .hero h1 {
+            font-size: clamp(42px,5.8vw,76px);
+            letter-spacing: -2px;
+            line-height: 1.08;
+            max-width: 790px;
+            margin: 28px 0;
+        }
+
+        .hero p {
+            color: #d2e2ed;
+            font-size: 20px;
+            line-height: 1.85;
+        }
+
+        .action {
+            border-radius: 999px;
+            padding: 17px 27px;
+        }
+
+            .action.primary {
+                background: #f7c979;
+                color: #10243a;
+            }
+
+            .action.secondary {
+                background: transparent;
+                color: white;
+                border: 1px solid rgba(255,255,255,.5);
+            }
+
+        .art-blob {
+            background: linear-gradient(145deg,#f7c979,#42b7aa);
+            width: min(430px,95%);
+            box-shadow: 0 35px 90px rgba(0,0,0,.3);
+        }
+
+        .art-logo, .art-symbol {
+            box-shadow: 0 28px 75px rgba(0,0,0,.25);
+        }
+
+        .art-note {
+            color: #10243a;
+            border: 1px solid rgba(255,255,255,.5);
+        }
+
+        main {
+            padding-block: 35px 90px;
+        }
+
+        .section {
+            padding-block: 76px;
+        }
+
+        .section-kicker {
+            letter-spacing: 2.5px;
+        }
+
+        .section-title {
+            font-size: clamp(29px,3vw,42px);
+            letter-spacing: -.8px;
+        }
+
+        .section-subtitle {
+            font-size: 16px;
+        }
+
+        .about-panel, .story-card, .event-card, .poll-card, .team-card, .contact-card {
+            border-radius: 26px;
+            border: 1px solid #e0e8ef;
+            box-shadow: 0 14px 35px rgba(16,36,58,.045);
+        }
+
+        .about-panel {
+            padding: 46px;
+        }
+
+        .about-aside {
+            background: #102f49;
+            color: #fff;
+            border-radius: 26px;
+            padding: 44px;
+        }
+
+        .news-grid {
+            gap: 28px;
+        }
+
+        .story-cover {
+            height: 290px;
+        }
+
+        .story-content {
+            padding: 32px;
+        }
+
+            .story-content h3 {
+                font-size: 25px;
+            }
+
+        .event-date {
+            background: #e7f3f1;
+            color: #126d68;
+        }
+
+        .event-body {
+            padding: 34px;
+        }
+
+        .event-media {
+            min-height: 230px;
+        }
+
+        .poll-card {
+            padding: 36px;
+        }
+
+        .poll-submit {
+            background: #102f49;
+            color: white;
+            border-radius: 999px;
+            padding: 15px 28px;
+        }
+
+        .tab {
+            border-radius: 999px;
+        }
+
+            .tab.active {
+                background: #102f49;
+                color: white;
+                border-color: #102f49;
+            }
+
+        .contact-icon {
+            background: #e7f3f1;
+            color: #126d68;
+            border-radius: 16px;
+            width: 56px;
+            height: 56px;
+        }
+
+        footer {
+            background: #071d31;
+            padding: 45px 0;
+        }
+
+        @@media(max-width:1000px) {
+            .hero-inner {
+                min-height: 540px;
+                gap: 25px;
+            }
+        }
+
+        @@media(max-width:760px) {
+            .wrap {
+                width: calc(100% - 32px);
+            }
+
+            .nav-inner {
+                min-height: 76px;
+            }
+
+            .hero-inner {
+                min-height: auto;
+                padding-block: 65px 48px;
+            }
+
+            .hero h1 {
+                font-size: clamp(36px,10vw,54px);
+                letter-spacing: -1px;
+            }
+
+            .hero p {
+                font-size: 17px;
+            }
+
+            .hero-art {
+                min-height: 270px;
+            }
+
+            .section {
+                padding-block: 48px;
+            }
+
+            .about-panel, .about-aside {
+                padding: 28px;
+            }
+
+            .story-cover {
+                height: 225px;
+            }
+
+            .story-content, .poll-card {
+                padding: 24px;
+            }
+
+            .event-body {
+                padding: 22px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <header class="topbar" id="topbar">
+        <div class="wrap nav-inner">
+            <a class="brand" href="#ust" aria-label="Sayfa başına dön">
+                @if (!string.IsNullOrWhiteSpace(Model.LogoUrl))
+                {
+                    <img class="brand-logo" src="@Model.LogoUrl" alt="@Model.DernekAdi logosu" />
+                }
+                else
+                {
+                    <span class="brand-placeholder" aria-hidden="true">D</span>
+                }
+                <span class="brand-copy"><strong>@Model.DernekAdi</strong><small>DERNEKNET</small></span>
+            </a>
+            <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks" aria-label="Menüyü aç">☰ Menü</button>
+            <nav class="nav-links" id="navLinks" aria-label="Ana menü">
+                <a href="#hakkimizda">Hakkımızda</a>
+                <a href="#duyurular">Duyurular</a>
+                <a href="#etkinlikler">Etkinlikler</a>
+                <a href="#anketler">Anketler</a>
+                <a asp-controller="Afad" asp-action="Index" asp-route-dernekId="@Model.Id">AFAD</a>
+                <a href="#kurullar">Kurullarımız</a>
+                <a href="#iletisim">İletişim</a>
+                <a href="/Identity/Account/Login?DernekId=@Model.Id">
+                    🔐 Yönetici Girişi
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero" id="ust">
+        <div class="wrap hero-inner">
+            <div class="reveal">
+                <span class="eyebrow">Birlikte daha güçlüyüz</span>
+                <h1>@Model.DernekAdi</h1>
+                <p>Topluluğumuzun çalışmalarını, güncel duyurularımızı ve etkinliklerimizi keşfedin. Birlikte daha güzel yarınlar için çalışıyoruz.</p>
+                <div class="hero-actions">
+                    <a class="action primary" href="#etkinlikler">Etkinlikleri keşfet <span aria-hidden="true">↗</span></a>
+                    <a class="action secondary" href="#hakkimizda">Bizi tanıyın <span aria-hidden="true">→</span></a>
+                </div>
+            </div>
+            <div class="hero-art" aria-hidden="true">
+                <div class="art-blob"></div>
+                @if (!string.IsNullOrWhiteSpace(Model.LogoUrl))
+                {
+                    <img class="art-logo" src="@Model.LogoUrl" alt="" />
+                }
+                else
+                {
+                    <div class="art-symbol">D</div>
+                }
+                <div class="art-note"><span>✦</span> Birlikte, dayanışmayla.</div>
+            </div>
+        </div>
+    </section>
+
+    <main class="wrap">
+        <section id="hakkimizda" class="section reveal">
+            <div class="section-head"><div><span class="section-kicker">Biz kimiz?</span><h2 class="section-title">Hakkımızda</h2></div></div>
+            <div class="about-layout">
+                <div class="about-panel"><p>@(string.IsNullOrWhiteSpace(Model.Aciklama) ? "Derneğimiz hakkında bilgiler yakında eklenecektir." : Model.Aciklama)</p></div>
+                <div class="about-aside"><div class="symbol" aria-hidden="true">✳</div><strong>Bir arada, ortak amaçlar için.</strong><span>Derneğimizin duyurularını, etkinliklerini ve çalışmalarını bu sayfadan takip edebilirsiniz.</span></div>
+            </div>
+        </section>
+
+        <section id="duyurular" class="section">
+            <div class="section-head reveal"><div><span class="section-kicker">Topluluğumuzdan haberler</span><h2 class="section-title">Son Duyurular</h2><p class="section-subtitle">Güncel gelişmeler ve paylaşımlar</p></div></div>
+            @if (duyurular.Any())
+            {
+                <div class="news-grid">
+                    @foreach (var duyuru in duyurular)
+                    {
+                        var kapak = duyuru.Medyalar?.OrderBy(x => x.Id).FirstOrDefault();
+                        <article class="story-card reveal">
+                            @if (kapak != null)
+                            {
+                                <div class="story-cover">
+                                    @if (kapak.MedyaTipi == "Video")
+                                    {
+                                        <video controls preload="metadata" aria-label="@duyuru.Baslik videosu"><source src="@kapak.DosyaYolu" /></video>
+                                    }
+                                    else
+                                    {
+                                        <img src="@kapak.DosyaYolu" alt="@duyuru.Baslik fotoğrafı" loading="lazy" onclick="fotografAc(this.src)" />
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="story-cover empty"><span class="cover-mark" aria-hidden="true">✳</span></div>
+                            }
+                            <div class="story-content">
+                                <div class="date">@duyuru.YayinTarihi.ToLocalTime().ToString("dd.MM.yyyy")</div>
+                                <h3>@duyuru.Baslik</h3>
+                                <p>@duyuru.Icerik</p>
+                                @if (duyuru.Medyalar != null && duyuru.Medyalar.Count > 1)
+                                {
+                                    <div class="media-grid">
+                                        @foreach (var medya in duyuru.Medyalar.OrderBy(x => x.Id).Skip(1))
+                                        {
+                                            <div class="media-item">
+                                                @if (medya.MedyaTipi == "Video")
+                                                {
+                                                    <video controls preload="metadata"><source src="@medya.DosyaYolu" /></video>
+                                                }
+                                                else
+                                                {
+                                                    <img src="@medya.DosyaYolu" alt="@duyuru.Baslik ek fotoğrafı" loading="lazy" onclick="fotografAc(this.src)" />
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">Henüz yayınlanmış duyuru bulunmuyor.</div>
+            }
+        </section>
+
+        <section id="etkinlikler" class="section">
+            <div class="section-head reveal"><div><span class="section-kicker">Birlikte buluşalım</span><h2 class="section-title">Etkinliklerimiz</h2><p class="section-subtitle">Topluluğumuzun etkinlik takvimi</p></div></div>
+            @if (etkinlikler.Any())
+            {
+                <div class="event-list">
+                    @foreach (var etkinlik in etkinlikler)
+                    {
+                        var kapak = etkinlik.Medyalar?.OrderBy(x => x.Id).FirstOrDefault();
+                        <article class="event-card reveal">
+                            <div class="event-date"><strong>@etkinlik.EtkinlikTarihi.ToString("dd")</strong><span>@etkinlik.EtkinlikTarihi.ToString("MMMM yyyy", new System.Globalization.CultureInfo("tr-TR"))</span></div>
+                            <div class="event-body">
+                                <h3>@etkinlik.EtkinlikAdi</h3>
+                                <div class="event-meta"><span>🕒 @etkinlik.EtkinlikTarihi.ToString("HH:mm")</span><span>📍 @(string.IsNullOrWhiteSpace(etkinlik.Konum) ? "Yer belirtilmedi" : etkinlik.Konum)</span></div>
+                                @if (!string.IsNullOrWhiteSpace(etkinlik.Aciklama))
+                                {
+                                    <p>@etkinlik.Aciklama</p>
+                                }
+                            </div>
+                            @if (kapak != null)
+                            {
+                                <div class="event-media">
+                                    @if (kapak.MedyaTipi == "Video")
+                                    {
+                                        <video controls preload="metadata" aria-label="@etkinlik.EtkinlikAdi videosu"><source src="@kapak.DosyaYolu" /></video>
+                                    }
+                                    else
+                                    {
+                                        <img src="@kapak.DosyaYolu" alt="@etkinlik.EtkinlikAdi fotoğrafı" loading="lazy" onclick="fotografAc(this.src)" />
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="event-media empty" aria-hidden="true">✳</div>
+                            }
+                            @if (etkinlik.Medyalar != null && etkinlik.Medyalar.Count > 1)
+                            {
+                                <div class="event-extras">
+                                    <div class="media-grid">
+                                        @foreach (var medya in etkinlik.Medyalar.OrderBy(x => x.Id).Skip(1))
+                                        {
+                                            <div class="media-item">
+                                                @if (medya.MedyaTipi == "Video")
+                                                {
+                                                    <video controls preload="metadata"><source src="@medya.DosyaYolu" /></video>
+                                                }
+                                                else
+                                                {
+                                                    <img src="@medya.DosyaYolu" alt="@etkinlik.EtkinlikAdi ek fotoğrafı" loading="lazy" onclick="fotografAc(this.src)" />
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </article>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">Henüz yayınlanmış etkinlik bulunmuyor.</div>
+            }
+        </section>
+
+
+        <section id="anketler" class="section">
+            <div class="section-head reveal">
+                <div>
+                    <span class="section-kicker">Söz sizde</span>
+                    <h2 class="section-title">Anketler ve Oylamalar</h2>
+                    <p class="section-subtitle">Derneğimizin güncel anketlerine katılın.</p>
+                </div>
+            </div>
+
+            @if (TempData["AnketMesaj"] is string anketMesaji)
+            {
+                <div class="poll-alert" role="status">@anketMesaji</div>
+            }
+
+            @if (anketler.Any())
+            {
+                <div class="poll-grid">
+                    @foreach (var anket in anketler)
+                    {
+                        var secenekler = anket.Secenekler.OrderBy(x => x.SiraNo).ToList();
+                        var toplamOy = secenekler.Sum(x => anketOySayilari.GetValueOrDefault(x.Id));
+                        <article class="poll-card reveal">
+                            <span class="poll-label">● Oylama açık</span>
+                            <h3>@anket.Soru</h3>
+                            @if (!string.IsNullOrWhiteSpace(anket.Aciklama))
+                            {
+                                <p class="poll-description">@anket.Aciklama</p>
+                            }
+
+                            <form asp-area="" asp-controller="Dernek" asp-action="AnketOyVer" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="dernekId" value="@Model.Id" />
+                                <input type="hidden" name="anketId" value="@anket.Id" />
+                                <div class="poll-options" role="group" aria-label="@anket.Soru">
+                                    @foreach (var secenek in secenekler)
+                                    {
+                                        <label class="poll-option">
+                                            <input type="radio" name="secenekId" value="@secenek.Id" required />
+                                            <span>@secenek.SecenekMetni</span>
+                                        </label>
+                                    }
+                                </div>
+                                <button type="submit" class="poll-submit">Oy Ver →</button>
+                            </form>
+
+                            <div class="poll-results">
+                                <h4>Güncel sonuçlar</h4>
+                                @foreach (var secenek in secenekler)
+                                {
+                                    var oy = anketOySayilari.GetValueOrDefault(secenek.Id);
+                                    var yuzde = toplamOy > 0 ? (100.0 * oy / toplamOy) : 0;
+                                    <div class="poll-result">
+                                        <div class="poll-result-label">
+                                            <span>@secenek.SecenekMetni</span>
+                                            <strong>@yuzde.ToString("0.#", new System.Globalization.CultureInfo("tr-TR"))% (@oy oy)</strong>
+                                        </div>
+                                        <div class="poll-track" role="progressbar" aria-valuenow="@Math.Round(yuzde)" aria-valuemin="0" aria-valuemax="100" aria-label="@secenek.SecenekMetni">
+                                            <div class="poll-fill" style="width:@yuzde.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%"></div>
+                                        </div>
+                                    </div>
+                                }
+                                <div class="poll-meta">Toplam @toplamOy oy · Bitiş: @anket.BitisTarihi.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</div>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">Şu anda katılıma açık anket bulunmuyor.</div>
+            }
+        </section>
+
+        <section id="kurullar" class="section">
+            <div class="section-head reveal"><div><span class="section-kicker">Ekibimizi tanıyın</span><h2 class="section-title">Kurullarımız</h2><p class="section-subtitle">Derneğimizin yönetim ve kurul kadrosu</p></div></div>
+            <div class="tabs reveal" role="tablist" aria-label="Dernek kurulları">
+                @for (int i = 0; i < kurullar.Length; i++)
+                {
+                    <button type="button" id="kurul-tab-@i" class="tab @(i == 0 ? "active" : "")" role="tab" aria-controls="kurul-panel-@i" aria-selected="@(i == 0 ? "true" : "false")" onclick="kurulGoster(@i)">@kurullar[i].Ad (@kurullar[i].Uyeler.Count)</button>
+                }
+            </div>
+            @for (int i = 0; i < kurullar.Length; i++)
+            {
+                var kurul = kurullar[i];
+                <div class="panel @(i == 0 ? "active" : "")" id="kurul-panel-@i" role="tabpanel" aria-labelledby="kurul-tab-@i" hidden="@(i != 0)">
+                    @if (kurul.Uyeler.Any())
+                    {
+                        <div class="team-grid">
+                            @foreach (var kisi in kurul.Uyeler.OrderBy(x => x.Gorev == "Başkan" ? 0 : 1).ThenBy(x => x.SiraNo))
+                            {
+                                <article class="team-card @(kisi.Gorev == "Başkan" ? "president" : "") reveal">
+                                    @if (kisi.Uye != null && !string.IsNullOrWhiteSpace(kisi.Uye.FotografUrl))
+                                    {
+                                        <img class="team-photo" src="@Url.Action("KurulFotograf", "Dernek", new { dernekId = Model.Id, uyeId = kisi.UyeId })" alt="@kisi.Uye.Ad @kisi.Uye.Soyad" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <div class="team-placeholder" aria-hidden="true">👤</div>
+                                    }
+                                    <div class="team-name">@kisi.Uye?.Ad @kisi.Uye?.Soyad</div>
+                                    <div class="team-role">@kisi.Gorev</div>
+                                </article>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">Bu kurul için henüz görevli bilgisi bulunmuyor.</div>
+                    }
+                </div>
+            }
+        </section>
+
+        <section id="iletisim" class="section">
+            <div class="section-head reveal"><div><span class="section-kicker">Bize ulaşın</span><h2 class="section-title">İletişim</h2><p class="section-subtitle">Sorularınız ve önerileriniz için buradayız</p></div></div>
+            <div class="contact-grid">
+                <div class="contact-card reveal"><div class="contact-icon" aria-hidden="true">⌖</div><strong>Adres</strong><p>@(string.IsNullOrWhiteSpace(Model.Adres) ? "Belirtilmedi" : Model.Adres)</p></div>
+                <div class="contact-card reveal"><div class="contact-icon" aria-hidden="true">☎</div><strong>Telefon</strong><p>@(string.IsNullOrWhiteSpace(Model.Telefon) ? "Belirtilmedi" : Model.Telefon)</p></div>
+                <div class="contact-card reveal"><div class="contact-icon" aria-hidden="true">✉</div><strong>E-posta</strong><p>@(string.IsNullOrWhiteSpace(Model.Email) ? "Belirtilmedi" : Model.Email)</p></div>
+            </div>
+        </section>
+    </main>
+
+    <footer><div class="wrap footer-inner"><span>© @DateTime.Now.Year @Model.DernekAdi</span><span>DERNEKNET ile güçlenen topluluklar</span></div></footer>
+
+    <div id="fotografModal" class="lightbox" role="dialog" aria-modal="true" aria-label="Fotoğraf görüntüleme" aria-hidden="true" onclick="fotografKapat()">
+        <button type="button" class="lightbox-close" aria-label="Fotoğrafı kapat" onclick="fotografKapat()">&times;</button>
+        <img id="buyukFotograf" alt="Büyük fotoğraf" onclick="event.stopPropagation()" />
+    </div>
+
+    <script>
+        const topbar = document.getElementById('topbar');
+        function navGolge() { topbar.classList.toggle('scrolled', window.scrollY > 8); }
+        window.addEventListener('scroll', navGolge, { passive: true });
+        navGolge();
+
+        const navToggle = document.getElementById('navToggle');
+        const navLinks = document.getElementById('navLinks');
+        navToggle.addEventListener('click', function () {
+            const open = navLinks.classList.toggle('open');
+            navToggle.setAttribute('aria-expanded', String(open));
+        });
+        navLinks.querySelectorAll('a').forEach(function (a) {
+            a.addEventListener('click', function () {
+                navLinks.classList.remove('open');
+                navToggle.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        function kurulGoster(index) {
+            const tabs = document.querySelectorAll('.tab');
+            const panels = document.querySelectorAll('.panel');
+            tabs.forEach(function (tab, i) {
+                const active = i === index;
+                tab.classList.toggle('active', active);
+                tab.setAttribute('aria-selected', String(active));
+            });
+            panels.forEach(function (panel, i) {
+                const active = i === index;
+                panel.classList.toggle('active', active);
+                panel.hidden = !active;
+            });
+        }
+
+        const modal = document.getElementById('fotografModal');
+        const buyukFotograf = document.getElementById('buyukFotograf');
+        let oncekiOdak = null;
+        function fotografAc(url) {
+            oncekiOdak = document.activeElement;
+            buyukFotograf.src = url;
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+            modal.querySelector('button').focus();
+        }
+        function fotografKapat() {
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+            buyukFotograf.removeAttribute('src');
+            document.body.style.overflow = '';
+            if (oncekiOdak && typeof oncekiOdak.focus === 'function') oncekiOdak.focus();
+        }
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && modal.classList.contains('open')) fotografKapat();
+        });
+
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduceMotion || !('IntersectionObserver' in window)) {
+            document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+        } else {
+            const observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.08, rootMargin: '0px 0px 45px 0px' });
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        }
+    </script>
+</body>
+</html>

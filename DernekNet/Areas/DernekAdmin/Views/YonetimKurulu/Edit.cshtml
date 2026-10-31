@@ -1,0 +1,401 @@
+﻿@model DernekNet.Models.YonetimKurulu
+
+@{
+    ViewData["Title"] = "Kurul Görevi Düzenle";
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+}
+
+<style>
+    /* KURUL GÖREVİ DÜZENLE - KOYU TEMA */
+
+    .kurul-edit {
+        max-width: 1100px;
+        margin: 25px auto;
+        color: #e8edf5;
+    }
+
+        .kurul-edit .edit-heading {
+            color: #f1f5f9 !important;
+            font-size: 29px;
+            font-weight: 750;
+            margin-bottom: 8px;
+        }
+
+        .kurul-edit .edit-description {
+            color: #a9bdd1 !important;
+            font-size: 15px;
+        }
+
+        .kurul-edit .edit-card {
+            background: #182535 !important;
+            border: 1px solid #34465a !important;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,.16);
+        }
+
+        .kurul-edit .edit-card-header {
+            background: #1e3042 !important;
+            padding: 22px 28px;
+            border-bottom: 1px solid #34465a;
+        }
+
+            .kurul-edit .edit-card-header h5 {
+                color: #edf3fa !important;
+                font-weight: 700;
+                margin: 0;
+            }
+
+        .kurul-edit .edit-card-body {
+            background: #182535 !important;
+            padding: 30px;
+        }
+
+        .kurul-edit .form-label {
+            color: #c7d8e8 !important;
+            font-weight: 650;
+            margin-bottom: 9px;
+        }
+
+        .kurul-edit .form-control,
+        .kurul-edit .form-select {
+            background-color: #101c2a !important;
+            color: #edf3fa !important;
+            border: 1px solid #405269 !important;
+            border-radius: 10px;
+            min-height: 48px;
+            padding: 11px 14px;
+            color-scheme: dark;
+        }
+
+        .kurul-edit textarea.form-control {
+            min-height: 115px;
+            resize: vertical;
+        }
+
+        .kurul-edit .form-control:focus,
+        .kurul-edit .form-select:focus {
+            background-color: #142337 !important;
+            color: #ffffff !important;
+            border-color: #34c7b5 !important;
+            box-shadow: 0 0 0 3px rgba(52,199,181,.14);
+        }
+
+        .kurul-edit .form-control[readonly] {
+            background: #263447 !important;
+            color: #b9cadd !important;
+            cursor: not-allowed;
+        }
+
+        .kurul-edit .form-control::placeholder {
+            color: #8399af !important;
+        }
+
+        .kurul-edit .edit-help {
+            display: block;
+            margin-top: 8px;
+            color: #9fb5ca !important;
+            font-size: 12px;
+        }
+
+        .kurul-edit .form-check {
+            background: #203246;
+            border: 1px solid #344c62;
+            border-radius: 12px;
+            padding: 16px 18px 16px 46px;
+        }
+
+        .kurul-edit .form-check-input {
+            background-color: #101c2a;
+            border-color: #64748b;
+            cursor: pointer;
+        }
+
+            .kurul-edit .form-check-input:checked {
+                background-color: #0d9488;
+                border-color: #0d9488;
+            }
+
+        .kurul-edit .form-check-label {
+            color: #e8edf5 !important;
+            font-weight: 650;
+            cursor: pointer;
+        }
+
+        .kurul-edit .edit-footer {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding-top: 25px;
+            margin-top: 25px;
+            border-top: 1px solid #34465a;
+        }
+
+        .kurul-edit .btn-save {
+            background: #0d9488 !important;
+            border: 1px solid #0d9488 !important;
+            color: #ffffff !important;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-weight: 700;
+        }
+
+            .kurul-edit .btn-save:hover {
+                background: #0f766e !important;
+                border-color: #0f766e !important;
+            }
+
+        .kurul-edit .btn-cancel {
+            background: #293a4e !important;
+            border: 1px solid #486079 !important;
+            color: #e8edf5 !important;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-weight: 650;
+        }
+
+            .kurul-edit .btn-cancel:hover {
+                background: #354b63 !important;
+            }
+
+        .kurul-edit .text-danger {
+            color: #fca5a5 !important;
+        }
+
+    @@media (max-width: 767px) {
+        .kurul-edit {
+            margin-top: 15px;
+        }
+
+            .kurul-edit .edit-heading {
+                font-size: 24px;
+            }
+
+            .kurul-edit .edit-card-body {
+                padding: 20px;
+            }
+
+            .kurul-edit .edit-card-header {
+                padding: 20px;
+            }
+    }
+</style>
+
+<div class="kurul-edit">
+
+    <!-- SAYFA BAŞLIĞI -->
+
+    <div class="mb-4">
+        <h2 class="edit-heading">
+            <i class="bi bi-pencil-square me-2"
+               style="color:#4cc6b1;"></i>
+            Kurul Görevini Düzenle
+        </h2>
+
+        <p class="edit-description">
+            Üyenin kurul görevini, sıralamasını ve görev tarihlerini güncelleyin.
+        </p>
+    </div>
+
+    <!-- DÜZENLEME KARTI -->
+
+    <div class="edit-card">
+
+        <div class="edit-card-header">
+            <h5>
+                <i class="bi bi-person-badge me-2"
+                   style="color:#4cc6b1;"></i>
+                Görev Bilgileri
+            </h5>
+        </div>
+
+        <div class="edit-card-body">
+
+            <form asp-area="DernekAdmin"
+                  asp-controller="YonetimKurulu"
+                  asp-action="Edit"
+                  asp-route-id="@Model.Id"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3"></div>
+
+                <div class="row g-4">
+
+                    <!-- ÜYE -->
+
+                    <div class="col-12">
+                        <label class="form-label">
+                            Üye
+                        </label>
+
+                        <input type="text"
+                               class="form-control"
+                               value="@Model.Uye?.Ad @Model.Uye?.Soyad"
+                               readonly />
+
+                        <small class="edit-help">
+                            Üye değiştirmek için yeni bir görev kaydı oluşturun.
+                        </small>
+                    </div>
+
+                    <!-- KURUL -->
+
+                    <div class="col-md-6">
+                        <label asp-for="KurulTipi"
+                               class="form-label">
+                            Kurul
+                        </label>
+
+                        <select asp-for="KurulTipi"
+                                class="form-select">
+                            <option value="Yönetim Kurulu">
+                                Yönetim Kurulu
+                            </option>
+                            <option value="Denetim Kurulu">
+                                Denetim Kurulu
+                            </option>
+                            <option value="Disiplin Kurulu">
+                                Disiplin Kurulu
+                            </option>
+                        </select>
+
+                        <span asp-validation-for="KurulTipi"
+                              class="text-danger small"></span>
+                    </div>
+
+                    <!-- GÖREV -->
+
+                    <div class="col-md-6">
+                        <label asp-for="Gorev"
+                               class="form-label">
+                            Görev
+                        </label>
+
+                        <select asp-for="Gorev"
+                                class="form-select">
+                            <option value="Başkan">Başkan</option>
+                            <option value="Başkan Yardımcısı">Başkan Yardımcısı</option>
+                            <option value="Sekreter">Sekreter</option>
+                            <option value="Sayman">Sayman</option>
+                            <option value="Kurul Üyesi">Kurul Üyesi</option>
+                            <option value="Yedek Üye">Yedek Üye</option>
+                        </select>
+
+                        <span asp-validation-for="Gorev"
+                              class="text-danger small"></span>
+                    </div>
+
+                    <!-- SIRA -->
+
+                    <div class="col-md-6">
+                        <label asp-for="SiraNo"
+                               class="form-label">
+                            Görüntüleme Sırası
+                        </label>
+
+                        <input asp-for="SiraNo"
+                               type="number"
+                               min="0"
+                               class="form-control" />
+
+                        <span asp-validation-for="SiraNo"
+                              class="text-danger small"></span>
+                    </div>
+
+                    <!-- BAŞLANGIÇ -->
+
+                    <div class="col-md-6">
+                        <label asp-for="GorevBaslangicTarihi"
+                               class="form-label">
+                            Göreve Başlama
+                        </label>
+
+                        <input asp-for="GorevBaslangicTarihi"
+                               type="date"
+                               class="form-control" />
+
+                        <span asp-validation-for="GorevBaslangicTarihi"
+                              class="text-danger small"></span>
+                    </div>
+
+                    <!-- BİTİŞ -->
+
+                    <div class="col-md-6">
+                        <label asp-for="GorevBitisTarihi"
+                               class="form-label">
+                            Görev Bitişi
+                        </label>
+
+                        <input asp-for="GorevBitisTarihi"
+                               type="date"
+                               class="form-control" />
+
+                        <span asp-validation-for="GorevBitisTarihi"
+                              class="text-danger small"></span>
+                    </div>
+
+                    <!-- AÇIKLAMA -->
+
+                    <div class="col-12">
+                        <label asp-for="Aciklama"
+                               class="form-label">
+                            Açıklama
+                        </label>
+
+                        <textarea asp-for="Aciklama"
+                                  rows="3"
+                                  class="form-control"
+                                  placeholder="Görevle ilgili açıklama yazabilirsiniz."></textarea>
+
+                        <span asp-validation-for="Aciklama"
+                              class="text-danger small"></span>
+                    </div>
+
+                    <!-- AKTİF DURUM -->
+
+                    <div class="col-12">
+                        <div class="form-check">
+
+                            <input asp-for="AktifMi"
+                                   class="form-check-input" />
+
+                            <label asp-for="AktifMi"
+                                   class="form-check-label">
+                                Aktif Görev
+                            </label>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- BUTONLAR -->
+
+                <div class="edit-footer">
+
+                    <button type="submit"
+                            class="btn btn-save">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Değişiklikleri Kaydet
+                    </button>
+
+                    <a asp-area="DernekAdmin"
+                       asp-controller="YonetimKurulu"
+                       asp-action="Index"
+                       asp-route-kurul="@Model.KurulTipi"
+                       class="btn btn-cancel">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Vazgeç
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>

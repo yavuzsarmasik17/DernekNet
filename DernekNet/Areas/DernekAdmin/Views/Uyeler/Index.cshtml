@@ -1,0 +1,170 @@
+﻿@model IEnumerable<DernekNet.Models.Uye>
+
+
+@if (TempData["Basarili"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show"
+         role="alert">
+        @TempData["Basarili"]
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Kapat"></button>
+    </div>
+}
+
+
+@{
+    ViewData["Title"] = "Üye Yönetimi";
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Üye Yönetimi</h3>
+        <p class="text-muted mb-0">
+            Derneğinize kayıtlı üyeleri görüntüleyin.
+        </p>
+    </div>
+
+
+    <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-primary fs-6">
+            Toplam @Model.Count() Üye
+        </span>
+
+        <a asp-area="DernekAdmin"
+           asp-controller="Uyeler"
+           asp-action="Create"
+           class="btn btn-success">
+            + Yeni Üye Ekle
+        </a>
+    </div>
+
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+
+        <form method="get" class="row g-2 mb-4">
+            <div class="col-md-9">
+                <input type="text"
+                       name="ara"
+                       value="@ViewBag.Ara"
+                       class="form-control"
+                       placeholder="Ad, soyad veya telefon ara..." />
+            </div>
+
+            <div class="col-md-3">
+                <button type="submit"
+                        class="btn btn-primary w-100">
+                    Ara
+                </button>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Fotoğraf</th>
+                        <th>Ad Soyad</th>
+                        <th>Telefon</th>
+                        <th>Üyelik Tarihi</th>
+                        <th>Durum</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var uye in Model)
+                    {
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(uye.FotografUrl))
+                                {
+                                    <img src="@Url.Action("Fotograf", "Uyeler",
+                                                  new { area = "DernekAdmin", id = uye.Id })"
+                                         width="48"
+                                         height="48"
+                                         style="border-radius:50%;object-fit:cover;"
+                                         alt="Üye fotoğrafı" />
+                                }
+                                else
+                                {
+                                    <div style="width:48px;height:48px;
+                                                border-radius:50%;
+                                                background:#dbeafe;
+                                                display:flex;
+                                                align-items:center;
+                                                justify-content:center;
+                                                font-size:22px;">
+                                        👤
+                                    </div>
+                                }
+                            </td>
+
+                            <td class="fw-semibold">
+                                @uye.Ad @uye.Soyad
+                            </td>
+
+                            <td>@(uye.Telefon ?? "-")</td>
+
+                            <td>
+                                @uye.UyelikTarihi.ToString("dd.MM.yyyy")
+                            </td>
+
+                            <td>
+                                @if (uye.AktifMi)
+                                {
+                                    <span class="badge bg-success">
+                                        Aktif
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+                                        Pasif
+                                    </span>
+                                }
+                            </td>
+
+                            <td>
+
+                                <div class="d-flex gap-2">
+                                    <a asp-area="DernekAdmin"
+                                       asp-controller="Uyeler"
+                                       asp-action="Details"
+                                       asp-route-id="@uye.Id"
+                                       class="btn btn-outline-primary btn-sm">
+                                        👁 Detay
+                                    </a>
+
+                                    <a asp-area="DernekAdmin"
+                                       asp-controller="Uyeler"
+                                       asp-action="Edit"
+                                       asp-route-id="@uye.Id"
+                                       class="btn btn-outline-secondary btn-sm">
+                                        ✏️ Düzenle
+                                    </a>
+                                </div>
+
+                            </td>
+                        </tr>
+                    }
+
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6"
+                                class="text-center text-muted py-4">
+                                Henüz kayıtlı üye bulunmuyor.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

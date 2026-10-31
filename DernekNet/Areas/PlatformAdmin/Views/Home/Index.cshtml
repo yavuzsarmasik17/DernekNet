@@ -1,0 +1,504 @@
+﻿@model DernekNet.Models.PlatformDashboardViewModel
+
+@{
+    ViewData["Title"] = "Genel Bakış";
+    Layout = "~/Areas/PlatformAdmin/Views/Shared/_PlatformAdminLayout.cshtml";
+}
+
+<style>
+    .platform-dashboard {
+        padding: 10px 0 35px;
+    }
+
+    .platform-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+        .platform-header h2 {
+            font-weight: 800;
+            color: #14243e;
+            margin: 0 0 6px;
+        }
+
+    .platform-subtitle {
+        color: #64748b;
+        margin: 0;
+    }
+
+    .platform-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 35px;
+    }
+
+    .platform-stat {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 22px;
+        box-shadow: 0 5px 18px rgba(15,23,42,.04);
+    }
+
+    .platform-stat-label {
+        font-size: 14px;
+        color: #64748b;
+        margin-bottom: 10px;
+    }
+
+    .platform-stat-value {
+        font-size: 34px;
+        font-weight: 800;
+        color: #17243b;
+    }
+
+    .platform-section-title {
+        font-size: 23px;
+        font-weight: 800;
+        color: #17243b;
+        margin-bottom: 20px;
+    }
+
+    .platform-dernek-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 22px;
+    }
+
+    .platform-dernek-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 24px;
+        box-shadow: 0 8px 25px rgba(0,0,0,.04);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        min-width: 0;
+    }
+
+    .platform-dernek-top {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+    }
+
+    .platform-logo {
+        width: 64px;
+        height: 64px;
+        border-radius: 13px;
+        background: #eff6ff;
+        object-fit: contain;
+        flex-shrink: 0;
+        padding: 7px;
+    }
+
+    .platform-logo-placeholder {
+        width: 64px;
+        height: 64px;
+        border-radius: 13px;
+        background: #eff6ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        flex-shrink: 0;
+    }
+
+    .platform-dernek-name {
+        font-size: 18px;
+        font-weight: 750;
+        color: #17243b;
+        overflow-wrap: anywhere;
+    }
+
+    .platform-status {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        margin-top: 7px;
+    }
+
+    .platform-status-active {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .platform-status-passive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .platform-card-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .platform-card-stat {
+        background: #f8fafc;
+        padding: 15px;
+        border-radius: 12px;
+    }
+
+        .platform-card-stat strong {
+            display: block;
+            font-size: 24px;
+            color: #17243b;
+        }
+
+        .platform-card-stat span {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+    .platform-card-footer {
+        margin-top: auto;
+    }
+
+        .platform-card-footer a {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            background: #17345c;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+            .platform-card-footer a:hover {
+                background: #244a7d;
+            }
+
+    @@media (max-width: 1100px) {
+        .platform-dernek-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .platform-stats {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .platform-dernek-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 420px) {
+        .platform-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .platform-header h2 {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 27px;
+        letter-spacing: -.5px;
+    }
+
+    .platform-stat {
+        border: 1px solid #e8edf5;
+        box-shadow: 0 4px 15px rgba(15,23,42,.03);
+    }
+
+    .platform-stat-value {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 32px;
+    }
+
+    .platform-dernek-card {
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+        .platform-dernek-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 35px rgba(15,23,42,.09);
+        }
+
+    .platform-card-footer a {
+        transition: background .2s ease;
+    }
+
+        .platform-card-footer a:hover {
+            color: white;
+        }
+
+
+
+    /* DERNEKNET - Platform Admin koyu tema uyumu */
+    .platform-dashboard {
+        color: #e8eef7;
+    }
+
+    .platform-header h2, .platform-section-title {
+        color: #f5f7fb;
+    }
+
+    .platform-subtitle {
+        color: #a4b3c8;
+    }
+
+    .platform-stat, .platform-dernek-card {
+        background: linear-gradient(145deg, #1b2a3b, #172333);
+        border: 1px solid #35465b;
+        box-shadow: 0 10px 30px rgba(0,0,0,.16);
+    }
+
+    .platform-stat {
+        position: relative;
+        overflow: hidden;
+        border-top: 3px solid #bd9556;
+    }
+
+        .platform-stat:nth-child(2), .platform-stat:nth-child(5) {
+            border-top-color: #38b7aa;
+        }
+
+        .platform-stat:nth-child(3) {
+            border-top-color: #e59a83;
+        }
+
+    .platform-stat-label, .platform-card-stat span {
+        color: #b3c1d2;
+    }
+
+    .platform-stat-value, .platform-dernek-name, .platform-card-stat strong {
+        color: #f6f8fd;
+    }
+
+    .platform-card-stat {
+        background: #101b29;
+        border: 1px solid #304156;
+    }
+
+    .platform-logo, .platform-logo-placeholder {
+        background: #eaf0f8;
+    }
+
+    .platform-status-active {
+        background: #143d36;
+        color: #74e3b7;
+    }
+
+    .platform-status-passive {
+        background: #472b34;
+        color: #ffb5bc;
+    }
+
+    .platform-card-footer a {
+        background: #117e82;
+        color: #fff;
+    }
+
+        .platform-card-footer a:hover {
+            background: #169da0;
+            color: #fff;
+        }
+
+    .platform-dernek-card:hover {
+        transform: translateY(-4px);
+        border-color: #bd9556;
+        box-shadow: 0 18px 40px rgba(0,0,0,.28);
+    }
+
+    .platform-dashboard .btn-primary {
+        background: #bd9556;
+        border-color: #bd9556;
+        color: #101a28;
+        font-weight: 800;
+        border-radius: 11px;
+        padding: 11px 18px;
+    }
+
+        .platform-dashboard .btn-primary:hover {
+            background: #d3af75;
+            border-color: #d3af75;
+            color: #101a28;
+        }
+
+    .platform-dashboard .alert-info {
+        background: #19323b;
+        border: 1px solid #287d83;
+        color: #d7f4f2;
+    }
+
+    @@media (max-width: 575px) {
+        .platform-stat {
+            padding: 18px;
+        }
+
+        .platform-dernek-card {
+            padding: 18px;
+        }
+
+        .platform-header h2 {
+            font-size: 23px;
+        }
+
+        .platform-dashboard .btn-primary {
+            width: 100%;
+        }
+    }
+
+</style>
+
+<div class="platform-dashboard">
+
+    <!-- BAŞLIK -->
+    <div class="platform-header">
+
+        <div>
+            <h2>DERNEKNET Kontrol Merkezi</h2>
+
+            <p class="platform-subtitle">
+                Tüm dernekleri tek merkezden görüntüleyin.
+            </p>
+        </div>
+
+        <a asp-area="PlatformAdmin"
+           asp-controller="Dernekler"
+           asp-action="Create"
+           class="btn btn-primary">
+            + Yeni Dernek Oluştur
+        </a>
+
+    </div>
+
+    <!-- İSTATİSTİKLER -->
+    <div class="platform-stats">
+
+        <div class="platform-stat">
+            <div class="platform-stat-label">Toplam Dernek</div>
+            <div class="platform-stat-value">@Model.ToplamDernek</div>
+        </div>
+
+        <div class="platform-stat">
+            <div class="platform-stat-label">Aktif Dernek</div>
+            <div class="platform-stat-value">@Model.AktifDernek</div>
+        </div>
+
+        <div class="platform-stat">
+            <div class="platform-stat-label">Pasif Dernek</div>
+            <div class="platform-stat-value">@Model.PasifDernek</div>
+        </div>
+
+        <div class="platform-stat">
+            <div class="platform-stat-label">Toplam Üye</div>
+            <div class="platform-stat-value">@Model.ToplamUye</div>
+        </div>
+
+        <div class="platform-stat">
+            <div class="platform-stat-label">Aktif Üye</div>
+            <div class="platform-stat-value">@Model.AktifUye</div>
+        </div>
+
+        <div class="platform-stat">
+            <div class="platform-stat-label">Aktif Kurul Görevi</div>
+            <div class="platform-stat-value">@Model.AktifKurulGorevi</div>
+        </div>
+
+    </div>
+
+    <!-- DERNEK KARTLARI -->
+    <h3 class="platform-section-title">
+        Sistemdeki Dernekler
+    </h3>
+
+    <div class="platform-dernek-grid">
+
+        @foreach (var dernek in Model.Dernekler)
+        {
+            <div class="platform-dernek-card">
+
+                <div class="platform-dernek-top">
+
+                    @if (!string.IsNullOrWhiteSpace(dernek.LogoUrl))
+                    {
+                        <img src="@dernek.LogoUrl"
+                             alt="Dernek logosu"
+                             class="platform-logo" />
+                    }
+                    else
+                    {
+                        <div class="platform-logo-placeholder">
+                            🏛️
+                        </div>
+                    }
+
+                    <div>
+                        <div class="platform-dernek-name">
+                            @dernek.DernekAdi
+                        </div>
+
+                        @if (dernek.AktifMi)
+                        {
+                            <span class="platform-status platform-status-active">
+                                ● Aktif
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="platform-status platform-status-passive">
+                                ● Pasif
+                            </span>
+                        }
+                    </div>
+
+                </div>
+
+                <div class="platform-card-stats">
+
+                    <div class="platform-card-stat">
+                        <strong>@dernek.ToplamUye</strong>
+                        <span>Toplam Üye</span>
+                    </div>
+
+                    <div class="platform-card-stat">
+                        <strong>@dernek.AktifUye</strong>
+                        <span>Aktif Üye</span>
+                    </div>
+
+                    <div class="platform-card-stat">
+                        <strong>@dernek.AktifKurulGorevi</strong>
+                        <span>Aktif Kurul Görevi</span>
+                    </div>
+
+                    <div class="platform-card-stat">
+                        <strong>@dernek.KayitTarihi.ToString("dd.MM.yyyy")</strong>
+                        <span>Kayıt Tarihi</span>
+                    </div>
+
+                </div>
+
+                <div class="platform-card-footer">
+                    <a asp-area="PlatformAdmin"
+                       asp-controller="Dernekler"
+                       asp-action="Details"
+                       asp-route-id="@dernek.Id">
+                        Derneği İncele →
+                    </a>
+                </div>
+
+            </div>
+        }
+
+        @if (!Model.Dernekler.Any())
+        {
+            <div class="alert alert-info">
+                Sistemde henüz dernek bulunmuyor.
+            </div>
+        }
+
+    </div>
+
+</div>

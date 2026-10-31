@@ -1,0 +1,192 @@
+﻿@model DernekNet.Areas.DernekAdmin.Controllers.DernekAyarlariModel
+
+@{
+    ViewData["Title"] = "Dernek Ayarları";
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+}
+
+<style>
+    .ayar-kart {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 30px;
+        max-width: 950px;
+        box-shadow: 0 8px 25px rgba(15,23,42,.04);
+    }
+
+    .ayar-logo {
+        width: 125px;
+        height: 125px;
+        border-radius: 18px;
+        object-fit: contain;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 8px;
+    }
+
+    .ayar-logo-bos {
+        width: 125px;
+        height: 125px;
+        border-radius: 18px;
+        background: #eff6ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+    }
+
+    .ayar-label {
+        font-weight: 650;
+        font-size: 14px;
+        color: #334155;
+        margin-bottom: 8px;
+    }
+
+    .ayar-kart .form-control {
+        border-radius: 10px;
+        padding: 12px 14px;
+    }
+
+    .ayar-bilgi {
+        background: #eff6ff;
+        color: #1e40af;
+        border-radius: 12px;
+        padding: 15px;
+        font-size: 13px;
+    }
+</style>
+
+<div class="mb-4">
+    <h2 class="fw-bold mb-1">Dernek Ayarları</h2>
+    <p class="text-muted">
+        Derneğinizin logosunu ve iletişim bilgilerini yönetin.
+    </p>
+</div>
+
+@if (TempData["Basarili"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Basarili"]
+    </div>
+}
+
+<div class="ayar-kart">
+
+    <form asp-area="DernekAdmin"
+          asp-controller="DernekAyarlari"
+          asp-action="Index"
+          method="post"
+          enctype="multipart/form-data">
+
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger mb-3"></div>
+
+        <h5 class="fw-bold mb-4">Dernek Bilgileri</h5>
+
+        <div class="mb-4">
+            <label class="ayar-label">Dernek Adı</label>
+            <input value="@Model.DernekAdi"
+                   class="form-control"
+                   readonly />
+            <div class="form-text">
+                Dernek adı yalnızca platform yönetimi tarafından değiştirilebilir.
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="ayar-label">Dernek Logosu</label>
+
+            <div class="d-flex align-items-center gap-4 flex-wrap mb-3">
+                @if (!string.IsNullOrWhiteSpace(Model.LogoUrl))
+                {
+                    <img src="@Model.LogoUrl"
+                         class="ayar-logo"
+                         alt="Dernek logosu" />
+                }
+                else
+                {
+                    <div class="ayar-logo-bos">
+                        <i class="bi bi-buildings"></i>
+                    </div>
+                }
+
+                <div class="flex-grow-1">
+                    <input type="file"
+                           name="logoDosyasi"
+                           class="form-control"
+                           accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+
+                    <div class="form-text">
+                        JPG, PNG veya WEBP. En fazla 2 MB.
+                    </div>
+
+                    <span class="text-danger small">
+                        @Html.ValidationMessage("logoDosyasi")
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-6">
+                <label asp-for="Telefon" class="ayar-label">
+                    Telefon
+                </label>
+                <input asp-for="Telefon" class="form-control"
+                       placeholder="05XX XXX XX XX" />
+                <span asp-validation-for="Telefon"
+                      class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Email" class="ayar-label">
+                    E-posta
+                </label>
+                <input asp-for="Email" class="form-control"
+                       placeholder="iletisim@dernek.org" />
+                <span asp-validation-for="Email"
+                      class="text-danger small"></span>
+            </div>
+
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="Adres" class="ayar-label">
+                Dernek Adresi
+            </label>
+            <textarea asp-for="Adres"
+                      rows="3"
+                      class="form-control"></textarea>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="Aciklama" class="ayar-label">
+                Dernek Hakkında
+            </label>
+            <textarea asp-for="Aciklama"
+                      rows="5"
+                      class="form-control"></textarea>
+        </div>
+
+        <div class="ayar-bilgi mb-4">
+            <i class="bi bi-shield-check me-2"></i>
+            Bu sayfada yalnızca kendi derneğinizin bilgilerini
+            değiştirebilirsiniz. Dernek adı ve aktif/pasif durumu
+            platform yönetimi tarafından kontrol edilir.
+        </div>
+
+        <button type="submit" class="btn btn-primary px-4 py-2">
+            <i class="bi bi-check-circle me-2"></i>
+            Değişiklikleri Kaydet
+        </button>
+
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

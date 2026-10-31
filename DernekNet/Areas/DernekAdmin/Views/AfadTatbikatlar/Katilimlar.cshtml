@@ -1,0 +1,225 @@
+﻿@model DernekNet.Models.AfadTatbikat
+@using DernekNet.Models
+
+@{
+    ViewData["Title"] = "Tatbikat Katılımları";
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+
+    var gonulluler = ViewBag.Gonulluler as List<AfadGonullu>
+        ?? new List<AfadGonullu>();
+
+    var katilimlar = Model.Katilimlar
+        .OrderBy(x => x.Gonullu.AdSoyad)
+        .ToList();
+
+    int katilan = katilimlar.Count(x => x.KatildiMi);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="h4 mb-1">@Model.Baslik</h2>
+        <div class="text-muted">
+            Tatbikat katılımları ·
+            @Model.Tarih.ToString("dd.MM.yyyy HH:mm")
+        </div>
+    </div>
+
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        Tatbikatlara Dön
+    </a>
+</div>
+
+@if (TempData["AfadTatbikatMesaj"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["AfadTatbikatMesaj"]
+    </div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="dn-card">
+            <h3>Atanan Gönüllü</h3>
+            <div class="h2">@katilimlar.Count</div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="dn-card">
+            <h3>Katılımı Onaylanan</h3>
+            <div class="h2 text-success">@katilan</div>
+        </div>
+    </div>
+</div>
+
+<div class="dn-card mb-4">
+
+    <h3>Gönüllü Ata</h3>
+
+    @if (!Model.AktifMi)
+    {
+        <div class="alert alert-warning">
+            Pasif tatbikata yeni gönüllü atanamaz.
+        </div>
+    }
+    else if (!gonulluler.Any())
+    {
+        <div class="alert alert-secondary">
+            Atanabilecek onaylı ve aktif gönüllü bulunamadı.
+        </div>
+    }
+    else
+    {
+        <form asp-action="Ata"
+              asp-route-id="@Model.Id"
+              method="post"
+              class="row g-2 align-items-end">
+
+            @Html.AntiForgeryToken()
+
+            <div class="col-md-5">
+                <label for="gonulluId" class="form-label">
+                    Gönüllü
+                </label>
+
+                <select id="gonulluId"
+                        name="gonulluId"
+                        class="form-select"
+                        required>
+
+                    <option value="">Gönüllü seçin</option>
+
+                    @foreach (var g in gonulluler)
+                    {
+                        <option value="@g.Id">
+                            @g.AdSoyad
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label for="gorevi" class="form-label">
+                    Tatbikattaki Görevi
+                </label>
+
+                <input id="gorevi"
+                       name="gorevi"
+                       class="form-control"
+                       maxlength="150"
+                       placeholder="Örn: Arama Kurtarma" />
+            </div>
+
+            <div class="col-md-3">
+                <button type="submit"
+                        class="btn btn-primary w-100">
+                    Tatbikata Ata
+                </button>
+            </div>
+
+        </form>
+    }
+</div>
+
+<div class="dn-card">
+    <h3>Atanan Gönüllüler</h3>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Gönüllü</th>
+                    <th>Görevi</th>
+                    <th>Katılım Durumu</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var k in katilimlar)
+                {
+                    <tr>
+                        <td>
+                            <strong>@k.Gonullu.AdSoyad</strong>
+                        </td>
+
+                        <td>
+                            @(string.IsNullOrWhiteSpace(k.Gorevi)
+                                ? "Belirtilmedi"
+                                : k.Gorevi)
+                        </td>
+
+                        <td>
+                            @if (k.KatildiMi)
+                            {
+                                <span class="badge bg-success">
+                                    Katıldı
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">
+                                    Katılım Bekleniyor
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            <form asp-action="KatilimGuncelle"
+                                  asp-route-id="@Model.Id"
+                                  method="post"
+                                  class="d-flex gap-2 flex-wrap">
+
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden"
+                                       name="katilimId"
+                                       value="@k.Id" />
+
+                                <input type="text"
+                                       name="gorevi"
+                                       value="@k.Gorevi"
+                                       maxlength="150"
+                                       class="form-control form-control-sm"
+                                       style="max-width:180px"
+                                       placeholder="Görevi" />
+
+                                <select name="katildiMi"
+                                        class="form-select form-select-sm"
+                                        style="max-width:170px">
+
+                                    <option value="false"
+                                            selected="@(!k.KatildiMi)">
+                                        Katılım Bekleniyor
+                                    </option>
+
+                                    <option value="true"
+                                            selected="@(k.KatildiMi)">
+                                        Katıldı
+                                    </option>
+
+                                </select>
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-outline-primary">
+                                    Güncelle
+                                </button>
+
+                            </form>
+                        </td>
+                    </tr>
+                }
+
+                @if (!katilimlar.Any())
+                {
+                    <tr>
+                        <td colspan="4"
+                            class="text-center text-muted py-4">
+                            Bu tatbikata henüz gönüllü atanmadı.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

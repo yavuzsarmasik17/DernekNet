@@ -1,0 +1,69 @@
+﻿@model DernekNet.Models.AfadEgitim
+
+@{
+    bool duzenleme = Model.Id > 0;
+    ViewData["Title"] = duzenleme ? "Eğitim Düzenle" : "Yeni Eğitim";
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="h4 mb-0">@ViewData["Title"]</h2>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        Eğitimlere Dön
+    </a>
+</div>
+
+@if (TempData["AfadEgitimHata"] != null)
+{
+    <div class="alert alert-danger">@TempData["AfadEgitimHata"]</div>
+}
+
+<div class="dn-card">
+    <form asp-action="@(duzenleme ? "Duzenle" : "Olustur")"
+          asp-route-id="@(duzenleme ? Model.Id : (int?)null)"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <div class="mb-3">
+            <label class="form-label" for="baslik">Eğitim Başlığı</label>
+            <input id="baslik" name="baslik"
+                   value="@Model.Baslik"
+                   class="form-control"
+                   maxlength="200"
+                   required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label" for="aciklama">Açıklama</label>
+            <textarea id="aciklama" name="aciklama"
+                      class="form-control" rows="5">@Model.Aciklama</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label" for="tarih">Eğitim Tarihi ve Saati</label>
+            <input id="tarih" name="tarih"
+                   type="datetime-local"
+                   class="form-control"
+                   value="@Model.Tarih.ToString("yyyy-MM-ddTHH:mm")"
+                   required />
+        </div>
+
+        <div class="form-check mb-4">
+            <input type="checkbox"
+                   name="aktifMi"
+                   value="true"
+                   id="aktifMi"
+                   class="form-check-input"
+                   checked="@Model.AktifMi" />
+            <label class="form-check-label" for="aktifMi">
+                Eğitim aktif
+            </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save me-1"></i>
+            @(duzenleme ? "Değişiklikleri Kaydet" : "Eğitimi Oluştur")
+        </button>
+    </form>
+</div>

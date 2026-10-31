@@ -1,0 +1,63 @@
+﻿@model DernekNet.Models.Duyuru
+@{
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+    ViewData["Title"] = "Duyuru Düzenle";
+}
+<h1 class="fw-bold mb-2">Duyuru Düzenle</h1>
+<p class="mb-4" style="color:#aabbd0">Duyuru bilgilerini ve medya dosyalarını yönetin.</p>
+<div class="dn-card">
+    <form asp-area="DernekAdmin" asp-controller="Duyurular" asp-action="Edit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <input asp-for="Id" type="hidden" />
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+        <div class="mb-4">
+            <label asp-for="Baslik" class="form-label fw-semibold">Duyuru Başlığı</label>
+            <input asp-for="Baslik" class="form-control" maxlength="200" required />
+            <span asp-validation-for="Baslik" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Icerik" class="form-label fw-semibold">Duyuru İçeriği</label>
+            <textarea asp-for="Icerik" class="form-control" rows="9" required></textarea>
+            <span asp-validation-for="Icerik" class="text-danger"></span>
+        </div>
+        <div class="dn-metin-aktar mb-4" style="background:#172535;border:1px solid #34465a;border-radius:14px;padding:18px;color:#e9eff7">
+            <div class="fw-bold mb-2"><i class="bi bi-file-earmark-arrow-up me-2" style="color:#42c7b7"></i>Dosyadan Metin Aktar</div>
+            <p class="small mb-3" style="color:#afc0d2">TXT, Word (.docx) veya metin içeren PDF (en fazla 5 MB). Dosyadaki yazılar açıklama alanına aktarılır; dosya ayrıca saklanmaz.</p>
+            <input type="file" class="form-control dn-metin-dosya" accept=".txt,.docx,.pdf" aria-label="Metin aktarılacak dosya" style="background:#0f1c2b;color:#e9eff7;border-color:#43546b" />
+            <div class="dn-metin-durum small mt-2" role="status" aria-live="polite" style="color:#b9cedd"></div>
+        </div>
+        @if (Model.Medyalar != null && Model.Medyalar.Any())
+        {
+            <div class="mb-4">
+                <h5 class="fw-bold">Mevcut Fotoğraf ve Videolar</h5><div class="row g-3">
+                    @foreach (var medya in Model.Medyalar)
+                    {
+                        <div class="col-6 col-md-4 col-lg-3">
+                            <div class="border rounded-3 p-2" style="background:#172535">
+                                @if (medya.MedyaTipi == "Video")
+                                {
+                                    <video controls preload="metadata" style="width:100%;height:150px"><source src="@medya.DosyaYolu" /></video>
+                                }
+                                else
+                                {
+                                    <img src="@medya.DosyaYolu" alt="Duyuru fotoğrafı" style="width:100%;height:150px;object-fit:contain" />
+                                }
+                                <button type="submit" formaction="@Url.Action("MedyaSil", "Duyurular", new { area = "DernekAdmin", id = medya.Id })" formmethod="post" formnovalidate class="btn btn-outline-danger btn-sm w-100 mt-2" onclick="return confirm('Bu dosyayı silmek istiyor musunuz?');"><i class="bi bi-trash me-1"></i>Sil</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        <div class="mb-4" style="background:#172535;border:1px solid #34465a;border-radius:14px;padding:20px">
+            <h5 class="fw-bold mb-2"><i class="bi bi-cloud-arrow-up me-2"></i>Yeni Fotoğraf veya Video Ekle</h5>
+            <input type="file" name="medyaDosyalari" class="form-control" accept=".jpg,.jpeg,.png,.webp,.mp4,.webm" multiple />
+            <div class="form-text">En fazla 10 dosya. Fotoğraf başına 5 MB, video başına 50 MB.</div>
+        </div>
+        <div class="form-check mb-4"><input asp-for="AktifMi" class="form-check-input" /><label asp-for="AktifMi" class="form-check-label">Duyuru Yayında</label></div>
+        <div class="d-flex gap-2 flex-wrap"><button type="submit" class="btn btn-primary px-4"><i class="bi bi-check-circle me-2"></i>Değişiklikleri Kaydet</button><a asp-action="Index" class="btn btn-outline-secondary">İptal</a></div>
+    </form>
+</div>
+@section Scripts {
+     <script src="~/js/duyuru-metin-aktar.js" asp-append-version="true"></script>
+}

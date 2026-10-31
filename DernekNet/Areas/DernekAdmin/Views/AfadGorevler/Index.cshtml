@@ -1,0 +1,40 @@
+﻿@model IEnumerable<DernekNet.Models.AfadGorev>
+@{
+    ViewData["Title"] = "AFAD Görev Yönetimi";
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h2 class="h4 mb-0">AFAD Görev Yönetimi</h2>
+    <a asp-action="Olustur" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Yeni Görev</a>
+</div>
+@if (TempData["AfadGorevMesaj"] != null)
+{
+    <div class="alert alert-success">@TempData["AfadGorevMesaj"]</div>
+}
+<div class="dn-card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead><tr><th>Görev</th><th>Başlangıç</th><th>Bitiş</th><th>Atama</th><th>Durum</th><th>İşlemler</th></tr></thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Baslik</td>
+                        <td>@(item.BaslangicTarihi?.ToString("dd.MM.yyyy HH:mm") ?? "-")</td>
+                        <td>@(item.BitisTarihi?.ToString("dd.MM.yyyy HH:mm") ?? "-")</td>
+                        <td>@item.Atamalar.Count</td>
+                        <td>@(item.AktifMi ? "Aktif" : "Pasif")</td>
+                        <td>
+                            <a asp-action="Duzenle" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Düzenle</a>
+                            <a asp-action="Atamalar" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Atamalar</a>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="6" class="text-center text-muted py-4">Henüz görev oluşturulmamış.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

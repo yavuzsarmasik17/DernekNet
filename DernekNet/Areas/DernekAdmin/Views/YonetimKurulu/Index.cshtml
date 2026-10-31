@@ -1,0 +1,576 @@
+﻿@model IEnumerable<DernekNet.Models.YonetimKurulu>
+
+@{
+    ViewData["Title"] = "Kurul Yönetimi";
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+
+    string seciliKurul = ViewBag.SeciliKurul ?? "Yönetim Kurulu";
+
+    string[] kurullar =
+    {
+        "Yönetim Kurulu",
+        "Denetim Kurulu",
+        "Disiplin Kurulu"
+    };
+}
+
+<style>
+    /* Kurul Yönetimi - koyu premium tema */
+    .kurul-sayfa {
+        color: #e8f0f8;
+    }
+
+        .kurul-sayfa .kurul-baslik {
+            color: #f1f6fc !important;
+            font-weight: 800;
+        }
+
+        .kurul-sayfa .kurul-altbaslik {
+            color: #afc2d5 !important;
+        }
+
+        .kurul-sayfa .kurul-yeni-btn {
+            background: #087f85 !important;
+            border-color: #14a3a6 !important;
+            color: #fff !important;
+            border-radius: 10px;
+            font-weight: 700;
+            padding: 10px 18px;
+        }
+
+            .kurul-sayfa .kurul-yeni-btn:hover {
+                background: #0b999d !important;
+            }
+
+        .kurul-sayfa .kurul-sekmeler .nav-link {
+            color: #a9c3d7 !important;
+            background: #172638 !important;
+            border: 1px solid #34495e;
+            border-radius: 10px;
+            padding: 11px 19px;
+            font-weight: 650;
+        }
+
+            .kurul-sayfa .kurul-sekmeler .nav-link:hover {
+                color: #fff !important;
+                border-color: #27b4ad;
+            }
+
+            .kurul-sayfa .kurul-sekmeler .nav-link.active {
+                background: #0c827f !important;
+                border-color: #22c1b5;
+                color: #fff !important;
+                box-shadow: 0 6px 20px rgba(13,148,136,.18);
+            }
+
+        .kurul-sayfa .kurul-card {
+            background: #1a293a !important;
+            border: 1px solid #354a5e;
+            border-radius: 18px;
+            padding: 30px 22px;
+            text-align: center;
+            height: 100%;
+            box-shadow: 0 12px 28px rgba(0,0,0,.12);
+            transition: transform .2s,border-color .2s;
+        }
+
+            .kurul-sayfa .kurul-card:hover {
+                transform: translateY(-3px);
+                border-color: #249e9c;
+            }
+
+        .kurul-sayfa .kurul-foto {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #2d9e9a;
+            margin-bottom: 16px;
+        }
+
+        .kurul-sayfa .kurul-foto-yok {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #263c4d !important;
+            border: 2px solid #326b71;
+            color: #e9f6f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            margin: 0 auto 16px;
+        }
+
+        .kurul-sayfa .kurul-isim {
+            color: #f3f7fd !important;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .kurul-sayfa .kurul-gorev {
+            color: #53d4c7 !important;
+            font-size: 16px;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        .kurul-sayfa .kurul-tarih {
+            color: #adc2d5 !important;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+
+        .kurul-sayfa .kurul-durum-aktif {
+            background: #145044 !important;
+            color: #8af0cb !important;
+            border: 1px solid #26735d;
+            padding: 7px 12px;
+        }
+
+        .kurul-sayfa .kurul-durum-pasif {
+            background: #3c3445 !important;
+            color: #e6bdca !important;
+            border: 1px solid #675063;
+            padding: 7px 12px;
+        }
+
+        .kurul-sayfa .kurul-butonlar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+            .kurul-sayfa .kurul-butonlar form {
+                margin: 0;
+            }
+
+        .kurul-sayfa .kurul-duzenle {
+            color: #82d9ed !important;
+            border: 1px solid #287f98 !important;
+            background: #173747 !important;
+            border-radius: 9px;
+            padding: 8px 14px;
+            font-weight: 700;
+        }
+
+            .kurul-sayfa .kurul-duzenle:hover {
+                background: #205469 !important;
+            }
+
+        .kurul-sayfa .kurul-bitir {
+            color: #ffb1bd !important;
+            border: 1px solid #945160 !important;
+            background: #452c38 !important;
+            border-radius: 9px;
+            padding: 8px 14px;
+            font-weight: 700;
+        }
+
+            .kurul-sayfa .kurul-bitir:hover {
+                background: #613645 !important;
+            }
+
+        .kurul-sayfa .kurul-bos {
+            color: #b9c9d9 !important;
+            background: #1a293a !important;
+            border: 1px dashed #3c5a6e !important;
+            border-radius: 16px;
+            padding: 44px 20px;
+            text-align: center;
+        }
+    /* Bootstrap modal arka planını da zorla koyu tut */
+    #gorevBitirModal .modal-content {
+        background: #1a293a !important;
+        color: #e8f0f8 !important;
+        border: 1px solid #3c5066 !important;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    #gorevBitirModal .modal-header, #gorevBitirModal .modal-footer {
+        border-color: #34475b !important;
+    }
+
+    #gorevBitirModal .modal-title, #gorevBitirModal .modal-body h5 {
+        color: #f1f6fc !important;
+    }
+
+    #gorevBitirModal .modal-body p {
+        color: #b8cbdc !important;
+    }
+
+    #gorevBitirModal .kurul-modal-ikon {
+        width: 76px;
+        height: 76px;
+        border-radius: 50%;
+        background: #442d38 !important;
+        color: #ffadbd !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 35px;
+        margin: 0 auto 20px;
+    }
+
+    #gorevBitirModal .kurul-modal-isim {
+        color: #72ded1 !important;
+        font-weight: 800;
+    }
+
+    #gorevBitirModal .kurul-modal-aciklama {
+        color: #afc2d5 !important;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    #gorevBitirModal .btn-close {
+        filter: invert(1) grayscale(1);
+        opacity: .9;
+    }
+
+    #gorevBitirModal .kurul-vazgec {
+        background: #35475c !important;
+        color: #edf3fa !important;
+        border-color: #455b72 !important;
+    }
+
+    #gorevBitirModal .kurul-onay {
+        background: #a74352 !important;
+        color: #fff !important;
+        border-color: #a74352 !important;
+    }
+
+    @@media (max-width: 576px) {
+        .kurul-sayfa .kurul-card {
+            padding: 24px 16px;
+        }
+
+        .kurul-sayfa .kurul-sekmeler .nav-link {
+            padding: 9px 12px;
+            font-size: 13px;
+        }
+    }
+</style>
+
+<div class="kurul-sayfa">
+    <!-- SAYFA BAŞLIĞI -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+
+        <div>
+            <h3 class="kurul-baslik mb-1">Kurul Yönetimi</h3>
+
+            <p class="kurul-altbaslik mb-0">
+                Derneğinizin yönetim, denetim ve disiplin kurulları
+            </p>
+        </div>
+
+        <a asp-area="DernekAdmin"
+           asp-controller="YonetimKurulu"
+           asp-action="Create"
+           asp-route-kurul="@seciliKurul"
+           class="btn kurul-yeni-btn">
+            + Üyeye Görev Ver
+        </a>
+
+    </div>
+
+    <!-- BAŞARI MESAJI -->
+    @if (TempData["Basarili"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show"
+             role="alert">
+
+            @TempData["Basarili"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Kapat">
+            </button>
+
+        </div>
+    }
+
+    <!-- KURUL SEKMELERİ -->
+    <ul class="nav nav-pills kurul-sekmeler mb-4 gap-2">
+
+        @foreach (var kurul in kurullar)
+        {
+            <li class="nav-item">
+
+                <a asp-area="DernekAdmin"
+                   asp-controller="YonetimKurulu"
+                   asp-action="Index"
+                   asp-route-kurul="@kurul"
+                   class="nav-link @(seciliKurul == kurul ? "active" : "")">
+
+                    @kurul
+
+                </a>
+
+            </li>
+        }
+
+    </ul>
+
+    <!-- YÖNETİCİ KARTLARI -->
+    <div class="row g-4">
+
+        @foreach (var kayit in Model)
+        {
+            <div class="col-lg-4 col-md-6">
+
+                <div class="kurul-card">
+
+                    <!-- FOTOĞRAF -->
+                    @if (kayit.Uye != null &&
+                   !string.IsNullOrWhiteSpace(kayit.Uye.FotografUrl))
+                    {
+                        <img class="kurul-foto"
+                             src="@Url.Action(
+                             "Fotograf",
+                             "Uyeler",
+                             new {
+                                 area = "DernekAdmin",
+                                 id = kayit.UyeId
+                             })"
+                             alt="Üye fotoğrafı" />
+                    }
+                    else
+                    {
+                        <div class="kurul-foto-yok">
+                            👤
+                        </div>
+                    }
+
+                    <!-- AD SOYAD -->
+                    <div class="kurul-isim">
+                        @kayit.Uye?.Ad @kayit.Uye?.Soyad
+                    </div>
+
+                    <!-- GÖREV -->
+                    <div class="kurul-gorev">
+                        @kayit.Gorev
+                    </div>
+
+                    <!-- DURUM -->
+                    <div class="mt-3">
+
+                        @if (kayit.AktifMi)
+                        {
+                            <span class="badge kurul-durum-aktif">
+                                Aktif
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge kurul-durum-pasif">
+                                Görevi Sona Erdi
+                            </span>
+                        }
+
+                    </div>
+
+                    <!-- TARİHLER -->
+                    <div class="kurul-tarih">
+                        Başlangıç:
+                        @kayit.GorevBaslangicTarihi.ToString("dd.MM.yyyy")
+                    </div>
+
+                    @if (kayit.GorevBitisTarihi.HasValue)
+                    {
+                        <div class="kurul-tarih">
+                            Bitiş:
+                            @kayit.GorevBitisTarihi.Value.ToString("dd.MM.yyyy")
+                        </div>
+                    }
+
+                    <!-- İŞLEM BUTONLARI -->
+                    <div class="kurul-butonlar">
+
+                        <a asp-area="DernekAdmin"
+                           asp-controller="YonetimKurulu"
+                           asp-action="Edit"
+                           asp-route-id="@kayit.Id"
+                           class="btn btn-sm kurul-duzenle">
+
+                            Düzenle
+
+                        </a>
+
+                        @if (kayit.AktifMi)
+                        {
+                            <form asp-area="DernekAdmin"
+                                  asp-controller="YonetimKurulu"
+                                  asp-action="GoreviBitir"
+                                  method="post"
+                                  class="gorev-bitir-form">
+
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden"
+                                       name="id"
+                                       value="@kayit.Id" />
+
+                                <button type="button"
+                                        class="btn btn-sm kurul-bitir"
+                                        data-uye-adi="@(kayit.Uye?.Ad + " " + kayit.Uye?.Soyad)"
+                                        onclick="gorevBitirPenceresi(this)">
+
+                                    Görevi Bitir
+
+                                </button>
+
+                            </form>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+        @if (!Model.Any())
+        {
+            <div class="col-12">
+
+                <div class="kurul-bos">
+                    Bu kurulda henüz görevli bulunmuyor.
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
+<!-- MODERN ONAY PENCERESİ -->
+<div class="modal fade"
+     id="gorevBitirModal"
+     tabindex="-1"
+     aria-labelledby="gorevBitirModalBaslik"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content border-0 shadow-lg"
+             style="border-radius:20px;overflow:hidden;">
+
+            <!-- BAŞLIK -->
+            <div class="modal-header border-0 pb-0 px-4 pt-4">
+
+                <h5 class="modal-title fw-bold"
+                    id="gorevBitirModalBaslik">
+
+                    Kurul Görevini Sonlandır
+
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Kapat">
+                </button>
+
+            </div>
+
+            <!-- İÇERİK -->
+            <div class="modal-body px-4 py-4 text-center">
+
+                <div class="kurul-modal-ikon">
+                    ⚠
+                </div>
+
+                <h5 class="fw-bold mb-3">
+                    İşlemi onaylıyor musunuz?
+                </h5>
+
+                <p class="mb-2">
+
+                    <span id="modalUyeAdi"
+                          class="kurul-modal-isim">
+                    </span>
+
+                    adlı üyenin kurul görevi sona erdirilecek.
+
+                </p>
+
+                <p class="kurul-modal-aciklama">
+                    Bu işlem yalnızca kurul görevini sonlandırır.
+                    Üyenin normal dernek üyeliği devam eder.
+                </p>
+
+            </div>
+
+            <!-- BUTONLAR -->
+            <div class="modal-footer border-0 px-4 pb-4">
+
+                <button type="button"
+                        class="btn kurul-vazgec px-4"
+                        data-bs-dismiss="modal">
+
+                    Vazgeç
+
+                </button>
+
+                <button type="button"
+                        class="btn kurul-onay px-4"
+                        id="gorevBitirOnay"
+                        onclick="gorevBitirOnayla()">
+
+                    Görevi Sonlandır
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- JAVASCRIPT -->
+<script>
+    let secilenGorevFormu = null;
+
+    function gorevBitirPenceresi(buton) {
+
+        secilenGorevFormu = buton.closest("form");
+
+        const uyeAdi = buton.getAttribute("data-uye-adi");
+
+        document.getElementById("modalUyeAdi").textContent =
+            uyeAdi || "Seçilen üye";
+
+        const modalElement =
+            document.getElementById("gorevBitirModal");
+
+        const modal = bootstrap.Modal.getOrCreateInstance(
+            modalElement
+        );
+
+        modal.show();
+    }
+
+    function gorevBitirOnayla() {
+
+        if (!secilenGorevFormu) {
+            return;
+        }
+
+        const onayButonu =
+            document.getElementById("gorevBitirOnay");
+
+        onayButonu.disabled = true;
+        onayButonu.textContent = "İşleniyor...";
+
+        secilenGorevFormu.submit();
+    }
+</script>

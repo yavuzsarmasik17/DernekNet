@@ -1,0 +1,516 @@
+﻿@model DernekNet.Models.AfadGonullu
+@using DernekNet.Models
+@{
+    Layout = null;
+    ViewData["Title"] = "Gönüllü Panelim";
+    var atamalar = ViewBag.Atamalar as List<AfadGorevAtama> ?? new();
+    var duyurular = ViewBag.Duyurular as List<AfadDuyuru> ?? new();
+    var egitimler = ViewBag.Egitimler as List<AfadEgitimKatilim> ?? new();
+    var tatbikatlar = ViewBag.Tatbikatlar as List<AfadTatbikatKatilim> ?? new();
+    var yetkinliklerim = ViewBag.Yetkinliklerim as List<AfadGonulluYetkinlik> ?? new();
+    var ekipUyeliklerim = ViewBag.EkipUyeliklerim as List<AfadEkipUye> ?? new();
+    var bugun = DateTime.Today;
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f3f7fa;
+            color: #172b43;
+            font-family: "Segoe UI",Arial,sans-serif;
+        }
+
+        .top {
+            background: linear-gradient(115deg,#075c74,#078e91);
+            color: white;
+            padding: 30px max(20px,calc((100vw - 1160px)/2));
+        }
+
+            .top h1 {
+                margin: 0 0 8px;
+                font-size: clamp(24px,3vw,34px);
+            }
+
+            .top p {
+                margin: 0;
+                opacity: .92;
+            }
+
+        main {
+            max-width: 1160px;
+            margin: 28px auto;
+            padding: 0 18px 50px;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+            .toolbar a {
+                color: #087f8c;
+                font-weight: 600;
+            }
+
+        button {
+            font: inherit;
+            cursor: pointer;
+        }
+
+        .logout {
+            border: 0;
+            border-radius: 10px;
+            background: #ffe4e6;
+            color: #991b1b;
+            padding: 10px 16px;
+            font-weight: 700;
+        }
+
+        .message {
+            background: #e5faed;
+            border: 1px solid #a7e5bb;
+            color: #166534;
+            padding: 13px 17px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .heading {
+            font-size: 22px;
+            margin: 28px 0 15px;
+        }
+
+        .tiles {
+            display: grid;
+            grid-template-columns: repeat(2,minmax(0,1fr));
+            gap: 17px;
+        }
+
+        .tile {
+            background: white;
+            border: 1px solid #e0eaf0;
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 5px 18px rgba(22,51,71,.035);
+            min-width: 0;
+        }
+
+        .tile-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+            .tile-title h2 {
+                font-size: 19px;
+                color: #087f8c;
+                margin: 0;
+            }
+
+        .count {
+            background: #e5f5f5;
+            color: #066b77;
+            padding: 5px 11px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .entry {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            text-align: left;
+            background: #f8fbfd;
+            border: 1px solid #e4edf1;
+            border-radius: 12px;
+            padding: 14px;
+            margin: 9px 0;
+            color: inherit;
+            transition: background .15s,border-color .15s;
+        }
+
+            .entry:hover, .entry:focus-visible {
+                background: #e9f7f8;
+                border-color: #63b9c1;
+            }
+
+        .entry-main {
+            min-width: 0;
+        }
+
+        .entry strong {
+            display: block;
+            overflow-wrap: anywhere;
+            margin-bottom: 5px;
+        }
+
+        .entry small {
+            color: #607487;
+            font-size: 12px;
+        }
+
+        .chevron {
+            color: #087f8c;
+            font-size: 23px;
+            flex-shrink: 0;
+        }
+
+        .empty {
+            color: #708295;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .pill {
+            display: inline-block;
+            border-radius: 30px;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .blue {
+            background: #e0ecff;
+            color: #2158a6;
+        }
+
+        .amber {
+            background: #fff0c8;
+            color: #855600;
+        }
+
+        .green {
+            background: #def8e7;
+            color: #17633a;
+        }
+
+        .red {
+            background: #ffe1e3;
+            color: #a12432;
+        }
+
+        dialog {
+            border: 0;
+            border-radius: 20px;
+            padding: 0;
+            width: min(660px,calc(100% - 28px));
+            max-height: calc(100dvh - 45px);
+            box-shadow: 0 25px 90px rgba(0,25,45,.28);
+            color: #172b43;
+        }
+
+            dialog::backdrop {
+                background: rgba(9,27,45,.65);
+            }
+
+        .modal-head {
+            display: flex;
+            align-items: start;
+            justify-content: space-between;
+            gap: 15px;
+            background: #f0f8fa;
+            border-bottom: 1px solid #e1edf0;
+            padding: 22px 25px;
+        }
+
+            .modal-head h2 {
+                margin: 0;
+                font-size: 22px;
+                color: #076d7d;
+                overflow-wrap: anywhere;
+            }
+
+        .close {
+            border: 0;
+            background: white;
+            color: #34495e;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            font-size: 23px;
+            flex-shrink: 0;
+        }
+
+        .modal-body {
+            padding: 24px 25px 28px;
+            line-height: 1.65;
+            overflow-wrap: anywhere;
+        }
+
+        .description {
+            white-space: pre-wrap;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 14px 0;
+        }
+
+        .detail {
+            margin: 10px 0;
+            color: #455b6e;
+        }
+
+            .detail strong {
+                color: #203c51;
+            }
+
+        .action {
+            background: #087f8c;
+            color: white;
+            border: 0;
+            border-radius: 10px;
+            padding: 11px 17px;
+            font-weight: 700;
+            margin-top: 15px;
+        }
+
+            .action.done {
+                background: #15803d;
+            }
+
+        .hint {
+            color: #708295;
+            font-size: 13px;
+        }
+
+        @@media(max-width:700px) {
+            .tiles {
+                grid-template-columns: 1fr;
+            }
+
+            .tile {
+                padding: 17px;
+            }
+
+            .modal-head, .modal-body {
+                padding: 18px;
+            }
+
+            .top {
+                padding: 24px 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="top">
+        <h1>@Model.Dernek.DernekAdi · Gönüllü Paneli</h1>
+        <p>Hoş geldiniz, @Model.AdSoyad</p>
+    </header>
+    <main>
+        <div class="toolbar">
+            <a asp-controller="Afad" asp-action="Index" asp-route-dernekId="@Model.DernekId">← AFAD Ana Sayfası</a>
+            <form asp-controller="AfadHesap" asp-action="Cikis" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="dernekId" value="@Model.DernekId" />
+                <button type="submit" class="logout">Çıkış Yap</button>
+            </form>
+        </div>
+        @if (TempData["AfadMesaj"] != null)
+        {
+            <div class="message">@TempData["AfadMesaj"]</div>
+        }
+        <h2 class="heading">Panelim</h2>
+        <div class="tiles">
+            <section class="tile">
+                <div class="tile-title"><h2>📋 Görevlerim</h2><span class="count">@atamalar.Count</span></div>
+                @foreach (var a in atamalar)
+                {
+                    var durumYazi = a.Durum == "Atandi" ? "Atandı" : a.Durum == "KabulEdildi" ? "Kabul Edildi" : a.Durum == "Tamamlandi" ? "Tamamlandı" : a.Durum == "IptalEdildi" ? "İptal Edildi" : a.Durum;
+                    var durumRenk = a.Durum == "Tamamlandi" ? "green" : a.Durum == "KabulEdildi" ? "amber" : a.Durum == "IptalEdildi" ? "red" : "blue";
+                    <button type="button" class="entry" onclick="document.getElementById('gorev-@a.Id').showModal()">
+                        <span class="entry-main"><strong>@a.Gorev.Baslik</strong><span class="pill @durumRenk">@durumYazi</span></span><span class="chevron">›</span>
+                    </button>
+                    <dialog id="gorev-@a.Id" aria-labelledby="gorev-baslik-@a.Id">
+                        <div class="modal-head"><h2 id="gorev-baslik-@a.Id">📋 @a.Gorev.Baslik</h2><button type="button" class="close" aria-label="Kapat" onclick="this.closest('dialog').close()">×</button></div>
+                        <div class="modal-body">
+                            <span class="pill @durumRenk">@durumYazi</span>
+                            <div class="description">@(string.IsNullOrWhiteSpace(a.Gorev.Aciklama) ? "Açıklama girilmemiş." : a.Gorev.Aciklama)</div>
+                            @if (a.Gorev.BaslangicTarihi.HasValue)
+                            {
+                                <div class="detail"><strong>Başlangıç:</strong> @a.Gorev.BaslangicTarihi.Value.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</div>
+                            }
+                            @if (a.Gorev.BitisTarihi.HasValue)
+                            {
+                                <div class="detail"><strong>Bitiş:</strong> @a.Gorev.BitisTarihi.Value.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</div>
+                            }
+                            @if (a.Durum == "Atandi" || a.Durum == "KabulEdildi")
+                            {
+                                <form asp-controller="AfadHesap" asp-action="GorevDurumGuncelle" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="dernekId" value="@Model.DernekId" />
+                                    <input type="hidden" name="atamaId" value="@a.Id" />
+                                    <input type="hidden" name="yeniDurum" value="@(a.Durum == "Atandi" ? "KabulEdildi" : "Tamamlandi")" />
+                                    <button type="submit" class="action @(a.Durum == "KabulEdildi" ? "done" : "")">@(a.Durum == "Atandi" ? "✓ Görevi Kabul Et" : "✓ Görevi Tamamla")</button>
+                                </form>
+                            }
+                            else if (a.Durum == "Tamamlandi")
+                            {
+                                <p class="hint">Bu görevi tamamladınız.</p>
+                            }
+                        </div>
+                    </dialog>
+                }
+                @if (!atamalar.Any())
+                {
+                    <p class="empty">Henüz görev ataması bulunmuyor.</p>
+                }
+            </section>
+            <section class="tile">
+                <div class="tile-title"><h2>🎓 Eğitimlerim</h2><span class="count">@egitimler.Count</span></div>
+                @foreach (var e in egitimler)
+                {
+                    <button type="button" class="entry" onclick="document.getElementById('egitim-@e.Id').showModal()">
+                        <span class="entry-main"><strong>@e.Egitim.Baslik</strong><small>@e.Egitim.Tarih.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</small></span><span class="chevron">›</span>
+                    </button>
+                    <dialog id="egitim-@e.Id" aria-labelledby="egitim-baslik-@e.Id">
+                        <div class="modal-head"><h2 id="egitim-baslik-@e.Id">🎓 @e.Egitim.Baslik</h2><button type="button" class="close" aria-label="Kapat" onclick="this.closest('dialog').close()">×</button></div>
+                        <div class="modal-body">
+                            <div class="description">@(string.IsNullOrWhiteSpace(e.Egitim.Aciklama) ? "Açıklama girilmemiş." : e.Egitim.Aciklama)</div>
+                            <div class="detail"><strong>Eğitim tarihi:</strong> @e.Egitim.Tarih.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</div>
+                            <span class="pill @(e.KatildiMi ? "green" : "amber")">@(e.KatildiMi ? "Eğitime Katıldı" : "Katılım Bekleniyor")</span>
+                            <p class="hint">Katılım kaydını dernek yöneticisi günceller.</p>
+                        </div>
+                    </dialog>
+                }
+                @if (!egitimler.Any())
+                {
+                    <p class="empty">Henüz eğitim ataması bulunmuyor.</p>
+                }
+            </section>
+            <section class="tile">
+                <div class="tile-title"><h2>📅 Tatbikatlarım</h2><span class="count">@tatbikatlar.Count</span></div>
+                @foreach (var t in tatbikatlar)
+                {
+                    <button type="button" class="entry" onclick="document.getElementById('tatbikat-@t.Id').showModal()">
+                        <span class="entry-main"><strong>@t.Tatbikat.Baslik</strong><small>@t.Tatbikat.Tarih.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</small></span><span class="chevron">›</span>
+                    </button>
+                    <dialog id="tatbikat-@t.Id" aria-labelledby="tatbikat-baslik-@t.Id">
+                        <div class="modal-head"><h2 id="tatbikat-baslik-@t.Id">📅 @t.Tatbikat.Baslik</h2><button type="button" class="close" aria-label="Kapat" onclick="this.closest('dialog').close()">×</button></div>
+                        <div class="modal-body">
+                            <div class="description">@(string.IsNullOrWhiteSpace(t.Tatbikat.Aciklama) ? "Açıklama girilmemiş." : t.Tatbikat.Aciklama)</div>
+                            <div class="detail"><strong>Tatbikat tarihi:</strong> @t.Tatbikat.Tarih.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</div>
+                            <div class="detail"><strong>Tatbikattaki görevim:</strong> @(string.IsNullOrWhiteSpace(t.Gorevi) ? "Belirtilmedi" : t.Gorevi)</div>
+                            <span class="pill @(t.KatildiMi ? "green" : "amber")">@(t.KatildiMi ? "Tatbikata Katıldı" : "Katılım Bekleniyor")</span>
+                            <p class="hint">Katılım kaydını dernek yöneticisi günceller.</p>
+                        </div>
+                    </dialog>
+                }
+                @if (!tatbikatlar.Any())
+                {
+                    <p class="empty">Henüz tatbikat ataması bulunmuyor.</p>
+                }
+            </section>
+            <section class="tile">
+                <div class="tile-title"><h2>🏅 Yetkinliklerim</h2><span class="count">@yetkinliklerim.Count</span></div>
+                @foreach (var y in yetkinliklerim)
+                {
+                    var suresiDolmus = y.GecerlilikBitisi.HasValue && y.GecerlilikBitisi.Value.Date < bugun;
+                    var durumMetni = suresiDolmus ? "Süresi Dolmuş" : y.GecerlilikBitisi.HasValue ? "Süresi Dolmamış" : "Bitiş Tarihi Girilmemiş";
+                    var durumRengi = suresiDolmus ? "red" : y.GecerlilikBitisi.HasValue ? "green" : "blue";
+                    <button type="button" class="entry" onclick="document.getElementById('yetkinlik-@y.Id').showModal()">
+                        <span class="entry-main"><strong>@y.Yetkinlik.Ad</strong><span class="pill @durumRengi">@durumMetni</span></span><span class="chevron">›</span>
+                    </button>
+                    <dialog id="yetkinlik-@y.Id" aria-labelledby="yetkinlik-baslik-@y.Id">
+                        <div class="modal-head"><h2 id="yetkinlik-baslik-@y.Id">🏅 @y.Yetkinlik.Ad</h2><button type="button" class="close" aria-label="Kapat" onclick="this.closest('dialog').close()">×</button></div>
+                        <div class="modal-body">
+                            <span class="pill @durumRengi">@durumMetni</span>
+                            <div class="description">@(string.IsNullOrWhiteSpace(y.Yetkinlik.Aciklama) ? "Açıklama girilmemiş." : y.Yetkinlik.Aciklama)</div>
+                            <div class="detail"><strong>Belge numarası:</strong> @(string.IsNullOrWhiteSpace(y.BelgeNo) ? "Belirtilmemiş" : y.BelgeNo)</div>
+                            <div class="detail"><strong>Belge tarihi:</strong> @(y.BelgeTarihi?.ToString("dd.MM.yyyy") ?? "Belirtilmemiş")</div>
+                            <div class="detail"><strong>Geçerlilik bitişi:</strong> @(y.GecerlilikBitisi?.ToString("dd.MM.yyyy") ?? "Belirtilmemiş")</div>
+                            <p class="hint">Belge bilgilerinde düzeltme gerekiyorsa dernek yöneticisiyle iletişime geçin. Bitiş tarihi olmaması belgenin doğrulandığı anlamına gelmez.</p>
+                        </div>
+                    </dialog>
+                }
+                @if (!yetkinliklerim.Any())
+                {
+                    <p class="empty">Henüz atanmış yetkinliğiniz bulunmuyor.</p>
+                }
+            </section>
+            <section class="tile">
+                <div class="tile-title"><h2>👥 Ekibim</h2><span class="count">@ekipUyeliklerim.Count</span></div>
+                @foreach (var uyelik in ekipUyeliklerim)
+                {
+                    <button type="button" class="entry" onclick="document.getElementById('ekip-@uyelik.Id').showModal()">
+                        <span class="entry-main">
+                            <strong>@uyelik.Ekip.Ad</strong>
+                            <span class="pill @(uyelik.EkipLideriMi ? "amber" : "blue")">@(uyelik.EkipLideriMi ? "Ekip Lideri" : "Ekip Üyesi")</span>
+                        </span>
+                        <span class="chevron">›</span>
+                    </button>
+                    <dialog id="ekip-@uyelik.Id" aria-labelledby="ekip-baslik-@uyelik.Id">
+                        <div class="modal-head">
+                            <h2 id="ekip-baslik-@uyelik.Id">👥 @uyelik.Ekip.Ad</h2>
+                            <button type="button" class="close" aria-label="Kapat" onclick="this.closest('dialog').close()">×</button>
+                        </div>
+                        <div class="modal-body">
+                            <span class="pill green">Aktif Üyelik</span>
+                            <div class="description">@(string.IsNullOrWhiteSpace(uyelik.Ekip.Aciklama) ? "Ekip açıklaması bulunmuyor." : uyelik.Ekip.Aciklama)</div>
+                            <div class="detail"><strong>Ekipteki rolüm:</strong> @(uyelik.EkipLideriMi ? "Ekip Lideri" : "Ekip Üyesi")</div>
+                            <div class="detail"><strong>Katılım tarihi:</strong> @uyelik.KatilimTarihi.ToString("dd.MM.yyyy HH:mm")</div>
+                            <div class="detail"><strong>Ekip durumu:</strong> @(uyelik.Ekip.AktifMi ? "Aktif" : "Pasif")</div>
+                            <h3 style="font-size:18px;margin:24px 0 12px;color:#076d7d">👥 Ekip Üyeleri (@uyelik.Ekip.Uyeler.Count)</h3>
+                            @foreach (var uye in uyelik.Ekip.Uyeler
+                           .OrderByDescending(x => x.EkipLideriMi)
+                           .ThenBy(x => x.Gonullu.AdSoyad))
+                            {
+                                <div class="entry" style="cursor:default">
+                                    <span class="entry-main">
+                                        <strong>@uye.Gonullu.AdSoyad</strong>
+                                        <span class="pill @(uye.EkipLideriMi ? "amber" : "blue")">@(uye.EkipLideriMi ? "Ekip Lideri" : "Ekip Üyesi")</span>
+                                    </span>
+                                    <span class="pill green">Aktif</span>
+                                </div>
+                            }
+                            @if (!uyelik.Ekip.Uyeler.Any())
+                            {
+                                <p class="empty">Aktif ekip üyesi bulunamadı.</p>
+                            }
+                        </div>
+                    </dialog>
+                }
+                @if (!ekipUyeliklerim.Any())
+                {
+                    <p class="empty">Henüz aktif bir AFAD ekibine bağlı değilsiniz.</p>
+                }
+            </section>
+            <section class="tile">
+                <div class="tile-title"><h2>📢 Duyurular</h2><span class="count">@duyurular.Count</span></div>
+                @foreach (var d in duyurular)
+                {
+                    <button type="button" class="entry" onclick="document.getElementById('duyuru-@d.Id').showModal()">
+                        <span class="entry-main"><strong>@d.Baslik</strong><small>@d.YayinTarihi.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</small></span><span class="chevron">›</span>
+                    </button>
+                    <dialog id="duyuru-@d.Id" aria-labelledby="duyuru-baslik-@d.Id">
+                        <div class="modal-head"><h2 id="duyuru-baslik-@d.Id">📢 @d.Baslik</h2><button type="button" class="close" aria-label="Kapat" onclick="this.closest('dialog').close()">×</button></div>
+                        <div class="modal-body"><div class="detail"><strong>Yayın:</strong> @d.YayinTarihi.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</div><div class="description">@d.Icerik</div></div>
+                    </dialog>
+                }
+                @if (!duyurular.Any())
+                {
+                    <p class="empty">Henüz duyuru bulunmuyor.</p>
+                }
+            </section>
+        </div>
+    </main>
+</body>
+</html>

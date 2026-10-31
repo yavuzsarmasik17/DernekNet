@@ -1,0 +1,280 @@
+﻿@model DernekNet.Models.AfadGorev
+@using DernekNet.Models
+
+@{
+    ViewData["Title"] = "AFAD Görev Atamaları";
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+
+    var gonulluler = ViewBag.Gonulluler as List<AfadGonullu>
+        ?? new List<AfadGonullu>();
+
+    var atamalar = Model.Atamalar
+        .OrderByDescending(x => x.AtamaTarihi)
+        .ToList();
+
+    int toplam = atamalar.Count;
+    int tamamlanan = atamalar.Count(x => x.Durum == "Tamamlandi");
+    int devamEden = atamalar.Count(x =>
+        x.Durum == "Atandi" || x.Durum == "KabulEdildi");
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="h4 mb-1">@Model.Baslik</h2>
+        <div class="text-muted">AFAD Görev Atamaları</div>
+    </div>
+
+    <a asp-action="Index"
+       class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>
+        Görevlere Dön
+    </a>
+</div>
+
+@if (TempData["AfadGorevMesaj"] != null)
+{
+    <div class="alert alert-info">
+        @TempData["AfadGorevMesaj"]
+    </div>
+}
+
+<!-- GÖREV İSTATİSTİKLERİ -->
+
+<div class="row g-3 mb-4">
+
+    <div class="col-md-4">
+        <div class="dn-card">
+            <h3>Toplam Atama</h3>
+            <div class="dn-number">@toplam</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="dn-card">
+            <h3>Devam Eden</h3>
+            <div class="dn-number text-primary">
+                @devamEden
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="dn-card">
+            <h3>Tamamlanan</h3>
+            <div class="dn-number text-success">
+                @tamamlanan
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- GÖNÜLLÜ ATAMA -->
+
+<div class="dn-card mb-4">
+
+    <h3>Gönüllü Ata</h3>
+
+    @if (!Model.AktifMi)
+    {
+        <div class="alert alert-warning">
+            Bu görev pasif. Yeni atama yapmak için
+            görevi aktif hale getirin.
+        </div>
+    }
+    else if (!gonulluler.Any())
+    {
+        <div class="alert alert-secondary">
+            Atanabilecek onaylı ve aktif gönüllü bulunamadı.
+        </div>
+    }
+    else
+    {
+        <form asp-action="Ata"
+              asp-route-id="@Model.Id"
+              method="post"
+              class="row g-2 align-items-end">
+
+            @Html.AntiForgeryToken()
+
+            <div class="col-md-8">
+                <label class="form-label" for="gonulluId">
+                    Gönüllü
+                </label>
+
+                <select name="gonulluId"
+                        id="gonulluId"
+                        class="form-select"
+                        required>
+
+                    <option value="">Gönüllü seçin</option>
+
+                    @foreach (var g in gonulluler)
+                    {
+                        <option value="@g.Id">
+                            @g.AdSoyad
+                        </option>
+                    }
+
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <button class="btn btn-primary w-100"
+                        type="submit">
+                    <i class="bi bi-person-plus me-1"></i>
+                    Göreve Ata
+                </button>
+            </div>
+
+        </form>
+    }
+
+</div>
+
+<!-- ATANAN GÖNÜLLÜLER -->
+
+<div class="dn-card">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">Atanan Gönüllüler</h3>
+
+        <span class="badge bg-secondary">
+            @toplam Kişi
+        </span>
+    </div>
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+                <tr>
+                    <th>Gönüllü</th>
+                    <th>Atama Tarihi</th>
+                    <th>Görev Durumu</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var a in atamalar)
+                {
+                    <tr>
+
+                        <td>
+                            <strong>@a.Gonullu.AdSoyad</strong>
+                        </td>
+
+                        <td>
+                            @a.AtamaTarihi.AddHours(3).ToString("dd.MM.yyyy HH:mm")
+                        </td>
+
+                        <td>
+
+                            @if (a.Durum == "Atandi")
+                            {
+                                <span class="badge bg-primary">
+                                    <i class="bi bi-clock me-1"></i>
+                                    Atandı
+                                </span>
+                            }
+                            else if (a.Durum == "KabulEdildi")
+                            {
+                                <span class="badge bg-warning text-dark">
+                                    <i class="bi bi-check2-circle me-1"></i>
+                                    Kabul Edildi
+                                </span>
+                            }
+                            else if (a.Durum == "Tamamlandi")
+                            {
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle-fill me-1"></i>
+                                    Tamamlandı
+                                </span>
+                            }
+                            else if (a.Durum == "IptalEdildi")
+                            {
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-x-circle me-1"></i>
+                                    İptal Edildi
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    @a.Durum
+                                </span>
+                            }
+
+                        </td>
+
+                        <td>
+
+                            <form asp-action="DurumGuncelle"
+                                  asp-route-id="@Model.Id"
+                                  method="post"
+                                  class="d-flex gap-2 flex-wrap">
+
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden"
+                                       name="atamaId"
+                                       value="@a.Id" />
+
+                                <select name="durum"
+                                        class="form-select form-select-sm"
+                                        style="max-width:160px">
+
+                                    <option value="Atandi"
+                                            selected="@(a.Durum == "Atandi")">
+                                        Atandı
+                                    </option>
+
+                                    <option value="KabulEdildi"
+                                            selected="@(a.Durum == "KabulEdildi")">
+                                        Kabul Edildi
+                                    </option>
+
+                                    <option value="Tamamlandi"
+                                            selected="@(a.Durum == "Tamamlandi")">
+                                        Tamamlandı
+                                    </option>
+
+                                    <option value="IptalEdildi"
+                                            selected="@(a.Durum == "IptalEdildi")">
+                                        İptal Edildi
+                                    </option>
+
+                                </select>
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-outline-primary">
+                                    Güncelle
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+                }
+
+                @if (!atamalar.Any())
+                {
+                    <tr>
+                        <td colspan="4"
+                            class="text-muted text-center py-4">
+                            Henüz gönüllü atanmadı.
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

@@ -1,0 +1,413 @@
+﻿@{
+    ViewData["Title"] = "Yeni Anket";
+
+    var secenekler = ViewBag.Secenekler as List<string>
+        ?? new List<string> { "", "" };
+
+    var baslangic = ViewBag.Baslangic is DateTime
+        ? ((DateTime)ViewBag.Baslangic).ToString("yyyy-MM-ddTHH:mm")
+        : DateTime.Now.ToString("yyyy-MM-ddTHH:mm");
+
+    var bitis = ViewBag.Bitis is DateTime
+        ? ((DateTime)ViewBag.Bitis).ToString("yyyy-MM-ddTHH:mm")
+        : DateTime.Now.AddDays(7).ToString("yyyy-MM-ddTHH:mm");
+}
+
+@{
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+}
+
+
+
+
+<style>
+    .anket-create-page {
+        max-width: 850px;
+        margin: 35px auto;
+        padding: 0 18px 60px;
+        font-family: "Segoe UI", Arial, sans-serif;
+        color: #17334a;
+    }
+
+    .anket-create-hero {
+        background: linear-gradient(120deg, #087f8c, #16a6a0);
+        color: white;
+        padding: 32px;
+        border-radius: 22px;
+        margin-bottom: 25px;
+    }
+
+        .anket-create-hero h1 {
+            font-size: 27px;
+            font-weight: 750;
+            margin-bottom: 10px;
+        }
+
+        .anket-create-hero p {
+            margin: 0;
+            opacity: .92;
+        }
+
+    .anket-form-card {
+        background: white;
+        border: 1px solid #e0ebed;
+        border-radius: 22px;
+        padding: 30px;
+        box-shadow: 0 10px 35px rgba(10,55,65,.06);
+    }
+
+    .anket-form-section {
+        margin-bottom: 30px;
+    }
+
+    .anket-form-title {
+        font-size: 18px;
+        font-weight: 750;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #eaf0f2;
+    }
+
+    .anket-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 9px;
+    }
+
+    .anket-input {
+        width: 100%;
+        border: 1px solid #d8e5e8;
+        background: #fbfdfd;
+        padding: 13px 15px;
+        border-radius: 11px;
+        color: #17334a;
+        outline: none;
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+        .anket-input:focus {
+            border-color: #16a6a0;
+            box-shadow: 0 0 0 4px rgba(22,166,160,.10);
+        }
+
+    .anket-field {
+        margin-bottom: 22px;
+    }
+
+    .anket-date-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+    }
+
+    .anket-option-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .anket-option-number {
+        width: 35px;
+        height: 35px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: #e0f6f3;
+        color: #087f8c;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: 800;
+    }
+
+    .anket-remove-btn {
+        border: 0;
+        background: #fff0f0;
+        color: #b94a48;
+        width: 38px;
+        height: 38px;
+        flex-shrink: 0;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    .anket-add-btn {
+        border: 1px dashed #16a6a0;
+        background: #f0fbf9;
+        color: #087f8c;
+        padding: 12px 18px;
+        border-radius: 11px;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 5px;
+    }
+
+        .anket-add-btn:hover {
+            background: #e0f6f3;
+        }
+
+    .anket-form-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding-top: 22px;
+        border-top: 1px solid #eaf0f2;
+    }
+
+    .anket-save-btn {
+        border: none;
+        background: linear-gradient(120deg, #087f8c, #16a6a0);
+        color: white;
+        padding: 14px 25px;
+        border-radius: 11px;
+        font-weight: 750;
+        cursor: pointer;
+        transition: transform .2s;
+    }
+
+        .anket-save-btn:hover {
+            transform: translateY(-2px);
+        }
+
+    .anket-cancel-btn {
+        background: #edf2f5;
+        color: #40586a;
+        text-decoration: none;
+        padding: 14px 25px;
+        border-radius: 11px;
+        font-weight: 700;
+    }
+
+        .anket-cancel-btn:hover {
+            color: #17334a;
+            background: #e1e9ee;
+        }
+
+    .anket-help {
+        color: #748896;
+        font-size: 12px;
+        margin-top: 7px;
+    }
+
+    @@media (max-width: 650px) {
+        .anket-form-card {
+            padding: 20px;
+        }
+
+        .anket-date-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .anket-create-hero {
+            padding: 25px;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .anket-input,
+        .anket-save-btn {
+            transition: none;
+        }
+    }
+</style>
+
+<div class="anket-create-page">
+
+    <div class="anket-create-hero">
+        <h1>✏️ Yeni Anket Oluştur</h1>
+        <p>
+            Derneğinizin ziyaretçilerine bir soru sorun,
+            seçenekleri belirleyin ve yayın tarihlerini ayarlayın.
+        </p>
+    </div>
+
+    <form asp-area="DernekAdmin"
+          asp-controller="Anketler"
+          asp-action="Create"
+          method="post"
+          class="anket-form-card">
+
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="All"
+             class="text-danger mb-3"></div>
+
+        <div class="anket-form-section">
+            <h2 class="anket-form-title">Anket Bilgileri</h2>
+
+            <div class="anket-field">
+                <label for="soru" class="anket-label">
+                    Anket Sorusu *
+                </label>
+
+                <input id="soru"
+                       name="soru"
+                       value="@ViewBag.Soru"
+                       maxlength="300"
+                       required
+                       class="anket-input"
+                       placeholder="Örn: Bir sonraki etkinliğimiz ne olsun?" />
+            </div>
+
+            <div class="anket-field">
+                <label for="aciklama" class="anket-label">
+                    Açıklama
+                </label>
+
+                <textarea id="aciklama"
+                          name="aciklama"
+                          rows="3"
+                          class="anket-input"
+                          placeholder="Anket hakkında kısa bir açıklama...">@ViewBag.Aciklama</textarea>
+            </div>
+        </div>
+
+        <div class="anket-form-section">
+            <h2 class="anket-form-title">Yayın Tarihleri</h2>
+
+            <div class="anket-date-grid">
+                <div class="anket-field">
+                    <label for="baslangicTarihi" class="anket-label">
+                        Başlangıç Tarihi *
+                    </label>
+
+                    <input id="baslangicTarihi"
+                           type="datetime-local"
+                           name="baslangicTarihi"
+                           value="@baslangic"
+                           required
+                           class="anket-input" />
+                </div>
+
+                <div class="anket-field">
+                    <label for="bitisTarihi" class="anket-label">
+                        Bitiş Tarihi *
+                    </label>
+
+                    <input id="bitisTarihi"
+                           type="datetime-local"
+                           name="bitisTarihi"
+                           value="@bitis"
+                           required
+                           class="anket-input" />
+                </div>
+            </div>
+        </div>
+
+        <div class="anket-form-section">
+            <h2 class="anket-form-title">Cevap Seçenekleri</h2>
+
+            <p class="anket-help">
+                En az 2, en fazla 10 seçenek ekleyebilirsiniz.
+            </p>
+
+            <div id="secenekAlani">
+                @foreach (var secenek in secenekler)
+                {
+                    <div class="anket-option-row">
+                        <span class="anket-option-number"></span>
+
+                        <input name="secenekler"
+                               value="@secenek"
+                               maxlength="200"
+                               class="anket-input"
+                               placeholder="Cevap seçeneği" />
+
+                        <button type="button"
+                                class="anket-remove-btn"
+                                onclick="secenekSil(this)"
+                                aria-label="Seçeneği sil">
+                            ×
+                        </button>
+                    </div>
+                }
+            </div>
+
+            <button type="button"
+                    class="anket-add-btn"
+                    onclick="secenekEkle()">
+                ＋ Yeni Seçenek Ekle
+            </button>
+        </div>
+
+        <div class="anket-form-actions">
+            <button type="submit" class="anket-save-btn">
+                ✓ Anketi Kaydet
+            </button>
+
+            <a asp-area="DernekAdmin"
+               asp-controller="Anketler"
+               asp-action="Index"
+               class="anket-cancel-btn">
+                İptal
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    function secenekleriNumaralandir() {
+        const satirlar = document.querySelectorAll(
+            "#secenekAlani .anket-option-row"
+        );
+
+        satirlar.forEach(function (satir, index) {
+            satir.querySelector(".anket-option-number")
+                .textContent = index + 1;
+        });
+    }
+
+    function secenekEkle() {
+        const alan = document.getElementById("secenekAlani");
+
+        if (alan.querySelectorAll(".anket-option-row").length >= 10) {
+            alert("En fazla 10 seçenek ekleyebilirsiniz.");
+            return;
+        }
+
+        const satir = document.createElement("div");
+        satir.className = "anket-option-row";
+
+        const numara = document.createElement("span");
+        numara.className = "anket-option-number";
+
+        const input = document.createElement("input");
+        input.name = "secenekler";
+        input.className = "anket-input";
+        input.maxLength = 200;
+        input.placeholder = "Cevap seçeneği";
+
+        const sil = document.createElement("button");
+        sil.type = "button";
+        sil.className = "anket-remove-btn";
+        sil.textContent = "×";
+        sil.setAttribute("aria-label", "Seçeneği sil");
+        sil.addEventListener("click", function () {
+            secenekSil(sil);
+        });
+
+        satir.appendChild(numara);
+        satir.appendChild(input);
+        satir.appendChild(sil);
+        alan.appendChild(satir);
+
+        secenekleriNumaralandir();
+        input.focus();
+    }
+
+    function secenekSil(buton) {
+        const alan = document.getElementById("secenekAlani");
+        const satirlar = alan.querySelectorAll(".anket-option-row");
+
+        if (satirlar.length <= 2) {
+            alert("En az 2 seçenek bulunmalıdır.");
+            return;
+        }
+
+        buton.closest(".anket-option-row").remove();
+        secenekleriNumaralandir();
+    }
+
+    secenekleriNumaralandir();
+</script>

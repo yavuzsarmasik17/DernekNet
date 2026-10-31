@@ -1,0 +1,570 @@
+﻿@{
+    var sayfaBasligi = ViewData["Title"]?.ToString() ?? "Platform Yönetimi";
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+
+    string menuAktif(string hedefController, string? hedefAction = null)
+    {
+        bool controllerEslesiyor = string.Equals(controller, hedefController, StringComparison.OrdinalIgnoreCase);
+        bool actionEslesiyor = hedefAction == null || string.Equals(action, hedefAction, StringComparison.OrdinalIgnoreCase);
+        return controllerEslesiyor && actionEslesiyor ? "active" : "";
+    }
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@sayfaBasligi | DERNEKNET</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=3" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            color-scheme: dark;
+            --pa-bg: #0b111b;
+            --pa-sidebar: #101925;
+            --pa-panel: #172536;
+            --pa-raised: #203146;
+            --pa-border: #35465a;
+            --pa-text: #e9edf4;
+            --pa-muted: #aebfd0;
+            --pa-gold: #c9a46a;
+            --pa-teal: #4cc6b1;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--pa-bg);
+            color: var(--pa-text);
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+        }
+
+        .platform-sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            width: 276px;
+            z-index: 1050;
+            background: linear-gradient(180deg, #141f2d, #0f1823);
+            border-right: 1px solid var(--pa-border);
+            padding: 24px 14px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #34465b transparent;
+        }
+
+        .platform-brand-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 4px 12px 23px;
+            border-bottom: 1px solid var(--pa-border);
+            margin-bottom: 14px;
+        }
+
+        .platform-brand-icon {
+            display: grid;
+            place-items: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #d8b77d, #957244);
+            color: #111923;
+            font-size: 21px;
+            flex-shrink: 0;
+        }
+
+        .platform-brand {
+            color: #f3f5f8;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .platform-brand-sub {
+            color: var(--pa-muted);
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        .platform-menu-label {
+            color: #8395a9;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.8px;
+            padding: 20px 13px 9px;
+        }
+
+        .platform-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 13px;
+            margin: 3px 0;
+            border: 1px solid transparent;
+            border-radius: 11px;
+            color: #b9c6d6;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: background .18s, color .18s, border-color .18s;
+        }
+
+            .platform-menu a i {
+                width: 22px;
+                font-size: 17px;
+                text-align: center;
+                flex-shrink: 0;
+            }
+
+            .platform-menu a:hover {
+                background: #233346;
+                color: #f1f5fa;
+            }
+
+            .platform-menu a.active {
+                color: #f6e4c4;
+                background: linear-gradient(90deg, rgba(201,164,106,.19), rgba(201,164,106,.035));
+                border-left: 3px solid var(--pa-gold);
+            }
+
+            .platform-menu a.afad-link i {
+                color: var(--pa-teal);
+            }
+
+            .platform-menu a.afad-link.active {
+                color: #b9f5e9;
+                background: rgba(76,198,177,.12);
+                border-left-color: var(--pa-teal);
+            }
+
+        .platform-logout {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 13px;
+            background: #2a2029;
+            border: 1px solid #5a3e44;
+            border-radius: 10px;
+            color: #ffbdc4;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+            .platform-logout:hover {
+                background: #4a2a34;
+                color: #ffe5e8;
+            }
+
+        .platform-main {
+            margin-left: 276px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .platform-topbar {
+            min-height: 86px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 17px 34px;
+            background: #121d2a;
+            border-bottom: 1px solid var(--pa-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .platform-topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .platform-kicker {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.7px;
+            color: var(--pa-gold);
+        }
+
+        .platform-topbar-title {
+            font-size: 21px;
+            font-weight: 750;
+            line-height: 1.25;
+            overflow-wrap: anywhere;
+        }
+
+        .platform-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #c3cfdd;
+            font-size: 13px;
+            min-width: 0;
+        }
+
+        .platform-user-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 220px;
+        }
+
+        .platform-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            background: #26394d;
+            border: 1px solid #486079;
+            color: var(--pa-teal);
+            flex-shrink: 0;
+        }
+
+        .platform-content {
+            width: 100%;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 32px;
+            flex: 1;
+            color: var(--pa-text);
+        }
+
+        .platform-footer {
+            padding: 20px 15px;
+            background: #121d2a;
+            border-top: 1px solid var(--pa-border);
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+            .platform-footer .developer {
+                display: block;
+                margin-top: 6px;
+                color: var(--pa-teal);
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+        .platform-menu-toggle {
+            display: none;
+            border: 1px solid var(--pa-border);
+            border-radius: 10px;
+            background: #1d2d3e;
+            color: var(--pa-text);
+            padding: 8px 11px;
+            font-size: 20px;
+        }
+
+        .platform-overlay {
+            display: none;
+        }
+
+        /* Ortak koyu tema: sayfalardaki Bootstrap kart, tablo ve formlar */
+        .platform-content :is(.card, .card-body, .card-header, .card-footer, .bg-white, .bg-light, .bg-body, .bg-body-tertiary, .list-group-item, .accordion-item, .accordion-button, .alert-light, .modal-content, .dropdown-menu) {
+            background-color: var(--pa-panel) !important;
+            color: var(--pa-text) !important;
+            border-color: var(--pa-border) !important;
+        }
+
+        .platform-content :is(.card, .list-group-item, .accordion-item) {
+            border: 1px solid var(--pa-border) !important;
+        }
+
+        .platform-content :is(.card-header, .card-footer, .accordion-button) {
+            background-color: var(--pa-raised) !important;
+        }
+
+        .platform-content :is(h1,h2,h3,h4,h5,h6,.fw-bold,.fw-semibold,.card-title) {
+            color: #f0f4fa;
+        }
+
+        .platform-content :is(p,small,label,.form-label,.card-text) {
+            color: #cbd7e5;
+        }
+
+        .platform-content :is(.text-muted,.text-secondary,.form-text) {
+            color: var(--pa-muted) !important;
+        }
+
+        .platform-content :is(.text-dark,.text-body,.text-black) {
+            color: var(--pa-text) !important;
+        }
+
+        .platform-content .table {
+            --bs-table-bg: #172536;
+            --bs-table-color: #e9edf4;
+            --bs-table-border-color: #35465a;
+            --bs-table-striped-bg: #203146;
+            --bs-table-striped-color: #e9edf4;
+            --bs-table-hover-bg: #2b4055;
+            --bs-table-hover-color: #fff;
+            color: var(--pa-text) !important;
+        }
+
+            .platform-content .table > :not(caption) > * > * {
+                color: var(--pa-text) !important;
+                border-color: var(--pa-border) !important;
+            }
+
+            .platform-content .table :is(thead.table-light,thead.table-secondary) > tr > th, .platform-content .table :is(.table-light,.table-secondary) > * {
+                background: var(--pa-raised) !important;
+                color: #f1d6a5 !important;
+            }
+
+        .platform-content :is(.form-control,.form-select,textarea,.input-group-text) {
+            background-color: #101b29 !important;
+            color: #eef3f9 !important;
+            border: 1px solid #42566c !important;
+            color-scheme: dark;
+        }
+
+        .platform-content :is(.form-control,textarea)::placeholder {
+            color: #a1b1c4 !important;
+            opacity: 1;
+        }
+
+        .platform-content :is(.form-control,.form-select,textarea):focus {
+            background: #15263a !important;
+            color: #fff !important;
+            border-color: var(--pa-gold) !important;
+            box-shadow: 0 0 0 .2rem rgba(201,164,106,.15) !important;
+        }
+
+        .platform-content :is(.form-control,.form-select):disabled {
+            background: #263445 !important;
+            color: #aebfd0 !important;
+        }
+
+        .platform-content .btn-primary {
+            background: #ad8953;
+            border-color: #ad8953;
+            color: #101720;
+            font-weight: 700;
+        }
+
+            .platform-content .btn-primary:hover {
+                background: #d1ad72;
+                border-color: #d1ad72;
+                color: #101720;
+            }
+
+        .platform-content .btn-outline-primary {
+            color: #8cb9ff;
+            border-color: #5b8ad3;
+        }
+
+            .platform-content .btn-outline-primary:hover {
+                background: #24528b;
+                color: #fff;
+            }
+
+        .platform-content .btn-outline-secondary {
+            color: #d1dbe7;
+            border-color: #60738a;
+        }
+
+            .platform-content .btn-outline-secondary:hover {
+                background: #34475d;
+                color: #fff;
+            }
+
+        .platform-content .btn-outline-danger {
+            color: #ff929c;
+            border-color: #c75b67;
+        }
+
+            .platform-content .btn-outline-danger:hover {
+                background: #9d3644;
+                color: #fff;
+            }
+
+        .platform-content .btn-light {
+            background: #26394d !important;
+            color: var(--pa-text) !important;
+            border-color: var(--pa-border) !important;
+        }
+
+        .platform-content .nav-tabs {
+            border-color: var(--pa-border);
+        }
+
+            .platform-content .nav-tabs .nav-link {
+                color: #9fc2f4;
+            }
+
+                .platform-content .nav-tabs .nav-link.active {
+                    background: var(--pa-raised);
+                    color: #f1d6a5;
+                    border-color: var(--pa-border);
+                }
+
+        .platform-content :is(.border,.border-top,.border-bottom) {
+            border-color: var(--pa-border) !important;
+        }
+
+        .platform-content hr {
+            border-color: #465b70;
+            opacity: .8;
+        }
+
+        .platform-content .page-link {
+            background: #172537;
+            border-color: var(--pa-border);
+            color: #d9e3ef;
+        }
+
+        .platform-content .page-item.active .page-link {
+            background: #9c7949;
+            border-color: #9c7949;
+        }
+
+        .platform-content .dropdown-item {
+            color: var(--pa-text);
+        }
+
+            .platform-content .dropdown-item:hover {
+                background: #26394e;
+            }
+
+        .platform-content .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        @@media (max-width: 991px) {
+            .platform-sidebar {
+                transform: translateX(-100%);
+                transition: transform .22s ease;
+                width: min(300px,86vw);
+            }
+
+            body.platform-menu-open .platform-sidebar {
+                transform: translateX(0);
+            }
+
+            body.platform-menu-open .platform-overlay {
+                display: block;
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,.65);
+                z-index: 1040;
+            }
+
+            .platform-main {
+                margin-left: 0;
+            }
+
+            .platform-menu-toggle {
+                display: inline-flex;
+            }
+
+            .platform-topbar {
+                padding: 14px 18px;
+                min-height: 76px;
+            }
+
+            .platform-content {
+                padding: 18px;
+            }
+        }
+
+        @@media (max-width: 540px) {
+            .platform-topbar-title {
+                font-size: 17px;
+            }
+
+            .platform-kicker {
+                font-size: 9px;
+            }
+
+            .platform-user-name {
+                display: none;
+            }
+
+            .platform-content {
+                padding: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="platform-overlay" id="platformOverlay" aria-hidden="true"></div>
+    <aside class="platform-sidebar" id="platformSidebar" aria-label="Platform yönetim menüsü">
+        <div class="platform-brand-wrap">
+            <span class="platform-brand-icon"><i class="bi bi-diamond-fill"></i></span>
+            <div>
+                <div class="platform-brand">DERNEKNET</div>
+                <div class="platform-brand-sub">PLATFORM YÖNETİM MERKEZİ</div>
+            </div>
+        </div>
+        <nav class="platform-menu" aria-label="Platform yönetim menüsü">
+            <div class="platform-menu-label">GENEL</div>
+            <a asp-area="PlatformAdmin" asp-controller="Home" asp-action="Index" class="@menuAktif("Home")"><i class="bi bi-grid-1x2"></i> Genel Bakış</a>
+            <a asp-area="PlatformAdmin" asp-controller="Dernekler" asp-action="Index" class="@menuAktif("Dernekler", "Index")"><i class="bi bi-buildings"></i> Dernekler</a>
+            <a asp-area="PlatformAdmin" asp-controller="DernekYoneticileri" asp-action="Index" class="@menuAktif("DernekYoneticileri")"><i class="bi bi-person-badge"></i> Dernek Yöneticileri</a>
+            <a asp-area="PlatformAdmin" asp-controller="Duyurular" asp-action="Index" class="@menuAktif("Duyurular")"><i class="bi bi-megaphone"></i> Dernek Duyuruları</a>
+            <div class="platform-menu-label">İŞLEMLER</div>
+            <a asp-area="PlatformAdmin" asp-controller="Dernekler" asp-action="Create" class="@menuAktif("Dernekler", "Create")"><i class="bi bi-plus-circle"></i> Yeni Dernek Oluştur</a>
+            <a asp-area="PlatformAdmin" asp-controller="AfadIzleme" asp-action="Index" class="afad-link @menuAktif("AfadIzleme")"><i class="bi bi-shield-check"></i> AFAD İzleme Merkezi</a>
+        </nav>
+        <hr style="border-color:#334155;margin-top:26px;" />
+        <form asp-area="Identity" asp-page="/Account/Logout" method="post" class="m-0">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="platform-logout"><i class="bi bi-box-arrow-right"></i> Çıkış Yap</button>
+        </form>
+    </aside>
+
+    <div class="platform-main">
+        <header class="platform-topbar">
+            <div class="platform-topbar-left">
+                <button class="platform-menu-toggle" id="platformMenuToggle" type="button" aria-label="Menüyü aç" aria-controls="platformSidebar" aria-expanded="false"><i class="bi bi-list"></i></button>
+                <div>
+                    <div class="platform-kicker">PLATFORM YÖNETİM MERKEZİ</div>
+                    <div class="platform-topbar-title">@sayfaBasligi</div>
+                </div>
+            </div>
+            <div class="platform-user">
+                <span class="platform-user-name">@User.Identity?.Name</span>
+                <div class="platform-avatar"><i class="bi bi-person-fill"></i></div>
+            </div>
+        </header>
+        <main class="platform-content">@RenderBody()</main>
+        <footer class="platform-footer">
+            <div>© @DateTime.Now.Year DERNEKNET · Tüm hakları saklıdır.</div>
+            <span class="developer">Developed by Yavuzhan Sarmaşık</span>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            const toggle = document.getElementById('platformMenuToggle');
+            const overlay = document.getElementById('platformOverlay');
+            function closeMenu() {
+                document.body.classList.remove('platform-menu-open');
+                toggle.setAttribute('aria-expanded', 'false');
+            }
+            toggle.addEventListener('click', function () {
+                const opened = document.body.classList.toggle('platform-menu-open');
+                toggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
+            });
+            overlay.addEventListener('click', closeMenu);
+            document.addEventListener('keydown', function (event) { if (event.key === 'Escape') closeMenu(); });
+            document.querySelectorAll('.platform-menu a').forEach(function (link) { link.addEventListener('click', closeMenu); });
+        })();
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,616 @@
+﻿@model List<DernekNet.Models.AfadGonullu>
+
+@{
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+    ViewData["Title"] = "AFAD Gönüllüleri";
+}
+
+<style>
+    .afad-wrap {
+        max-width: 1400px;
+        margin: 25px auto;
+        padding: 0 15px;
+        color: #e8edf5;
+    }
+
+        .afad-wrap .afad-title {
+            color: #edf3fa !important;
+            font-size: 30px;
+            font-weight: 750;
+            margin-bottom: 12px;
+        }
+
+        .afad-wrap .afad-subtitle {
+            color: #a9bdd1 !important;
+            margin-bottom: 25px;
+        }
+
+        .afad-wrap .afad-table-card {
+            background: #182535 !important;
+            border: 1px solid #34465a;
+            border-radius: 18px;
+            overflow: hidden;
+        }
+
+        .afad-wrap .afad-table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 22px 24px;
+            background: #1d2c3e !important;
+            border-bottom: 1px solid #34465a;
+        }
+
+        .afad-wrap .afad-table-heading {
+            color: #edf3fa !important;
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .afad-wrap .afad-count {
+            background: #263e49;
+            border: 1px solid #397a76;
+            color: #67dfcc;
+            border-radius: 20px;
+            padding: 6px 13px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .afad-wrap .afad-scroll {
+            overflow-x: auto;
+        }
+
+        .afad-wrap .afad-table {
+            width: 100%;
+            min-width: 820px;
+            border-collapse: collapse;
+            background: #182535 !important;
+            color: #e8edf5 !important;
+            margin: 0;
+        }
+
+            .afad-wrap .afad-table th {
+                background: #223448 !important;
+                color: #c7d8e8 !important;
+                padding: 17px 18px;
+                border-bottom: 1px solid #3a4e63;
+                text-align: left;
+                font-size: 12px;
+                font-weight: 750;
+            }
+
+            .afad-wrap .afad-table tbody tr {
+                background: #182535 !important;
+            }
+
+                .afad-wrap .afad-table tbody tr:nth-child(even) {
+                    background: #1d2c3e !important;
+                }
+
+                .afad-wrap .afad-table tbody tr:hover {
+                    background: #26394d !important;
+                }
+
+            .afad-wrap .afad-table td {
+                background: transparent !important;
+                color: #e8edf5 !important;
+                padding: 18px;
+                border-bottom: 1px solid #304155;
+                vertical-align: middle;
+                font-size: 13px;
+            }
+
+        .afad-wrap .afad-name {
+            color: #f1f6fc !important;
+            font-weight: 700;
+        }
+
+        .afad-wrap .afad-secondary {
+            color: #afc1d3 !important;
+        }
+
+        .afad-wrap .afad-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 11px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 750;
+            white-space: nowrap;
+        }
+
+        .afad-wrap .afad-status-approved {
+            background: #123d34 !important;
+            color: #6ee7b7 !important;
+            border: 1px solid #216b54;
+        }
+
+        .afad-wrap .afad-status-pending {
+            background: #49371c !important;
+            color: #f6cb7d !important;
+            border: 1px solid #806039;
+        }
+
+        .afad-wrap .afad-status-inactive {
+            background: #3d2630 !important;
+            color: #f2a4ae !important;
+            border: 1px solid #7a4653;
+        }
+
+        .afad-wrap .afad-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+            .afad-wrap .afad-actions form {
+                display: inline-flex;
+                margin: 0;
+            }
+
+        .afad-wrap .afad-btn {
+            border: 1px solid transparent;
+            border-radius: 9px;
+            padding: 9px 13px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 750;
+            white-space: nowrap;
+        }
+
+        .afad-wrap .afad-btn-approve,
+        .afad-wrap .afad-btn-activate {
+            background: #137b70 !important;
+            color: #ffffff !important;
+            border-color: #19978a;
+        }
+
+        .afad-wrap .afad-btn-danger {
+            background: #873c4a !important;
+            color: #ffffff !important;
+            border-color: #a34b5b;
+        }
+
+        .afad-wrap .afad-msg {
+            padding: 15px 18px;
+            background: #153d34 !important;
+            color: #a7f3d0 !important;
+            border: 1px solid #287b62;
+            margin-bottom: 20px;
+            border-radius: 11px;
+        }
+
+        .afad-wrap .afad-empty {
+            text-align: center;
+            padding: 45px 20px;
+            color: #a9bdd1 !important;
+        }
+
+    /* ÖZEL ONAY PENCERESİ */
+
+    .afad-modal-overlay[hidden] {
+        display: none !important;
+    }
+
+    .afad-modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        background: rgba(4,10,18,.80);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        backdrop-filter: blur(5px);
+    }
+
+    .afad-modal-box {
+        width: 100%;
+        max-width: 440px;
+        background: #1b2a3b !important;
+        border: 1px solid #3b5066;
+        border-radius: 20px;
+        padding: 30px;
+        text-align: center;
+        box-shadow: 0 25px 80px rgba(0,0,0,.5);
+    }
+
+    .afad-modal-icon {
+        font-size: 38px;
+        color: #d8ac69;
+        margin-bottom: 12px;
+    }
+
+    .afad-modal-box h3 {
+        color: #f1f5f9 !important;
+        font-size: 22px;
+        font-weight: 750;
+        margin-bottom: 12px;
+    }
+
+    .afad-modal-box p {
+        color: #b9cadd !important;
+        font-size: 15px;
+        line-height: 1.6;
+        margin-bottom: 25px;
+    }
+
+    .afad-modal-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+    }
+
+        .afad-modal-buttons button {
+            border: 0;
+            border-radius: 10px;
+            padding: 12px 22px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+    .afad-modal-cancel {
+        background: #344357 !important;
+        color: #e8eef6 !important;
+    }
+
+    .afad-modal-confirm {
+        background: #159b8e !important;
+        color: #ffffff !important;
+    }
+
+        .afad-modal-confirm.danger {
+            background: #a74352 !important;
+        }
+
+        .afad-modal-confirm:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+
+    @@media (max-width: 767px) {
+        .afad-wrap {
+            padding: 0;
+            margin-top: 15px;
+        }
+
+            .afad-wrap .afad-title {
+                font-size: 24px;
+            }
+    }
+</style>
+
+<div class="afad-wrap">
+
+    <div class="mb-4">
+        <h1 class="afad-title">
+            <i class="bi bi-shield-check me-2"
+               style="color:#4cc6b1;"></i>
+            AFAD Gönüllü Yönetimi
+        </h1>
+
+        <p class="afad-subtitle">
+            Yalnızca kendi derneğinizin gönüllü başvuruları gösterilir.
+        </p>
+    </div>
+
+    @if (TempData["AfadAdminMesaj"] != null)
+    {
+        <div class="afad-msg">
+            <i class="bi bi-check-circle me-2"></i>
+            @TempData["AfadAdminMesaj"]
+        </div>
+    }
+
+    <div class="afad-table-card">
+
+        <div class="afad-table-header">
+            <h5 class="afad-table-heading">
+                <i class="bi bi-people me-2"
+                   style="color:#4cc6b1;"></i>
+                Gönüllü Başvuruları
+            </h5>
+
+            <span class="afad-count">
+                Toplam @Model.Count Başvuru
+            </span>
+        </div>
+
+        <div class="afad-scroll">
+            <table class="afad-table">
+                <thead>
+                    <tr>
+                        <th>Ad Soyad</th>
+                        <th>E-posta</th>
+                        <th>Telefon</th>
+                        <th>Başvuru</th>
+                        <th>Durum</th>
+                        <th>İşlem</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var g in Model)
+                    {
+                        <tr>
+                            <td>
+                                <span class="afad-name">
+                                    @g.AdSoyad
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="afad-secondary">
+                                    @g.Kullanici?.Email
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="afad-secondary">
+                                    @g.Telefon
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="afad-secondary">
+                                    @g.KayitTarihi.ToLocalTime().ToString("dd.MM.yyyy")
+                                </span>
+                            </td>
+
+                            <td>
+                                @if (!g.AktifMi)
+                                {
+                                    <span class="afad-status afad-status-inactive">
+                                        <i class="bi bi-x-circle"></i>
+                                        Pasif
+                                    </span>
+                                }
+                                else if (g.OnaylandiMi)
+                                {
+                                    <span class="afad-status afad-status-approved">
+                                        <i class="bi bi-check-circle"></i>
+                                        Onaylı
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="afad-status afad-status-pending">
+                                        <i class="bi bi-clock"></i>
+                                        Onay Bekliyor
+                                    </span>
+                                }
+                            </td>
+
+                            <td>
+                                <div class="afad-actions">
+
+                                    @if (!g.AktifMi)
+                                    {
+                                        <form asp-area="DernekAdmin"
+                                              asp-controller="AfadGonulluler"
+                                              asp-action="AktifeAl"
+                                              method="post"
+                                              data-afad-action="activate">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@g.Id" />
+
+                                            <button type="submit"
+                                                    class="afad-btn afad-btn-activate">
+                                                <i class="bi bi-person-check"></i>
+                                                Aktife Al
+                                            </button>
+                                        </form>
+                                    }
+
+                                    @if (g.AktifMi && !g.OnaylandiMi)
+                                    {
+                                        <form asp-area="DernekAdmin"
+                                              asp-controller="AfadGonulluler"
+                                              asp-action="Onayla"
+                                              method="post"
+                                              data-afad-action="approve">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@g.Id" />
+
+                                            <button type="submit"
+                                                    class="afad-btn afad-btn-approve">
+                                                <i class="bi bi-check-lg"></i>
+                                                Onayla
+                                            </button>
+                                        </form>
+                                    }
+
+                                    @if (g.AktifMi)
+                                    {
+                                        <form asp-area="DernekAdmin"
+                                              asp-controller="AfadGonulluler"
+                                              asp-action="PasifeAl"
+                                              method="post"
+                                              data-afad-action="deactivate">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@g.Id" />
+
+                                            <button type="submit"
+                                                    class="afad-btn afad-btn-danger">
+                                                <i class="bi bi-person-dash"></i>
+                                                Pasife Al
+                                            </button>
+                                        </form>
+                                    }
+
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="afad-empty">
+                Henüz gönüllü başvurusu yok.
+            </div>
+        }
+
+    </div>
+</div>
+
+<!-- ÖZEL ONAY PENCERESİ -->
+<!-- TABLONUN VE FOREACH DÖNGÜSÜNÜN DIŞINDA -->
+
+<div id="afadOnayPenceresi"
+     class="afad-modal-overlay"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="afadModalBaslik"
+     aria-describedby="afadModalMesaj"
+     hidden>
+
+    <div class="afad-modal-box">
+
+        <div class="afad-modal-icon">
+            <i class="bi bi-shield-exclamation"></i>
+        </div>
+
+        <h3 id="afadModalBaslik">
+            İşlemi Onayla
+        </h3>
+
+        <p id="afadModalMesaj">
+            Bu işlemi gerçekleştirmek istiyor musunuz?
+        </p>
+
+        <div class="afad-modal-buttons">
+
+            <button type="button"
+                    id="afadModalIptal"
+                    class="afad-modal-cancel">
+                Vazgeç
+            </button>
+
+            <button type="button"
+                    id="afadModalOnay"
+                    class="afad-modal-confirm">
+                Onayla
+            </button>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        "use strict";
+
+        const modal = document.getElementById("afadOnayPenceresi");
+        const mesaj = document.getElementById("afadModalMesaj");
+        const onay = document.getElementById("afadModalOnay");
+        const iptal = document.getElementById("afadModalIptal");
+
+        let bekleyenForm = null;
+        let acanButon = null;
+
+        function modalKapat() {
+            modal.hidden = true;
+            bekleyenForm = null;
+
+            if (acanButon) {
+                acanButon.focus();
+            }
+
+            acanButon = null;
+        }
+
+        document.querySelectorAll(
+            ".afad-actions form[data-afad-action]"
+        ).forEach(function (form) {
+
+            form.addEventListener("submit", function (event) {
+
+                event.preventDefault();
+
+                bekleyenForm = form;
+                acanButon = event.submitter ||
+                    form.querySelector('button[type="submit"]');
+
+                const islem = form.dataset.afadAction;
+
+                onay.classList.remove("danger");
+                onay.disabled = false;
+
+                if (islem === "deactivate") {
+
+                    mesaj.textContent =
+                        "Bu gönüllüyü pasife almak istediğinize emin misiniz?";
+
+                    onay.textContent = "Pasife Al";
+                    onay.classList.add("danger");
+
+                } else if (islem === "activate") {
+
+                    mesaj.textContent =
+                        "Bu gönüllüyü yeniden aktif yapmak istiyor musunuz? Başvuru tekrar onay bekleyecek.";
+
+                    onay.textContent = "Aktife Al";
+
+                } else {
+
+                    mesaj.textContent =
+                        "Bu gönüllünün başvurusunu onaylamak istiyor musunuz? E-posta sahipliği henüz doğrulanmadı.";
+
+                    onay.textContent = "Onayla";
+                }
+
+                modal.hidden = false;
+                iptal.focus();
+            });
+        });
+
+        iptal.addEventListener("click", modalKapat);
+
+        modal.addEventListener("click", function (event) {
+            if (event.target === modal) {
+                modalKapat();
+            }
+        });
+
+        document.addEventListener("keydown", function (event) {
+            if (!modal.hidden && event.key === "Escape") {
+                modalKapat();
+            }
+        });
+
+        onay.addEventListener("click", function () {
+
+            if (!bekleyenForm) return;
+
+            const form = bekleyenForm;
+            bekleyenForm = null;
+
+            onay.disabled = true;
+
+            // Formdaki antiforgery token korunur.
+            HTMLFormElement.prototype.submit.call(form);
+        });
+
+    })();
+</script>

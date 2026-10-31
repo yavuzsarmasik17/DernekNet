@@ -1,0 +1,30 @@
+﻿@model DernekNet.Areas.DernekAdmin.Controllers.AfadHaberForm
+@{
+    bool duzenle = Model.Id > 0;
+    ViewData["Title"] = duzenle ? "AFAD Kaydı Düzenle" : "AFAD Kaydı Ekle";
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+}
+<h2 class="h4 mb-4">@(duzenle ? "Kaydı Düzenle" : "Yeni Haber")</h2>
+<div class="dn-card">
+    <form asp-action="@(duzenle ? "Duzenle" : "Ekle")" asp-route-id="@(duzenle ? Model.Id : (int?)null)" method="post">
+        @Html.AntiForgeryToken()
+        <input asp-for="Id" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+        <div class="mb-3">
+            <label asp-for="Baslik" class="form-label">Başlık</label>
+            <input asp-for="Baslik" class="form-control" maxlength="200" />
+            <span asp-validation-for="Baslik" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Icerik" class="form-label">İçerik</label>
+            <textarea asp-for="Icerik" class="form-control" rows="8"></textarea>
+            <span asp-validation-for="Icerik" class="text-danger"></span>
+        </div>
+        <div class="form-check mb-4">
+            <input asp-for="AktifMi" class="form-check-input" />
+            <label asp-for="AktifMi" class="form-check-label">Yayında</label>
+        </div>
+        <button class="btn btn-primary" type="submit">Kaydet</button>
+        <a asp-action="Index" class="btn btn-outline-secondary ms-2">Vazgeç</a>
+    </form>
+</div>

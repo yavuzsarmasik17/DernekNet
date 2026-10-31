@@ -1,0 +1,198 @@
+﻿@model IEnumerable<DernekNet.Models.Etkinlik>
+
+@{
+    Layout = "~/Areas/DernekAdmin/Views/Shared/_DernekAdminLayout.cshtml";
+    ViewData["Title"] = "Etkinlik Yönetimi";
+}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <h1 class="fw-bold">Etkinliklerim</h1>
+        <p class="text-muted">
+            Derneğinize ait etkinlikleri yönetin.
+        </p>
+    </div>
+
+    <a asp-area="DernekAdmin"
+       asp-controller="Etkinlikler"
+       asp-action="Create"
+       class="btn btn-primary">
+        + Yeni Etkinlik
+    </a>
+</div>
+
+@if (TempData["Basarili"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Basarili"]
+    </div>
+}
+
+@if (TempData["Hata"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Hata"]
+    </div>
+}
+
+<div class="dn-card">
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Etkinlik Adı</th>
+                    <th>Tarih ve Saat</th>
+                    <th>Konum</th>
+                    <th>Durum</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var etkinlik in Model)
+                {
+                    <tr>
+                        <td>
+                            <strong>@etkinlik.EtkinlikAdi</strong>
+                        </td>
+
+                        <td>
+                            @etkinlik.EtkinlikTarihi.ToString("dd.MM.yyyy HH:mm")
+                        </td>
+
+                        <td>
+                            @(string.IsNullOrWhiteSpace(etkinlik.Konum)
+                                ? "-"
+                                : etkinlik.Konum)
+                        </td>
+
+                        <td>
+                            @if (etkinlik.AktifMi)
+                            {
+                                <span class="badge bg-success">
+                                    Yayında
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Pasif
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            <div class="d-flex gap-2 flex-wrap">
+
+                                <a asp-area="DernekAdmin"
+                                   asp-controller="Etkinlikler"
+                                   asp-action="Edit"
+                                   asp-route-id="@etkinlik.Id"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Düzenle
+                                </a>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#etkinlikSilModal"
+                                        data-etkinlik-id="@etkinlik.Id"
+                                        data-etkinlik-adi="@etkinlik.EtkinlikAdi">
+                                    Sil
+                                </button>
+
+                            </div>
+                        </td>
+                    </tr>
+                }
+
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="5"
+                            class="text-center text-muted py-4">
+                            Henüz etkinlik bulunmuyor.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ETKİNLİK SİLME ONAY PENCERESİ -->
+<div class="modal fade"
+     id="etkinlikSilModal"
+     tabindex="-1"
+     aria-labelledby="etkinlikSilBaslik"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg"
+             style="border-radius:20px;">
+
+            <div class="modal-body text-center p-4 p-md-5">
+
+                <div class="mx-auto mb-3 d-flex align-items-center justify-content-center"
+                     style="width:76px;height:76px;border-radius:50%;background:#fee2e2;color:#dc2626;font-size:32px;">
+                    &#128465;
+                </div>
+
+                <h4 id="etkinlikSilBaslik" class="fw-bold mb-3">
+                    Etkinliği Silmek İstiyor musunuz?
+                </h4>
+
+                <p id="silinecekEtkinlik"
+                   class="fw-semibold text-dark text-break"></p>
+
+                <p class="text-muted mb-4">
+                    Bu etkinlik ve ekli fotoğraf/videolar
+                    kalıcı olarak silinecektir.
+                    Bu işlem geri alınamaz.
+                </p>
+
+                <form asp-area="DernekAdmin"
+                      asp-controller="Etkinlikler"
+                      asp-action="Sil"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           id="silinecekEtkinlikId"
+                           name="id" />
+
+                    <div class="d-flex gap-2">
+
+                        <button type="button"
+                                class="btn btn-light flex-fill py-3"
+                                data-bs-dismiss="modal">
+                            Vazgeç
+                        </button>
+
+                        <button type="submit"
+                                class="btn btn-danger flex-fill py-3">
+                            Evet, Sil
+                        </button>
+
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("etkinlikSilModal")
+        .addEventListener("show.bs.modal", function (event) {
+
+            const button = event.relatedTarget;
+
+            const id = button.getAttribute("data-etkinlik-id");
+            const ad = button.getAttribute("data-etkinlik-adi");
+
+            document.getElementById("silinecekEtkinlikId").value = id;
+            document.getElementById("silinecekEtkinlik").textContent = ad;
+        });
+</script>

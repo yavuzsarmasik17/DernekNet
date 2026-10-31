@@ -1,0 +1,842 @@
+﻿@model IEnumerable<DernekNet.Models.Dernek>
+
+@{
+    Layout = "~/Areas/PlatformAdmin/Views/Shared/_PlatformAdminLayout.cshtml";
+    ViewData["Title"] = "Dernekler";
+
+    var dernekler = Model
+        .OrderBy(x => x.DernekAdi)
+        .ToList();
+}
+
+<style>
+    .dernek-sayfa-baslik {
+        font-size: 28px;
+        font-weight: 800;
+        color: #17243b;
+        margin-bottom: 6px;
+    }
+
+    .dernek-sayfa-aciklama {
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .dernek-ozet {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 30px;
+    }
+
+    .dernek-ozet-kart {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 22px;
+        box-shadow: 0 5px 18px rgba(15,23,42,.04);
+    }
+
+    .dernek-ozet-etiket {
+        font-size: 14px;
+        color: #64748b;
+        margin-bottom: 8px;
+    }
+
+    .dernek-ozet-sayi {
+        font-size: 32px;
+        font-weight: 800;
+        color: #17243b;
+    }
+
+    .dernek-arama-alani {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 18px 20px;
+        margin-bottom: 22px;
+    }
+
+    .dernek-arama {
+        max-width: 430px;
+        border-radius: 10px;
+        padding: 12px 15px;
+    }
+
+    .dernek-kartlar {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 22px;
+    }
+
+    .dernek-kart {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 24px;
+        box-shadow: 0 8px 25px rgba(15,23,42,.04);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        min-width: 0;
+        transition: .2s;
+    }
+
+        .dernek-kart:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 35px rgba(15,23,42,.09);
+        }
+
+    .dernek-kart-ust {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .dernek-logo {
+        width: 68px;
+        height: 68px;
+        border-radius: 14px;
+        background: #eff6ff;
+        object-fit: contain;
+        padding: 7px;
+        flex-shrink: 0;
+    }
+
+    .dernek-logo-yok {
+        width: 68px;
+        height: 68px;
+        border-radius: 14px;
+        background: #eff6ff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 30px;
+        flex-shrink: 0;
+    }
+
+    .dernek-kart-isim {
+        font-size: 18px;
+        font-weight: 800;
+        color: #17243b;
+        overflow-wrap: anywhere;
+    }
+
+    .dernek-durum {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        margin-top: 7px;
+    }
+
+    .dernek-aktif {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .dernek-pasif {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .dernek-bilgi {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 16px;
+    }
+
+    .dernek-bilgi-satir {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 9px 0;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 13px;
+    }
+
+        .dernek-bilgi-satir:last-child {
+            border-bottom: 0;
+        }
+
+        .dernek-bilgi-satir span {
+            color: #64748b;
+        }
+
+        .dernek-bilgi-satir strong {
+            color: #17243b;
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+
+    .dernek-kart-butonlar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: auto;
+    }
+
+        .dernek-kart-butonlar a {
+            flex: 1;
+            min-width: 120px;
+            border-radius: 10px;
+            padding: 11px;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+    .dernek-incele {
+        background: #17345c;
+        color: white;
+    }
+
+        .dernek-incele:hover {
+            background: #244a7d;
+            color: white;
+        }
+
+    .dernek-web {
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+        .dernek-web:hover {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+    @@media (max-width: 1100px) {
+        .dernek-kartlar {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 700px) {
+        .dernek-kartlar,
+        .dernek-ozet {
+            grid-template-columns: 1fr;
+        }
+    }
+
+
+    .dernek-durum-form {
+        width: 100%;
+        margin: 0;
+    }
+
+    .dernek-durum-buton {
+        width: 100%;
+        border: 0;
+        border-radius: 10px;
+        padding: 11px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+    .dernek-pasife-al {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+        .dernek-pasife-al:hover {
+            background: #fee2e2;
+        }
+
+    .dernek-aktiflestir {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+        .dernek-aktiflestir:hover {
+            background: #bbf7d0;
+        }
+
+
+    /* DERNEKNET Platform Admin - koyu tema uyarlaması */
+    .dernek-sayfa-baslik {
+        color: #f2f5fa;
+        letter-spacing: -.5px;
+    }
+
+    .dernek-sayfa-aciklama {
+        color: #a5b4c7;
+    }
+
+    .dernek-ozet-kart, .dernek-kart, .dernek-arama-alani {
+        background: #172332;
+        border: 1px solid #304256;
+        box-shadow: 0 12px 28px rgba(0,0,0,.13);
+    }
+
+    .dernek-ozet-kart {
+        position: relative;
+        overflow: hidden;
+    }
+
+        .dernek-ozet-kart::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #cba35c;
+        }
+
+        .dernek-ozet-kart:nth-child(2)::before {
+            background: #34b9ac;
+        }
+
+        .dernek-ozet-kart:nth-child(3)::before {
+            background: #d47f83;
+        }
+
+    .dernek-ozet-etiket {
+        color: #a8b7ca;
+    }
+
+    .dernek-ozet-sayi {
+        color: #f4f6fa;
+    }
+
+    .dernek-arama-alani h5 {
+        color: #f4f6fa;
+    }
+
+    .dernek-arama-alani .text-muted {
+        color: #a8b7ca !important;
+    }
+
+    .dernek-arama {
+        background: #0e1927;
+        color: #f1f5f9;
+        border: 1px solid #3a4d62;
+    }
+
+        .dernek-arama::placeholder {
+            color: #91a3b8;
+        }
+
+        .dernek-arama:focus {
+            background: #101e2d;
+            color: #fff;
+            border-color: #37bdb0;
+            box-shadow: 0 0 0 .2rem rgba(55,189,176,.14);
+        }
+
+    .dernek-kart:hover {
+        border-color: #527083;
+        box-shadow: 0 18px 36px rgba(0,0,0,.23);
+    }
+
+    .dernek-logo, .dernek-logo-yok {
+        background: #eaf0f5;
+    }
+
+    .dernek-kart-isim {
+        color: #f5f7fa;
+    }
+
+    .dernek-aktif {
+        background: rgba(52,211,153,.15);
+        color: #6ee7b7;
+    }
+
+    .dernek-pasif {
+        background: rgba(248,113,113,.14);
+        color: #fca5a5;
+    }
+
+    .dernek-bilgi {
+        background: #101b29;
+        border: 1px solid #28394b;
+    }
+
+    .dernek-bilgi-satir {
+        border-bottom-color: #29394a;
+    }
+
+        .dernek-bilgi-satir span {
+            color: #a6b5c7;
+        }
+
+        .dernek-bilgi-satir strong {
+            color: #eef3f9;
+        }
+
+    .dernek-incele {
+        background: #b99250;
+        color: #101b29;
+    }
+
+        .dernek-incele:hover {
+            background: #d5b16d;
+            color: #101b29;
+        }
+
+    .dernek-web {
+        background: rgba(45,190,178,.13);
+        color: #65e0d3;
+        border: 1px solid rgba(45,190,178,.24);
+    }
+
+        .dernek-web:hover {
+            background: rgba(45,190,178,.22);
+            color: #a3fff3;
+        }
+
+    .dernek-pasife-al {
+        background: rgba(239,93,103,.13);
+        color: #ff9fa5;
+        border: 1px solid rgba(239,93,103,.28);
+    }
+
+        .dernek-pasife-al:hover {
+            background: rgba(239,93,103,.23);
+            color: #ffd1d3;
+        }
+
+    .dernek-aktiflestir {
+        background: rgba(44,198,145,.13);
+        color: #72e9bd;
+        border: 1px solid rgba(44,198,145,.25);
+    }
+
+        .dernek-aktiflestir:hover {
+            background: rgba(44,198,145,.23);
+            color: #b1ffdf;
+        }
+
+    .dernek-arama-alani + .dernek-kartlar {
+        margin-top: 0;
+    }
+
+    #aramaSonucYok {
+        background: #172332 !important;
+        color: #c5d2e0;
+        border-color: #304256 !important;
+    }
+
+    #dernekDurumModal .modal-content {
+        background: #172332;
+        border: 1px solid #405166 !important;
+        color: #eef3f9;
+    }
+
+    #dernekDurumModal .modal-title {
+        color: #f5f7fa;
+    }
+
+    #dernekDurumModal .modal-body {
+        color: #c8d3df;
+    }
+
+    #dernekDurumModal .btn-close {
+        filter: invert(1) grayscale(100%);
+    }
+
+    #dernekDurumModal .btn-light {
+        background: #2b3a4c;
+        color: #f1f5f9;
+        border-color: #405166;
+    }
+
+        #dernekDurumModal .btn-light:hover {
+            background: #3b4c60;
+        }
+
+    .dernek-sayfa-baslik + p {
+        line-height: 1.5;
+    }
+
+    @@media (max-width: 700px) {
+        .dernek-ozet-kart, .dernek-kart {
+            padding: 18px;
+        }
+
+        .dernek-arama {
+            max-width: none;
+            width: 100%;
+        }
+
+        .dernek-arama-alani .d-flex {
+            align-items: stretch !important;
+        }
+    }
+
+</style>
+
+<!-- BAŞLIK -->
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+
+    <div>
+        <h1 class="dernek-sayfa-baslik">
+            Dernekler
+        </h1>
+
+        <p class="dernek-sayfa-aciklama mb-0">
+            Platforma kayıtlı tüm dernekleri görüntüleyin.
+        </p>
+    </div>
+
+    <a asp-area="PlatformAdmin"
+       asp-controller="Dernekler"
+       asp-action="Create"
+       class="btn btn-primary px-4 py-2">
+        <i class="bi bi-plus-circle me-2"></i>
+        Yeni Dernek Oluştur
+    </a>
+
+</div>
+
+@if (TempData["Basarili"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Basarili"]
+    </div>
+}
+
+<!-- İSTATİSTİKLER -->
+<div class="dernek-ozet">
+
+    <div class="dernek-ozet-kart">
+        <div class="dernek-ozet-etiket">
+            Toplam Dernek
+        </div>
+        <div class="dernek-ozet-sayi">
+            @dernekler.Count
+        </div>
+    </div>
+
+    <div class="dernek-ozet-kart">
+        <div class="dernek-ozet-etiket">
+            Aktif Dernek
+        </div>
+        <div class="dernek-ozet-sayi">
+            @dernekler.Count(x => x.AktifMi)
+        </div>
+    </div>
+
+    <div class="dernek-ozet-kart">
+        <div class="dernek-ozet-etiket">
+            Pasif Dernek
+        </div>
+        <div class="dernek-ozet-sayi">
+            @dernekler.Count(x => !x.AktifMi)
+        </div>
+    </div>
+
+</div>
+
+<!-- ARAMA -->
+<div class="dernek-arama-alani">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+        <div>
+            <h5 class="fw-bold mb-1">
+                Kayıtlı Dernekler
+            </h5>
+
+            <small class="text-muted">
+                @dernekler.Count dernek kayıtlı
+            </small>
+        </div>
+
+        <input id="dernekAra"
+               type="search"
+               class="form-control dernek-arama"
+               placeholder="Dernek adı ara..." />
+
+    </div>
+
+</div>
+
+<!-- DERNEK KARTLARI -->
+<div class="dernek-kartlar" id="dernekKartlar">
+
+    @foreach (var dernek in dernekler)
+    {
+        <div class="dernek-kart"
+             data-dernek-adi="@dernek.DernekAdi">
+
+            <div class="dernek-kart-ust">
+
+                @if (!string.IsNullOrWhiteSpace(dernek.LogoUrl))
+                {
+                    <img src="@dernek.LogoUrl"
+                         alt="Dernek logosu"
+                         class="dernek-logo" />
+                }
+                else
+                {
+                    <div class="dernek-logo-yok">
+                        🏛️
+                    </div>
+                }
+
+                <div>
+                    <div class="dernek-kart-isim">
+                        @dernek.DernekAdi
+                    </div>
+
+                    @if (dernek.AktifMi)
+                    {
+                        <span class="dernek-durum dernek-aktif">
+                            ● Aktif
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="dernek-durum dernek-pasif">
+                            ● Pasif
+                        </span>
+                    }
+                </div>
+
+            </div>
+
+            <div class="dernek-bilgi">
+
+                <div class="dernek-bilgi-satir">
+                    <span>Dernek No</span>
+                    <strong>#@dernek.Id</strong>
+                </div>
+
+                <div class="dernek-bilgi-satir">
+                    <span>Telefon</span>
+                    <strong>@(dernek.Telefon ?? "-")</strong>
+                </div>
+
+                <div class="dernek-bilgi-satir">
+                    <span>E-posta</span>
+                    <strong>@(dernek.Email ?? "-")</strong>
+                </div>
+
+                <div class="dernek-bilgi-satir">
+                    <span>Kayıt Tarihi</span>
+                    <strong>
+                        @dernek.KayitTarihi.ToString("dd.MM.yyyy")
+                    </strong>
+                </div>
+
+            </div>
+
+            <div class="dernek-kart-butonlar">
+
+                <a asp-area="PlatformAdmin"
+                   asp-controller="Dernekler"
+                   asp-action="Details"
+                   asp-route-id="@dernek.Id"
+                   class="dernek-incele">
+
+                    <i class="bi bi-eye me-1"></i>
+                    Derneği İncele
+
+                </a>
+
+                @if (dernek.AktifMi)
+                {
+                    <a asp-area=""
+                       asp-controller="Dernek"
+                       asp-action="Index"
+                       asp-route-id="@dernek.Id"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="dernek-web">
+
+                        <i class="bi bi-globe me-1"></i>
+                        Web Sitesi
+
+                    </a>
+                }
+
+
+                <form asp-area="PlatformAdmin"
+                      asp-controller="Dernekler"
+                      asp-action="DurumDegistir"
+                      asp-route-id="@dernek.Id"
+                      method="post"
+                      class="dernek-durum-form durum-formu"
+                      data-dernek-adi="@dernek.DernekAdi"
+                      data-yeni-durum="@(dernek.AktifMi ? "pasif" : "aktif")">
+
+                    @Html.AntiForgeryToken()
+
+                    @if (dernek.AktifMi)
+                    {
+                        <button type="submit"
+                                class="dernek-durum-buton dernek-pasife-al">
+                            <i class="bi bi-pause-circle me-1"></i>
+                            Pasife Al
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="submit"
+                                class="dernek-durum-buton dernek-aktiflestir">
+                            <i class="bi bi-check-circle me-1"></i>
+                            Aktifleştir
+                        </button>
+                    }
+                </form>
+
+
+            </div>
+
+        </div>
+    }
+
+</div>
+
+@if (!dernekler.Any())
+{
+    <div class="alert alert-info mt-4">
+        Henüz kayıtlı dernek bulunmuyor.
+    </div>
+}
+
+<div id="aramaSonucYok"
+     class="alert alert-light border mt-4"
+     style="display:none;">
+    Aramanıza uygun dernek bulunamadı.
+</div>
+
+<div class="modal fade"
+     id="dernekDurumModal"
+     tabindex="-1"
+     aria-labelledby="dernekDurumModalBaslik"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold"
+                    id="dernekDurumModalBaslik">
+                    Dernek Durumunu Değiştir
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Kapat"></button>
+            </div>
+
+            <div class="modal-body">
+                <p id="dernekDurumMesaji" class="mb-0"></p>
+            </div>
+
+            <div class="modal-footer border-0">
+                <button type="button"
+                        class="btn btn-light"
+                        data-bs-dismiss="modal">
+                    Vazgeç
+                </button>
+
+                <button type="button"
+                        id="dernekDurumOnayla"
+                        class="btn btn-primary">
+                    Onayla
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const aramaKutusu = document.getElementById("dernekAra");
+        const kartlar = document.querySelectorAll(".dernek-kart");
+        const sonucYok = document.getElementById("aramaSonucYok");
+
+        aramaKutusu.addEventListener("input", function () {
+
+            const aranan = this.value.toLocaleLowerCase("tr-TR").trim();
+            let gorunen = 0;
+
+            kartlar.forEach(function (kart) {
+
+                const ad = (kart.dataset.dernekAdi || "")
+                    .toLocaleLowerCase("tr-TR");
+
+                const eslesiyor = ad.includes(aranan);
+
+                kart.style.display = eslesiyor ? "" : "none";
+
+                if (eslesiyor) {
+                    gorunen++;
+                }
+            });
+
+            sonucYok.style.display =
+                kartlar.length > 0 && gorunen === 0
+                    ? "block"
+                    : "none";
+        });
+
+        const durumModalElement =
+            document.getElementById("dernekDurumModal");
+
+        const durumModal =
+            new bootstrap.Modal(durumModalElement);
+
+        const durumMesaji =
+            document.getElementById("dernekDurumMesaji");
+
+        const durumOnayla =
+            document.getElementById("dernekDurumOnayla");
+
+        let seciliForm = null;
+
+        document.querySelectorAll(".durum-formu")
+            .forEach(function (form) {
+
+                form.addEventListener("submit", function (event) {
+
+                    event.preventDefault();
+
+                    seciliForm = form;
+
+                    const dernekAdi = form.dataset.dernekAdi;
+                    const yeniDurum = form.dataset.yeniDurum;
+
+                    if (yeniDurum === "pasif") {
+                        durumMesaji.textContent =
+                            dernekAdi +
+                            " derneğini pasife almak istediğinize emin misiniz?";
+
+                        durumOnayla.className =
+                            "btn btn-danger";
+                    } else {
+                        durumMesaji.textContent =
+                            dernekAdi +
+                            " derneğini yeniden aktifleştirmek istiyor musunuz?";
+
+                        durumOnayla.className =
+                            "btn btn-success";
+                    }
+
+                    durumModal.show();
+                });
+            });
+
+        durumOnayla.addEventListener("click", function () {
+
+            if (!seciliForm)
+                return;
+
+            durumOnayla.disabled = true;
+
+            seciliForm.submit();
+        });
+
+
+    </script>
+}
